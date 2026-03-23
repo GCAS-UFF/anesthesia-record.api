@@ -1,2 +1,2 @@
-# anesthesia-record.api
-Aplicação para registro e gerenciamento de anestesia com integração de dados clínicos via API.
+# Anesthesia-Record Api
+API responsável pelo registro e gerenciamento de dados de anestesia, fornecendo integração e processamento de informações clínicas.
