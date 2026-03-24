@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36221.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UFF.FichaAnestesica.Domain", "UFF.Domain\UFF.FichaAnestesica.Domain.csproj", "{06417147-5183-5E6B-4E83-27005601416C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UFF.FichaAnestesica.Api", "UFF.FichaAnestesica.Api\UFF.FichaAnestesica.Api.csproj", "{DBE033F1-3AC9-7B41-29FD-75EF39BF0F0B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UFF.FichaAnestesica.AppService", "UFF.FichaAnestesica.AppService\UFF.FichaAnestesica.AppService.csproj", "{3D622799-FEE6-C728-0466-B5AC236417DB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UFF.FichaAnestesica.CrossCutting", "UFF.FichaAnestesica.CrossCutting\UFF.FichaAnestesica.CrossCutting.csproj", "{364D8B3B-6AD7-D965-22D7-AAD7755D3AB2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UFF.FichaAnestesica.Repository", "UFF.FichaAnestesica.Repository\UFF.FichaAnestesica.Repository.csproj", "{CFD22878-3D90-90DD-7252-FDD000C4442F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UFF.FichaAnestesica.Service", "UFF.FichaAnestesica.Service\UFF.FichaAnestesica.Service.csproj", "{8A39ACCB-F00D-E9FE-B8E6-BCF91A9F0702}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{06417147-5183-5E6B-4E83-27005601416C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06417147-5183-5E6B-4E83-27005601416C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06417147-5183-5E6B-4E83-27005601416C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06417147-5183-5E6B-4E83-27005601416C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DBE033F1-3AC9-7B41-29FD-75EF39BF0F0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DBE033F1-3AC9-7B41-29FD-75EF39BF0F0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DBE033F1-3AC9-7B41-29FD-75EF39BF0F0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DBE033F1-3AC9-7B41-29FD-75EF39BF0F0B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D622799-FEE6-C728-0466-B5AC236417DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D622799-FEE6-C728-0466-B5AC236417DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D622799-FEE6-C728-0466-B5AC236417DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D622799-FEE6-C728-0466-B5AC236417DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{364D8B3B-6AD7-D965-22D7-AAD7755D3AB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{364D8B3B-6AD7-D965-22D7-AAD7755D3AB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{364D8B3B-6AD7-D965-22D7-AAD7755D3AB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{364D8B3B-6AD7-D965-22D7-AAD7755D3AB2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CFD22878-3D90-90DD-7252-FDD000C4442F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFD22878-3D90-90DD-7252-FDD000C4442F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFD22878-3D90-90DD-7252-FDD000C4442F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFD22878-3D90-90DD-7252-FDD000C4442F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A39ACCB-F00D-E9FE-B8E6-BCF91A9F0702}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A39ACCB-F00D-E9FE-B8E6-BCF91A9F0702}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A39ACCB-F00D-E9FE-B8E6-BCF91A9F0702}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A39ACCB-F00D-E9FE-B8E6-BCF91A9F0702}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9E11D977-7BB2-4BC1-B082-80128B0706DA}
+	EndGlobalSection
+EndGlobal
