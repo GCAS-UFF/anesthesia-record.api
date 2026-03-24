@@ -1,0 +1,53 @@
+## 🔧 Build
+bin/
+obj/
+out/
+
+## 🧠 Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## 🧪 Testes
+TestResults/
+
+## 📦 NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+
+## 🔐 Configurações sensíveis
+appsettings.Development.json
+appsettings.*.local.json
+
+## 📁 Logs
+*.log
+logs/
+
+## 🖥️ Rider / VS Code
+.idea/
+.vscode/
+
+## 📦 Publicação
+publish/
+wwwroot/
+
+## 🗃️ Arquivos temporários
+*.tmp
+*.temp
+
+## 🧬 Entity Framework
+Migrations/*.Designer.cs
+
+## 🪟 Windows
+Thumbs.db
+Desktop.ini
+
+## 🍎 Mac
+.DS_Store
+
+## 🐧 Linux
+*~

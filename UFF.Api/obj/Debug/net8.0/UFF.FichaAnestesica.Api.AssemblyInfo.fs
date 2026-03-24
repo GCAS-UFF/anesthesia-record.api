@@ -10,7 +10,7 @@ open System.Reflection
 [<assembly: System.Reflection.AssemblyCompanyAttribute("UFF.FichaAnestesica.Api")>]
 [<assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")>]
 [<assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")>]
-[<assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+191bfbab0a372a6ea648559ea1d88e6fc66e0d71")>]
+[<assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a37dae0ed34170ef69cd50dcf95b894009a52819")>]
 [<assembly: System.Reflection.AssemblyProductAttribute("UFF.FichaAnestesica.Api")>]
 [<assembly: System.Reflection.AssemblyTitleAttribute("UFF.FichaAnestesica.Api")>]
 [<assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")>]

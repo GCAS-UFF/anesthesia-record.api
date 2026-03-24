@@ -52,6 +52,10 @@
               "target": "Package",
               "version": "[9.0.300, )",
               "generatePathProperty": true
+            },
+            "Swashbuckle.AspNetCore": {
+              "target": "Package",
+              "version": "[6.7.3, )"
             }
           },
           "imports": [
