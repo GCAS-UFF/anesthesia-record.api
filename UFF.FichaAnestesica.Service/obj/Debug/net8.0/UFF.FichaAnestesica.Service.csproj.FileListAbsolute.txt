@@ -1,0 +1,12 @@
+E:\uff_trabalhos\fa_uff\UFF.FichaAnestesica.Service\bin\Debug\net8.0\UFF.FichaAnestesica.Service.deps.json
+E:\uff_trabalhos\fa_uff\UFF.FichaAnestesica.Service\bin\Debug\net8.0\UFF.FichaAnestesica.Service.dll
+E:\uff_trabalhos\fa_uff\UFF.FichaAnestesica.Service\bin\Debug\net8.0\UFF.FichaAnestesica.Service.pdb
+E:\uff_trabalhos\fa_uff\UFF.FichaAnestesica.Service\obj\Debug\net8.0\UFF.FichaAnestesica.Service.GeneratedMSBuildEditorConfig.editorconfig
+E:\uff_trabalhos\fa_uff\UFF.FichaAnestesica.Service\obj\Debug\net8.0\UFF.FichaAnestesica.Service.AssemblyInfoInputs.cache
+E:\uff_trabalhos\fa_uff\UFF.FichaAnestesica.Service\obj\Debug\net8.0\UFF.FichaAnestesica.Service.AssemblyInfo.cs
+E:\uff_trabalhos\fa_uff\UFF.FichaAnestesica.Service\obj\Debug\net8.0\UFF.FichaAnestesica.Service.csproj.CoreCompileInputs.cache
+E:\uff_trabalhos\fa_uff\UFF.FichaAnestesica.Service\obj\Debug\net8.0\UFF.FichaAnestesica.Service.sourcelink.json
+E:\uff_trabalhos\fa_uff\UFF.FichaAnestesica.Service\obj\Debug\net8.0\UFF.FichaAnestesica.Service.dll
+E:\uff_trabalhos\fa_uff\UFF.FichaAnestesica.Service\obj\Debug\net8.0\refint\UFF.FichaAnestesica.Service.dll
+E:\uff_trabalhos\fa_uff\UFF.FichaAnestesica.Service\obj\Debug\net8.0\UFF.FichaAnestesica.Service.pdb
+E:\uff_trabalhos\fa_uff\UFF.FichaAnestesica.Service\obj\Debug\net8.0\ref\UFF.FichaAnestesica.Service.dll

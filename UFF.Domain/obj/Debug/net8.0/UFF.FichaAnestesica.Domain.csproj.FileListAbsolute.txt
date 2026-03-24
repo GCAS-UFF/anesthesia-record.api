@@ -1,0 +1,12 @@
+E:\uff_trabalhos\fa_uff\UFF.Domain\bin\Debug\net8.0\UFF.FichaAnestesica.Domain.deps.json
+E:\uff_trabalhos\fa_uff\UFF.Domain\bin\Debug\net8.0\UFF.FichaAnestesica.Domain.dll
+E:\uff_trabalhos\fa_uff\UFF.Domain\bin\Debug\net8.0\UFF.FichaAnestesica.Domain.pdb
+E:\uff_trabalhos\fa_uff\UFF.Domain\obj\Debug\net8.0\UFF.FichaAnestesica.Domain.GeneratedMSBuildEditorConfig.editorconfig
+E:\uff_trabalhos\fa_uff\UFF.Domain\obj\Debug\net8.0\UFF.FichaAnestesica.Domain.AssemblyInfoInputs.cache
+E:\uff_trabalhos\fa_uff\UFF.Domain\obj\Debug\net8.0\UFF.FichaAnestesica.Domain.AssemblyInfo.cs
+E:\uff_trabalhos\fa_uff\UFF.Domain\obj\Debug\net8.0\UFF.FichaAnestesica.Domain.csproj.CoreCompileInputs.cache
+E:\uff_trabalhos\fa_uff\UFF.Domain\obj\Debug\net8.0\UFF.FichaAnestesica.Domain.sourcelink.json
+E:\uff_trabalhos\fa_uff\UFF.Domain\obj\Debug\net8.0\UFF.FichaAnestesica.Domain.dll
+E:\uff_trabalhos\fa_uff\UFF.Domain\obj\Debug\net8.0\refint\UFF.FichaAnestesica.Domain.dll
+E:\uff_trabalhos\fa_uff\UFF.Domain\obj\Debug\net8.0\UFF.FichaAnestesica.Domain.pdb
+E:\uff_trabalhos\fa_uff\UFF.Domain\obj\Debug\net8.0\ref\UFF.FichaAnestesica.Domain.dll
