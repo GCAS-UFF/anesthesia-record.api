@@ -1,8 +1,18 @@
 using Microsoft.OpenApi.Models;
+using Microsoft.EntityFrameworkCore;
+using UFF.FichaAnestesica.Infra.Context;
+using UFF.FichaAnestesica.AppService.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddDbContext<DbiUffFichaAnestesicaContext>(options =>
+{
+    var connectionString = builder.Configuration.GetConnectionString("postgresConnection");
+    options.UseNpgsql(connectionString);
+});
+
 // Add services to the container.
+builder.Services.AddScoped<SurgeriesAppService>();
 
 builder.Services.AddControllers();
 builder.Services.AddHttpClient(); // Adicionado para consumirmos a API mockada do hospital em PHP

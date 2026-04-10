@@ -1,0 +1,28 @@
+                    var medicalRecord = patientElement.GetProperty("numero_prontuario").GetString() ?? string.Empty;
+                    var name = patientElement.GetProperty("nome_completo").GetString() ?? string.Empty;
+                    var birthDateStr = patientElement.GetProperty("data_nascimento").GetString() ?? string.Empty;
+                    
+                    DateTime.TryParse(birthDateStr, out DateTime birthDate);
+
+                    // EF Core Upsert Logic for Patient: Check if exists to avoid duplication
+                    var patient = await _context.Patient
+                        .FirstOrDefaultAsync(p => p.MedicalRecord == medicalRecord);
+                        
+                    if (patient == null) 
+                    { 
+                        patient = new Patient 
+                        { 
+                            Id = Guid.NewGuid(), 
+                            MedicalRecord = medicalRecord,
+                            Name = name,
+                            BirthDate = birthDate.ToUniversalTime(),
+                            Gender = "N�o Informado" // fallback since mock doesn't seem to send it right away
+                        };
+                        _context.Patient.Add(patient);
+                    }
+                    else 
+                    {
+                        patient.Name = name;
+                        patient.BirthDate = birthDate.ToUniversalTime();
+                        _context.Patient.Update(patient);
+                    }
