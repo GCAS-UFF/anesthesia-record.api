@@ -1,41 +1,42 @@
-# Ficha Anestésica - API (BFF)
+# Ficha Anestï¿½sica - API (BFF)
 
-API responsável pelo registro e gerenciamento de dados de anestesia, fornecendo integração e processamento de informações clínicas.
+API responsï¿½vel pelo registro e gerenciamento de dados de anestesia, fornecendo integraï¿½ï¿½o e processamento de informaï¿½ï¿½es clï¿½nicas.
 
 ## ?? Sobre o Projeto
-Este repositório contém o **Backend For Frontend (BFF)** do aplicativo "Ficha Anestésica", garantindo que o front-end receba dados limpos, tipados e adaptados para o uso _offline-first_. 
+Este repositï¿½rio contï¿½m o **Backend For Frontend (BFF)** do aplicativo "Ficha Anestï¿½sica", garantindo que o front-end receba dados limpos, tipados e adaptados para o uso _offline-first_. 
 
-O backend é inteiramente construído em **C# / .NET 8**, utilizando padrões robustos como Repository Pattern e CQRS (via AppServices/Commands/Queries), e se comunica nativamente com bancos de dados relacionais avançados (PostgreSQL via Supabase).
+O backend ï¿½ inteiramente construï¿½do em **C# / .NET 8**, utilizando padrï¿½es robustos como Repository Pattern e CQRS (via AppServices/Commands/Queries), e se comunica nativamente com bancos de dados relacionais avanï¿½ados (PostgreSQL via Supabase).
 
-Esta API intermediária consome e converte os dados provenientes da rede central/defasada do hospital (HUAP), que atualmente conta com um mock construído em PHP (Laravel).
+Esta API intermediï¿½ria consome e converte os dados provenientes da rede central/defasada do hospital (HUAP), que atualmente conta com um mock construï¿½do em PHP (Laravel).
 
-## ??? Stack Tecnológico
+## ??? Stack Tecnolï¿½gico
 * **Framework:** C# / ASP.NET Core 8.0 (.NET 8)
 * **ORM:** Entity Framework Core
 * **Banco de Dados:** PostgreSQL (Supabase)
 * **Arquitetura:** DDD (Domain-Driven Design focado), CQRS, Repository Pattern
-* **Integração/Http:** IHttpClientFactory para varredura e parse de sistemas legados.
+* **Integraï¿½ï¿½o/Http:** IHttpClientFactory para varredura e parse de sistemas legados.
 
 ## ?? Como Executar Localmente
 
-### Pré-requisitos
+### Prï¿½-requisitos
 * Ter o **.NET SDK 8.0.x** instalado.
-* Observação: O repositório possui um arquivo global.json que trava a execução estritamente para ferramentas do .NET 8 (Ex: 8.0.419), a fim de manter consistência de ambiente entre os desenvolvedores.
+* Observaï¿½ï¿½o: O repositï¿½rio possui um arquivo global.json que trava a execuï¿½ï¿½o estritamente para ferramentas do .NET 8 (Ex: 8.0.419), a fim de manter consistï¿½ncia de ambiente entre os desenvolvedores.
 
 ### Passos
-1. Clone ou baixe o repositório.
-2. Navegue via terminal até a raiz do projeto (onde está o .sln ou em UFF.FichaAnestesica.Api/).
+1. Clone ou baixe o repositï¿½rio.
+2. Navegue via terminal atï¿½ a raiz do projeto (onde estï¿½ o .sln ou em UFF.FichaAnestesica.Api/).
 3. (Opcional) Restaure os pacotes:
    dotnet restore
 4. Navegue para a pasta da API e inicie o projeto no modo HTTP:
    cd UFF.FichaAnestesica.Api
    dotnet run --launch-profile "http"
-5. Acesse o **Swagger** gerado automaticamente para visualizar e testar os _endpoints_ nativos através do link:
+5. Acesse o **Swagger** gerado automaticamente para visualizar e testar os _endpoints_ nativos atravï¿½s do link:
    ?? http://localhost:5211/swagger
 
 > **Nota sobre o Mock do PHP:**  
-> A rota de listagem de cirurgias diárias (GET /api/Cirurgias/hoje) bate em um serviço externo localizado em localhost:8000. Portanto, certifique-se de que a API simulada do Hospital (huap-api-mock) esteja rodando em paralelo durante seus testes.
+> A rota de listagem de cirurgias diï¿½rias (GET /api/Cirurgias/hoje) bate em um serviï¿½o externo localizado em localhost:8000. Portanto, certifique-se de que a API simulada do Hospital (huap-api-mock) esteja rodando em paralelo durante seus testes.
 
-## ?? Cartões Entregues Recentes / Changelog
-- **[FA-013 / FA-014]**: Configuração base, appsettings e serviços base com Entity Framework (Bruno Peçanha).
-- **[FA-026]**: Modelagem primária das entidades físicas do Domínio (Paciente, CasoCirurgico gerando UUIDs Guid) e criação do Endpoint CirurgiasController consumindo o mock do hospital via HTTP Client (Mateus).
+## ?? Cartï¿½es Entregues Recentes / Changelog
+- **[FA-013 / FA-014]**: Configuraï¿½ï¿½o base, appsettings e serviï¿½os base com Entity Framework (Bruno Peï¿½anha).
+- **[FA-025]**: CriaÃ§Ã£o do BFF (C#) com IntegraÃ§Ã£o Ã  API do HUAP (PHP) via HTTP Client (Mateus).
+- **[FA-026]**: RefatoraÃ§Ã£o CQRS e PersistÃªncia de Cirurgias com PostgreSQL via EF Core (Mateus).
