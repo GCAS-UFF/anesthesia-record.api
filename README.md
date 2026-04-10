@@ -1,58 +1,41 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Ficha Anestésica - API (BFF)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+API responsável pelo registro e gerenciamento de dados de anestesia, fornecendo integração e processamento de informações clínicas.
 
-## About Laravel
+## ?? Sobre o Projeto
+Este repositório contém o **Backend For Frontend (BFF)** do aplicativo "Ficha Anestésica", garantindo que o front-end receba dados limpos, tipados e adaptados para o uso _offline-first_. 
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+O backend é inteiramente construído em **C# / .NET 8**, utilizando padrões robustos como Repository Pattern e CQRS (via AppServices/Commands/Queries), e se comunica nativamente com bancos de dados relacionais avançados (PostgreSQL via Supabase).
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Esta API intermediária consome e converte os dados provenientes da rede central/defasada do hospital (HUAP), que atualmente conta com um mock construído em PHP (Laravel).
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## ??? Stack Tecnológico
+* **Framework:** C# / ASP.NET Core 8.0 (.NET 8)
+* **ORM:** Entity Framework Core
+* **Banco de Dados:** PostgreSQL (Supabase)
+* **Arquitetura:** DDD (Domain-Driven Design focado), CQRS, Repository Pattern
+* **Integração/Http:** IHttpClientFactory para varredura e parse de sistemas legados.
 
-## Learning Laravel
+## ?? Como Executar Localmente
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Pré-requisitos
+* Ter o **.NET SDK 8.0.x** instalado.
+* Observação: O repositório possui um arquivo global.json que trava a execução estritamente para ferramentas do .NET 8 (Ex: 8.0.419), a fim de manter consistência de ambiente entre os desenvolvedores.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Passos
+1. Clone ou baixe o repositório.
+2. Navegue via terminal até a raiz do projeto (onde está o .sln ou em UFF.FichaAnestesica.Api/).
+3. (Opcional) Restaure os pacotes:
+   dotnet restore
+4. Navegue para a pasta da API e inicie o projeto no modo HTTP:
+   cd UFF.FichaAnestesica.Api
+   dotnet run --launch-profile "http"
+5. Acesse o **Swagger** gerado automaticamente para visualizar e testar os _endpoints_ nativos através do link:
+   ?? http://localhost:5211/swagger
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+> **Nota sobre o Mock do PHP:**  
+> A rota de listagem de cirurgias diárias (GET /api/Cirurgias/hoje) bate em um serviço externo localizado em localhost:8000. Portanto, certifique-se de que a API simulada do Hospital (huap-api-mock) esteja rodando em paralelo durante seus testes.
 
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
-```
-
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## ?? Cartões Entregues Recentes / Changelog
+- **[FA-013 / FA-014]**: Configuração base, appsettings e serviços base com Entity Framework (Bruno Peçanha).
+- **[FA-026]**: Modelagem primária das entidades físicas do Domínio (Paciente, CasoCirurgico gerando UUIDs Guid) e criação do Endpoint CirurgiasController consumindo o mock do hospital via HTTP Client (Mateus).
