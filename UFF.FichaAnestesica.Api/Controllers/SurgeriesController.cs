@@ -5,7 +5,7 @@ using UFF.FichaAnestesica.Domain.Dto;
 namespace UFF.FichaAnestesica.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/surgeries")]
     public class SurgeriesController : ControllerBase
     {
         private readonly IHttpClientFactory _httpClientFactory;
