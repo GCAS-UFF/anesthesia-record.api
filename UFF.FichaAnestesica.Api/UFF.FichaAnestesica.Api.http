@@ -1,0 +1,6 @@
+@UFF.FichaAnestesica.Api_HostAddress = http://localhost:5211
+
+GET {{UFF.FichaAnestesica.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

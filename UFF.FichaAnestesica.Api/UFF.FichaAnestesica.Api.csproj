@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>17272d48-7baf-4bf8-8fd2-749f4d07b22d</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Program.cs~RF36c88f4a.TMP" />
+    <None Remove="Program.cs~RF498b2fc.TMP" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.4">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\UFF.Domain\UFF.FichaAnestesica.Domain.csproj" />
+    <ProjectReference Include="..\UFF.FichaAnestesica.Repository\UFF.FichaAnestesica.Infra.csproj" />
+    <ProjectReference Include="..\UFF.FichaAnestesica.AppService\UFF.FichaAnestesica.AppService.csproj" />
+  </ItemGroup>
+
+</Project>
