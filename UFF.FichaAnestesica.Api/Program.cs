@@ -38,12 +38,11 @@ var app = builder.Build();
 
 app.UseMiddleware<ExceptionMiddleware>(); // Adiciona para padronizar a centralizar as possíveis exceções que podem acontecer
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.MapGet("/", () => "API rodando 🚀");
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
 
 app.UseHttpsRedirection();
 
