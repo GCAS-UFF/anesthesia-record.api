@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using UFF.FichaAnestesica.AppService.Services;
-using UFF.FichaAnestesica.Domain.Dto;
+using UFF.FichaAnestesica.Domain.Enums;
+using UFF.FichaAnestesica.Domain.Services;
 
 namespace UFF.FichaAnestesica.Api.Controllers
 {
@@ -8,25 +8,18 @@ namespace UFF.FichaAnestesica.Api.Controllers
     [Route("api/surgeries")]
     public class SurgeriesController : ControllerBase
     {
-        private readonly SurgeriesAppService _surgeriesAppService;
+        private readonly ISurgeryService _surgeriesAppService;
 
-        public SurgeriesController(SurgeriesAppService surgeriesAppService)
+        public SurgeriesController(ISurgeryService surgeriesAppService)
         {
             _surgeriesAppService = surgeriesAppService;
         }
 
-        [HttpGet("today")]
-        public async Task<IActionResult> GetSurgeriesToday()
+        [HttpGet("{date}/{status}")]
+        public async Task<IActionResult> GetSurgeriesToday([FromRoute] DateTime date, [FromRoute] SurgeryStatus status)
         {
-            try
-            {
-                var mappedList = await _surgeriesAppService.SyncAndGetSurgeriesTodayAsync();
-                return Ok(mappedList);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Failed to access or map data from HUAP.", details = ex.Message });
-            }
+            var mappedList = await _surgeriesAppService.GetSurgeriesAsync(date, status);
+            return Ok(mappedList);
         }
     }
 }

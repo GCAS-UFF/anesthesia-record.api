@@ -4,8 +4,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
 {
     public class User : Base
     {
-        // EntityFramework requires a parameterless constructor
-        protected User() { }
+        private User() { }
 
         public User(UserDto userDto)
         {

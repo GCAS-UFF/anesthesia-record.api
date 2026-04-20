@@ -1,9 +1,8 @@
-using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
-using UFF.FichaAnestesica.Infra.Context;
-using UFF.FichaAnestesica.AppService.Services;
-using UFF.FichaAnestesica.Infra.DependencyInjection;
+using Microsoft.OpenApi.Models;
 using UFF.FichaAnestesica.Api.Middleware;
+using UFF.FichaAnestesica.Infra.Context;
+using UFF.FichaAnestesica.Infra.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,10 +13,6 @@ builder.Services.AddDbContext<DbiUffFichaAnestesicaContext>(options =>
 });
 
 builder.Services.RegisterServices();
-
-// Add services to the container.
-builder.Services.AddScoped<SurgeriesAppService>();
-
 
 builder.Services.AddControllers();
 builder.Services.AddHttpClient(); // Adicionado para consumirmos a API mockada do hospital em PHP

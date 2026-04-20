@@ -1,4 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
+using UFF.FichaAnestesica.Domain.Services;
+using UFF.FichaAnestesica.Service.Services;
+
 
 namespace UFF.FichaAnestesica.Infra.DependencyInjection
 {
@@ -6,7 +9,7 @@ namespace UFF.FichaAnestesica.Infra.DependencyInjection
     {
         public static IServiceCollection RegisterServices(this IServiceCollection services)
         {
-            //services.AddScoped<IPatientService, PatientService>();
+            services.AddScoped<ISurgeryService, SurgeryService>();
 
             return services;
         }

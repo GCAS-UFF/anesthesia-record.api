@@ -5,7 +5,9 @@ namespace UFF.FichaAnestesica.Infra.Context
 {
     public interface IDbiUffFichaAnestesicaContext
     {
-        DbSet<User> User { get; }     
+        DbSet<User> User { get; }
+        DbSet<Surgery> Surgery { get; }
+        DbSet<Patient> Patient { get; }
 
         int SaveChanges();
     }

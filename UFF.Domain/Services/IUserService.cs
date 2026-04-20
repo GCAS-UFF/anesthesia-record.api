@@ -1,6 +1,6 @@
 ﻿namespace UFF.FichaAnestesica.Domain.Services
 {
-    public class UserService
+    public interface IUserService
     {
     }
 }
