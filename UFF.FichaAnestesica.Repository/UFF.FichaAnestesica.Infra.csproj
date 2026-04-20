@@ -7,8 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="EntityConfig\" />
-    <Folder Include="Repositories\" />
+    <None Remove="DependencyInjection\ServiceExtensions.cs~RFf2095d6.TMP" />
+    <None Remove="DependencyInjection\ServiceExtensions.cs~RFf4120e4.TMP" />
+    <None Remove="Repositories\SurgeriesRepository.cs~RFf4fef99.TMP" />
   </ItemGroup>
 
   <ItemGroup>
@@ -17,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\UFF.Domain\UFF.FichaAnestesica.Domain.csproj" />
+    <ProjectReference Include="..\UFF.FichaAnestesica.AppService\UFF.FichaAnestesica.Service.csproj" />
     <ProjectReference Include="..\UFF.FichaAnestesica.CrossCutting\UFF.FichaAnestesica.CrossCutting.csproj" />
   </ItemGroup>
 

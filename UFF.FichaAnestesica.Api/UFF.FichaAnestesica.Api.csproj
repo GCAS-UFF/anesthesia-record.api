@@ -24,7 +24,6 @@
   <ItemGroup>
     <ProjectReference Include="..\UFF.Domain\UFF.FichaAnestesica.Domain.csproj" />
     <ProjectReference Include="..\UFF.FichaAnestesica.Repository\UFF.FichaAnestesica.Infra.csproj" />
-    <ProjectReference Include="..\UFF.FichaAnestesica.AppService\UFF.FichaAnestesica.AppService.csproj" />
   </ItemGroup>
 
 </Project>

@@ -7,13 +7,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UFF.FichaAnestesica.Domain"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UFF.FichaAnestesica.Api", "UFF.FichaAnestesica.Api\UFF.FichaAnestesica.Api.csproj", "{DBE033F1-3AC9-7B41-29FD-75EF39BF0F0B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UFF.FichaAnestesica.AppService", "UFF.FichaAnestesica.AppService\UFF.FichaAnestesica.AppService.csproj", "{3D622799-FEE6-C728-0466-B5AC236417DB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UFF.FichaAnestesica.Service", "UFF.FichaAnestesica.AppService\UFF.FichaAnestesica.Service.csproj", "{3D622799-FEE6-C728-0466-B5AC236417DB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UFF.FichaAnestesica.CrossCutting", "UFF.FichaAnestesica.CrossCutting\UFF.FichaAnestesica.CrossCutting.csproj", "{364D8B3B-6AD7-D965-22D7-AAD7755D3AB2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UFF.FichaAnestesica.Infra", "UFF.FichaAnestesica.Repository\UFF.FichaAnestesica.Infra.csproj", "{CFD22878-3D90-90DD-7252-FDD000C4442F}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UFF.FichaAnestesica.Service", "UFF.FichaAnestesica.Service\UFF.FichaAnestesica.Service.csproj", "{8A39ACCB-F00D-E9FE-B8E6-BCF91A9F0702}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UFF.FichaAnestesica.Test", "UFF.FichaAnestesica.Test\UFF.FichaAnestesica.Test.csproj", "{32924526-7541-4B50-AED0-AEDC3F1FB361}"
 EndProject
@@ -43,10 +41,6 @@ Global
 		{CFD22878-3D90-90DD-7252-FDD000C4442F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CFD22878-3D90-90DD-7252-FDD000C4442F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CFD22878-3D90-90DD-7252-FDD000C4442F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8A39ACCB-F00D-E9FE-B8E6-BCF91A9F0702}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8A39ACCB-F00D-E9FE-B8E6-BCF91A9F0702}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8A39ACCB-F00D-E9FE-B8E6-BCF91A9F0702}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8A39ACCB-F00D-E9FE-B8E6-BCF91A9F0702}.Release|Any CPU.Build.0 = Release|Any CPU
 		{32924526-7541-4B50-AED0-AEDC3F1FB361}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{32924526-7541-4B50-AED0-AEDC3F1FB361}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{32924526-7541-4B50-AED0-AEDC3F1FB361}.Release|Any CPU.ActiveCfg = Release|Any CPU

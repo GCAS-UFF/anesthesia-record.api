@@ -13,7 +13,7 @@ namespace UFF.FichaAnestesica.Infra.Context
 
         public DbSet<User> User { get; set; }
         public DbSet<Patient> Patient { get; set; }
-        public DbSet<SurgicalCase> SurgicalCase { get; set; }
+        public DbSet<Surgery> Surgery { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

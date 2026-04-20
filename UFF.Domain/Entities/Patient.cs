@@ -1,17 +1,22 @@
-using System;
+using UFF.FichaAnestesica.Domain.Enums;
 
 namespace UFF.FichaAnestesica.Domain.Entities
 {
     public class Patient : Base
     {
-        public Patient() { }
+        private Patient()
+        {
+        }
 
-        public string ExternalIdHuap { get; set; } = string.Empty;
-        public string MedicalRecord { get; set; } = string.Empty;
-        public string Name { get; set; } = string.Empty;
+        public string MedicalRecordNumber { get; set; }
+        public string FullName { get; set; }
         public DateTime BirthDate { get; set; }
-        public string Gender { get; set; } = string.Empty;
-        public float? WeightKg { get; set; }
-        public float? HeightCm { get; set; }
+        public GenderEnum Gender { get; set; }
+        public double WeightKg { get; set; }
+        public int HeightCm { get; set; }
+
+        public CurrentLocation CurrentLocation { get; set; }
+
+        public List<Surgery> Surgeries { get; set; }
     }
 }
