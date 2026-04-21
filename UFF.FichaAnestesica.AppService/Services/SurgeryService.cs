@@ -1,174 +1,245 @@
-using UFF.FichaAnestesica.Domain.Dto;
+ï»¿using UFF.FichaAnestesica.Domain.Dto;
+using UFF.FichaAnestesica.Domain.Entities;
 using UFF.FichaAnestesica.Domain.Enums;
+using UFF.FichaAnestesica.Domain.Extensions;
+using UFF.FichaAnestesica.Domain.Repositories;
+using UFF.FichaAnestesica.Domain.Repositories.ReadOnly;
+using UFF.FichaAnestesica.Domain.Response;
 using UFF.FichaAnestesica.Domain.Services;
 
 namespace UFF.FichaAnestesica.Service.Services
 {
     public class SurgeryService : ISurgeryService
-    {     
-        public async Task<IEnumerable<SurgeryListDto>> GetSurgeriesAsync(DateTime date, SurgeryStatus status)
+    {
+        private readonly IHospitalReadRepository _hospitalReadRepository;
+        private readonly ISurgeryRepository _surgeryRepository;
+
+        public SurgeryService(
+            IHospitalReadRepository hospitalReadRepository,
+            ISurgeryRepository surgeryRepository)
         {
-            return null;
+            _hospitalReadRepository = hospitalReadRepository;
+            _surgeryRepository = surgeryRepository;
+        }
 
-            //var client = _httpClientFactory.CreateClient();
-            //var response = await client.GetAsync("http://127.0.0.1:8000/api/cirurgias/hoje");
+        public async Task<PagedResponse<PatientSurgeryResponse>> GetPatientsWithSurgeriesAsync(DateTime? date, SurgeryStatus? status, int page = 1, int size = 10)
+        {
+            var filterDate = date ?? DateTime.UtcNow;
 
-            //if (!response.IsSuccessStatusCode)
-            //{
-            //    throw new Exception("Error fetching data from HUAP.");
-            //}
+            var hospitalData = await _hospitalReadRepository.GetSurgeriesFromHospitalAsync(filterDate, status, page, size);
 
-            //var content = await response.Content.ReadAsStringAsync();
-            //using var jsonDoc = JsonDocument.Parse(content);
-            //var root = jsonDoc.RootElement;
-            
-            //var mappedList = new List<SurgeryListDto>();
+            if (hospitalData.Data == null || !hospitalData.Data.Any())
+            {
+                return new PagedResponse<PatientSurgeryResponse>
+                {
+                    Data = new List<PatientSurgeryResponse>(),
+                    Page = page,
+                    PageSize = size,
+                    TotalItems = hospitalData.TotalItems
+                };
+            }
 
-            //if (root.TryGetProperty("pacientes", out var patientsElement))
-            //{
-            //    foreach (var patientElement in patientsElement.EnumerateArray())
-            //    {
-            //        // Map Patient
-            //        var medicalRecord = patientElement.GetProperty("numero_prontuario").GetString() ?? string.Empty;
-            //        var name = patientElement.GetProperty("nome_completo").GetString() ?? string.Empty;
-            //        var birthDateStr = patientElement.GetProperty("data_nascimento").GetString() ?? string.Empty;
-                    
-            //        var externalIdPatient = patientElement.TryGetProperty("id", out var pId) ? pId.GetString() ?? "" : "";
-            //        var gender = patientElement.TryGetProperty("sexo", out var g) ? g.GetString() ?? "Não Informado" : "Não Informado";
-                    
-            //        float? weight = null;
-            //        if (patientElement.TryGetProperty("peso_kg", out var w) && w.ValueKind == JsonValueKind.Number)
-            //            weight = (float)w.GetDouble();
-                        
-            //        float? height = null;
-            //        if (patientElement.TryGetProperty("altura_cm", out var h) && h.ValueKind == JsonValueKind.Number)
-            //            height = (float)h.GetDouble();
+            var patients = MapToPatientEntities(hospitalData.Data);
 
-            //        DateTime.TryParse(birthDateStr, out DateTime birthDate);
+            await _surgeryRepository.AddOrUpdatePatientsAsync(patients);
 
-            //        // EF Core Upsert Logic for Patient: Check if exists to avoid duplication
-            //        var patient = await _context.Patient
-            //            .FirstOrDefaultAsync(p => p.MedicalRecord == medicalRecord);
-                        
-            //        if (patient == null) 
-            //        { 
-            //            patient = new Patient 
-            //            { 
-            //                Id = Guid.NewGuid(), 
-            //                ExternalIdHuap = externalIdPatient,
-            //                MedicalRecord = medicalRecord,
-            //                Name = name,
-            //                BirthDate = birthDate.ToUniversalTime(),
-            //                Gender = gender,
-            //                WeightKg = weight,
-            //                HeightCm = height
-            //            };
-            //            _context.Patient.Add(patient);
-            //        }
-            //        else 
-            //        {
-            //            patient.ExternalIdHuap = externalIdPatient;
-            //            patient.Name = name;
-            //            patient.BirthDate = birthDate.ToUniversalTime();
-            //            patient.Gender = gender;
-            //            patient.WeightKg = weight;
-            //            patient.HeightCm = height;
-            //            _context.Patient.Update(patient);
-            //        }
-            //        // Save immediately to get Patient ID for Foreign Key later
-            //        await _context.SaveChangesAsync();
+            var savedPatients = await _surgeryRepository.GetPatientsWithSurgeriesAsync(filterDate, status);
 
-            //        if (patientElement.TryGetProperty("cirurgias", out var surgeriesElement))
-            //        {
-            //            foreach (var surgeryElement in surgeriesElement.EnumerateArray())
-            //            {
-            //                // Map Surgery (SurgicalCase)
-            //                var externalId = surgeryElement.GetProperty("id").ToString();
-            //                var statusPhp = surgeryElement.GetProperty("status_cirurgia").GetString() ?? "espera";
-            //                var mappedStatus = statusPhp.ToLower() == "agendada" ? "waiting" : statusPhp;
-            //                var room = surgeryElement.GetProperty("local").GetProperty("sala").GetString() ?? "";
-                            
-            //                var bed = "";
-            //                if (patientElement.TryGetProperty("localizacao_atual", out var localAtual) && 
-            //                    localAtual.TryGetProperty("leito", out var leitoProp))
-            //                {
-            //                    bed = leitoProp.GetString() ?? "";
-            //                }
-                            
-            //                var surgeon = "";
-            //                var specialty = "";
-            //                if (surgeryElement.TryGetProperty("equipe_medica", out var team))
-            //                {
-            //                    surgeon = team.GetProperty("cirurgiao_principal").GetString() ?? "";
-            //                    specialty = team.GetProperty("cirurgiao_especialidade").GetString() ?? "";
-            //                }
-                            
-            //                string procedure = "";
-            //                if (surgeryElement.TryGetProperty("procedimentos", out var procedures))
-            //                {
-            //                    foreach (var proc in procedures.EnumerateArray())
-            //                    {
-            //                        if (proc.TryGetProperty("principal", out var isPrincipal) && isPrincipal.GetBoolean())
-            //                        {
-            //                            procedure = proc.GetProperty("descricao").GetString() ?? "";
-            //                            break;
-            //                        }
-            //                    }
-            //                }
+            var patientsList = savedPatients.ToList();
+            patientsList = ApplyOrdering(patientsList);
 
-            //                // EF Core Upsert Logic for SurgicalCase based on External API ID
-            //                var surgicalCase = await _context.SurgicalCase
-            //                    .FirstOrDefaultAsync(s => s.ExternalIdHuap == externalId);
-                                
-            //                if (surgicalCase == null)
-            //                {
-            //                    surgicalCase = new SurgicalCase 
-            //                    { 
-            //                        Id = Guid.NewGuid(), 
-            //                        ExternalIdHuap = externalId,
-            //                        PatientId = patient.Id,
-            //                        ProposedProcedure = procedure,
-            //                        Room = room,
-            //                        Bed = bed,
-            //                        Status = mappedStatus,
-            //                        Surgeon = surgeon,
-            //                        Specialty = specialty,
-            //                        SurgeryDate = DateTime.UtcNow.Date
-            //                    };
-            //                    _context.SurgicalCase.Add(surgicalCase);
-            //                }
-            //                else 
-            //                {
-            //                    surgicalCase.ProposedProcedure = procedure;
-            //                    surgicalCase.Room = room;
-            //                    surgicalCase.Bed = bed;
-            //                    surgicalCase.Status = mappedStatus;
-            //                    surgicalCase.Surgeon = surgeon;
-            //                    surgicalCase.Specialty = specialty;
-            //                    surgicalCase.SurgeryDate = DateTime.UtcNow.Date;
-            //                    _context.SurgicalCase.Update(surgicalCase);
-            //                }
+            var totalCount = patientsList.Count;
+            var totalPages = (int)Math.Ceiling(totalCount / (double)size);
 
-            //                // Push to Frontend view list
-            //                mappedList.Add(new SurgeryListDto
-            //                {
-            //                    Id = surgicalCase.Id,
-            //                    Name = patient.Name,
-            //                    MedicalRecord = patient.MedicalRecord,
-            //                    BirthDate = birthDateStr,
-            //                    Room = surgicalCase.Room,
-            //                    Procedure = surgicalCase.ProposedProcedure,
-            //                    Status = surgicalCase.Status
-            //                });
-            //            }
-            //        }
-            //    }
-            //}
+            var pagedPatients = patientsList
+                .Skip((page - 1) * size)
+                .Take(size)
+                .ToList();
 
-            //await _context.SaveChangesAsync();
-            //return mappedList;
+            var responseData = MapToResponse(pagedPatients);
+
+            return new PagedResponse<PatientSurgeryResponse>
+            {
+                Data = responseData,
+                Page = page,
+                PageSize = size,
+                TotalItems = hospitalData.TotalItems
+            };
+        }
+
+        private List<Patient> ApplyOrdering(List<Patient> patients, bool ascending = true, string orderBy = "surgerydate")
+        {
+            return orderBy?.ToLower() switch
+            {
+                "fullname" => ascending
+                    ? patients.OrderBy(p => p.FullName).ToList()
+                    : patients.OrderByDescending(p => p.FullName).ToList(),
+                "medicalrecordnumber" => ascending
+                    ? patients.OrderBy(p => p.MedicalRecordNumber).ToList()
+                    : patients.OrderByDescending(p => p.MedicalRecordNumber).ToList(),
+                "birthdate" => ascending
+                    ? patients.OrderBy(p => p.BirthDate).ToList()
+                    : patients.OrderByDescending(p => p.BirthDate).ToList(),
+                "surgeriescount" => ascending
+                    ? patients.OrderBy(p => p.Surgeries.Count).ToList()
+                    : patients.OrderByDescending(p => p.Surgeries.Count).ToList(),
+                "surgerydate" => ascending
+                    ? patients.OrderBy(p => p.Surgeries.Any() ? p.Surgeries.Min(s => s.SurgeryDate) : DateTime.MaxValue).ToList()
+                    : patients.OrderByDescending(p => p.Surgeries.Any() ? p.Surgeries.Max(s => s.SurgeryDate) : DateTime.MinValue).ToList(),
+                _ => ascending
+                    ? patients.OrderBy(p => p.FullName).ToList()
+                    : patients.OrderByDescending(p => p.FullName).ToList()
+            };
+        }
+        private List<Patient> MapToPatientEntities(IEnumerable<PatientViewDto> viewData)
+        {
+            var patientsDict = new Dictionary<string, Patient>();
+
+            foreach (var item in viewData)
+            {
+                if (string.IsNullOrEmpty(item.Id))
+                    continue;
+
+                if (!patientsDict.TryGetValue(item.Id, out var patient))
+                {
+                    var unit = string.IsNullOrEmpty(item.UnitCode)
+                        ? null
+                        : Unit.Create(item.UnitCode, item.UnitDescription);
+
+                    var currentLocation = CurrentLocation.Create(
+                        item.Bed,
+                        item.Floor,
+                        item.Room,
+                        unit
+                    );
+
+                    patient = Patient.Create(
+                        item.Id,
+                        item.MedicalRecordNumber,
+                        item.FullName,
+                        item.BirthDate,
+                        item.Gender == "M" ? GenderEnum.Male : GenderEnum.Female,
+                        item.WeightKg,
+                        item.HeightCm,
+                        currentLocation
+                    );
+
+                    patientsDict[item.Id] = patient;
+                }
+
+                if (!string.IsNullOrEmpty(item.SurgeryId))
+                {
+                    var surgery = patient.Surgeries
+                        .FirstOrDefault(s => s.PatientId == item.Id);
+
+                    if (surgery == null)
+                    {
+                        var specialty = string.IsNullOrEmpty(item.SpecialtyCode)
+                            ? null
+                            : Specialty.Create(item.SpecialtyCode, item.SpecialtyDescription);
+
+                        var surgicalCenter = string.IsNullOrEmpty(item.SurgicalCenterCode)
+                            ? null
+                            : SurgicalCenter.Create(item.SurgicalCenterCode, item.SurgicalCenterDescription);
+
+                        var surgeryLocation = SurgeryLocation.Create(
+                            item.SurgeryRoom,
+                            surgicalCenter
+                        );
+
+                        surgery = Surgery.Create(
+                            item.SurgeryId,
+                            item.SurgeryDate,
+                            item.SurgeryStatus.ToSurgeryStatus(),
+                            patient.PatientId,
+                            specialty,
+                            surgeryLocation
+                        );
+
+                        patient.SyncSurgery(surgery);
+                    }
+
+                    if (!string.IsNullOrEmpty(item.ProcedureId))
+                    {
+                        var procedure = surgery.Procedures
+                            .FirstOrDefault(p => p.ExternalId == item.ProcedureId);
+
+                        if (procedure == null)
+                        {
+                            procedure = Procedure.Create(
+                                item.ProcedureId,
+                                item.ProcedureDescription,
+                                item.ProcedureCid,
+                                item.IsPrimaryProcedure
+                            );
+
+                            surgery.AddProcedure(procedure);
+                        }
+                    }
+                }
+            }
+
+            return patientsDict.Values.ToList();
+        }
+
+        private List<PatientSurgeryResponse> MapToResponse(IEnumerable<Patient> patients)
+        {
+            return patients.Select(p => new PatientSurgeryResponse
+            {
+                PatientId = p.PatientId,
+                MedicalRecordNumber = p.MedicalRecordNumber,
+                FullName = p.FullName,
+                BirthDate = p.BirthDate,
+                Age = CalculateAge(p.BirthDate),
+                Gender = p.Gender == GenderEnum.Male ? "M" : "F",
+                WeightKg = p.WeightKg,
+                HeightCm = p.HeightCm,
+                CurrentLocation = p.CurrentLocation != null ? new PatientLocationResponse
+                {
+                    Unit = new UnitResponse
+                    {
+                        Code = p.CurrentLocation.Unit?.Code,
+                        Description = p.CurrentLocation.Unit?.Description
+                    },
+                    Bed = p.CurrentLocation.Bed,
+                    Floor = p.CurrentLocation.Floor,
+                    Room = p.CurrentLocation.Room
+                } : null,
+                Surgeries = p.Surgeries?.Select(s => new SurgeryResponse
+                {
+                    Id = s.Id,
+                    SurgeryDate = s.SurgeryDate,
+                    Status = s.Status,
+                    Specialty = new SpecialtyResponse
+                    {
+                        Code = s.Specialty?.Code,
+                        Description = s.Specialty?.Description
+                    },
+                    Location = new SurgeryLocationResponse
+                    {
+                        SurgicalCenter = new SurgicalCenterResponse
+                        {
+                            Code = s.Location?.SurgicalCenter?.Code,
+                            Description = s.Location?.SurgicalCenter?.Description
+                        },
+                        Room = s.Location?.Room
+                    },
+                    Procedures = s.Procedures?.Select(pr => new ProcedureResponse
+                    {
+                        Id = pr.ExternalId,
+                        Description = pr.Description,
+                        Cid = pr.Cid,
+                        IsPrimary = pr.IsPrimary
+                    }).ToList() ?? new List<ProcedureResponse>()
+                }).ToList() ?? new List<SurgeryResponse>()
+            }).ToList();
+        }
+        private int CalculateAge(DateTime birthDate)
+        {
+            var today = DateTime.Today;
+            var age = today.Year - birthDate.Year;
+            if (birthDate.Date > today.AddYears(-age)) age--;
+            return age;
         }
     }
 }
-
-

@@ -1,22 +1,129 @@
-using UFF.FichaAnestesica.Domain.Enums;
+﻿using UFF.FichaAnestesica.Domain.Enums;
 
 namespace UFF.FichaAnestesica.Domain.Entities
 {
     public class Patient : Base
     {
-        private Patient()
+        private readonly List<Surgery> _surgeries = new();
+
+        private Patient() { }
+
+        public string PatientId { get; private set; }
+        public string MedicalRecordNumber { get; private set; }
+        public string FullName { get; private set; }
+        public DateTime BirthDate { get; private set; }
+        public GenderEnum Gender { get; private set; }
+        public double WeightKg { get; private set; }
+        public int HeightCm { get; private set; }
+
+        public CurrentLocation CurrentLocation { get; private set; }
+
+        public IReadOnlyCollection<Surgery> Surgeries => _surgeries;
+
+        public static Patient Create(
+            string patientId,
+            string medicalRecordNumber,
+            string fullName,
+            DateTime birthDate,
+            GenderEnum gender,
+            double weightKg,
+            int heightCm,
+            CurrentLocation currentLocation)
         {
+            return new Patient
+            {
+                PatientId = patientId,
+                MedicalRecordNumber = medicalRecordNumber,
+                FullName = fullName,
+                BirthDate = birthDate,
+                Gender = gender,
+                WeightKg = weightKg,
+                HeightCm = heightCm,
+                CurrentLocation = currentLocation
+            };
         }
 
-        public string MedicalRecordNumber { get; set; }
-        public string FullName { get; set; }
-        public DateTime BirthDate { get; set; }
-        public GenderEnum Gender { get; set; }
-        public double WeightKg { get; set; }
-        public int HeightCm { get; set; }
+        public void Sync(Patient incoming)
+        {
+            UpdateBasicInfo(incoming);
+            SyncLocation(incoming.CurrentLocation);
+            SyncSurgeries(incoming.Surgeries);
+        }
 
-        public CurrentLocation CurrentLocation { get; set; }
+   
+        private void UpdateBasicInfo(Patient incoming)
+        {
+            FullName = incoming.FullName;
+            MedicalRecordNumber = incoming.MedicalRecordNumber;
+            BirthDate = incoming.BirthDate;
+            Gender = incoming.Gender;
+            WeightKg = incoming.WeightKg;
+            HeightCm = incoming.HeightCm;
+        }
 
-        public List<Surgery> Surgeries { get; set; }
+       
+        private void SyncLocation(CurrentLocation incoming)
+        {
+            if (incoming == null)
+            {
+                CurrentLocation = null;
+                return;
+            }
+
+            if (CurrentLocation == null)
+            {
+                CurrentLocation = incoming;
+                return;
+            }
+
+            CurrentLocation.Sync(incoming);
+        }
+
+        public void SyncSurgery(Surgery incoming)
+        {
+            var existing = _surgeries
+                .FirstOrDefault(s => s.Id == incoming.Id);
+
+            if (existing == null)
+            {
+                _surgeries.Add(incoming);
+                return;
+            }
+
+            existing.Update(
+                incoming.SurgeryDate,
+                incoming.Status,
+                incoming.Specialty,
+                incoming.Location
+            );
+        }
+
+        private void SyncSurgeries(IEnumerable<Surgery> incoming)
+        {
+            var existingDict = _surgeries.ToDictionary(s => s.Id);
+
+            foreach (var surgery in incoming)
+            {
+                if (!existingDict.TryGetValue(surgery.Id, out var existing))
+                {
+                    _surgeries.Add(surgery);
+                }
+                else
+                {
+                    existing.SyncProcedures(surgery.Procedures);
+                }
+            }
+
+            var incomingIds = incoming.Select(s => s.SurgeryId).ToHashSet();
+
+            var toRemove = _surgeries
+                .Where(s => !incomingIds.Contains(s.SurgeryId))
+                .ToList();
+
+            foreach (var remove in toRemove)
+            {
+                _surgeries.Remove(remove);
+            }
+        }
     }
 }

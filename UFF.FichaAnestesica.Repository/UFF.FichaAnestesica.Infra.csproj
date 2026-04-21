@@ -9,10 +9,18 @@
   <ItemGroup>
     <None Remove="DependencyInjection\ServiceExtensions.cs~RFf2095d6.TMP" />
     <None Remove="DependencyInjection\ServiceExtensions.cs~RFf4120e4.TMP" />
+    <None Remove="EntityConfig\CurrentLocationConfig.cs~RF5d9750f.TMP" />
+    <None Remove="EntityConfig\SpecialtyConfig.cs~RF56243e0.TMP" />
+    <None Remove="EntityConfig\UnitConfig.cs~RF7e8b72.TMP" />
     <None Remove="Repositories\SurgeriesRepository.cs~RFf4fef99.TMP" />
+    <None Remove="Repositories\SurgeryRepository.cs~RF5b28af6.TMP" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.6">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.1" />
   </ItemGroup>
 
@@ -20,6 +28,10 @@
     <ProjectReference Include="..\UFF.Domain\UFF.FichaAnestesica.Domain.csproj" />
     <ProjectReference Include="..\UFF.FichaAnestesica.AppService\UFF.FichaAnestesica.Service.csproj" />
     <ProjectReference Include="..\UFF.FichaAnestesica.CrossCutting\UFF.FichaAnestesica.CrossCutting.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Migrations\" />
   </ItemGroup>
 
 </Project>
