@@ -18,7 +18,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
 
         public CurrentLocation CurrentLocation { get; private set; }
 
-        public IReadOnlyCollection<Surgery> Surgeries => _surgeries;
+        public List<Surgery> Surgeries => _surgeries;
 
         public static Patient Create(
             string patientId,
@@ -96,6 +96,14 @@ namespace UFF.FichaAnestesica.Domain.Entities
                 incoming.Specialty,
                 incoming.Location
             );
+        }
+
+        public void ReplaceSurgeries(List<Surgery> surgeries)
+        {
+            Surgeries.Clear();
+
+            foreach (var s in surgeries)
+                Surgeries.Add(s);
         }
 
         private void SyncSurgeries(IEnumerable<Surgery> incoming)

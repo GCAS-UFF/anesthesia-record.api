@@ -43,20 +43,10 @@ namespace UFF.FichaAnestesica.Service.Services
 
             await _surgeryRepository.AddOrUpdatePatientsAsync(patients);
 
-            var savedPatients = await _surgeryRepository.GetPatientsWithSurgeriesAsync(filterDate, status);
+            var savedPatients = await _surgeryRepository.GetPatientsWithSurgeriesAsync(filterDate, status, page, size);
+            var patientsList = ApplyOrdering(savedPatients);         
 
-            var patientsList = savedPatients.ToList();
-            patientsList = ApplyOrdering(patientsList);
-
-            var totalCount = patientsList.Count;
-            var totalPages = (int)Math.Ceiling(totalCount / (double)size);
-
-            var pagedPatients = patientsList
-                .Skip((page - 1) * size)
-                .Take(size)
-                .ToList();
-
-            var responseData = MapToResponse(pagedPatients);
+            var responseData = MapToResponse(patientsList);
 
             return new PagedResponse<PatientSurgeryResponse>
             {
@@ -181,7 +171,6 @@ namespace UFF.FichaAnestesica.Service.Services
 
             return patientsDict.Values.ToList();
         }
-
         private List<PatientSurgeryResponse> MapToResponse(IEnumerable<Patient> patients)
         {
             return patients.Select(p => new PatientSurgeryResponse

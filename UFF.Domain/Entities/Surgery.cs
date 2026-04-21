@@ -38,6 +38,45 @@ namespace UFF.FichaAnestesica.Domain.Entities
                 Procedures.Add(proc);
             }
         }
+
+        public void Sync(Surgery incoming)
+        {
+            // ⚠️ NUNCA mexer no Id
+            // Id = incoming.Id; ❌ NÃO FAÇA ISSO
+
+            SurgeryDate = incoming.SurgeryDate;
+            Status = incoming.Status;
+
+            // 🔁 Specialty (referência)
+            if (incoming.Specialty != null)
+            {
+                if (Specialty == null)
+                {
+                    Specialty = incoming.Specialty;
+                }
+                else
+                {
+                    Specialty.Sync(incoming.Specialty);
+                }
+            }
+
+            // 🔁 Location
+            if (incoming.Location != null)
+            {
+                if (Location == null)
+                {
+                    Location = incoming.Location;
+                }
+                else
+                {
+                    Location.Sync(incoming.Location);
+                }
+            }
+
+            // ❌ NÃO mexe em Procedures aqui
+            // 👉 Isso já foi resolvido no repository com ReplaceProcedures
+        }
+
         public void SyncProcedures(IEnumerable<Procedure> incoming)
         {
             var existingDict = Procedures.ToDictionary(p => p.ExternalId);
