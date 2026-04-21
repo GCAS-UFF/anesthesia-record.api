@@ -12,6 +12,23 @@
             SurgicalCenter = center;
         }
 
+        public void Sync(SurgeryLocation incoming)
+        {
+            Room = incoming.Room;
+
+            if (incoming.SurgicalCenter != null)
+            {
+                if (SurgicalCenter == null)
+                {
+                    SurgicalCenter = incoming.SurgicalCenter;
+                }
+                else
+                {
+                    SurgicalCenter.Sync(incoming.SurgicalCenter);
+                }
+            }
+        }
+
         public static SurgeryLocation Create(string room, SurgicalCenter surgicalCenter)
         {
             return new SurgeryLocation

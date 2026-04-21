@@ -15,10 +15,9 @@ namespace UFF.FichaAnestesica.Infra.Repositories
             _context = context;
         }
 
-        public async Task AddOrUpdatePatientsAsync(IEnumerable<Patient> patients)
-        {
-            var incoming = patients.ToList();
-            var patientIds = incoming.Select(p => p.PatientId).ToList();
+        public async Task AddOrUpdatePatientsAsync(IList<Patient> patients)
+        {          
+            var patientIds = patients.Select(p => p.PatientId).ToList();
 
             var existingPatients = await _context.Patients
                 .AsSplitQuery()
@@ -40,9 +39,29 @@ namespace UFF.FichaAnestesica.Infra.Repositories
             var unitsDict = await _context.Units.ToDictionaryAsync(u => u.Code);
             var centersDict = await _context.SurgicalCenters.ToDictionaryAsync(sc => sc.Code);
 
-            foreach (var patient in incoming)
+
+            var allSurgeryIds = patients
+                    .SelectMany(p => p.Surgeries)
+                    .Select(s => s.SurgeryId)
+                    .Where(id => !string.IsNullOrEmpty(id))
+                    .Distinct()
+                    .ToList();
+
+            var existingSurgeries = await _context.Surgeries
+                    .Include(s => s.Procedures)
+                    .Include(s => s.Specialty)
+                    .Include(s => s.Location)
+                        .ThenInclude(l => l.SurgicalCenter)
+                    .Where(s => allSurgeryIds.Contains(s.SurgeryId))
+                    .ToListAsync();
+
+            var surgeriesDict = existingSurgeries
+                    .ToDictionary(s => s.SurgeryId);
+
+            foreach (var patient in patients)
             {
                 ResolveReferences(patient, proceduresDict, specialtiesDict, unitsDict, centersDict);
+                ResolveSurgeries(patient, surgeriesDict); // 🔥 NOVO
 
                 var existing = existingDict.GetValueOrDefault(patient.PatientId);
 
@@ -56,6 +75,28 @@ namespace UFF.FichaAnestesica.Infra.Repositories
             }
 
             await _context.SaveChangesAsync();
+        }
+
+        private void ResolveSurgeries(Patient patient, Dictionary<string, Surgery> surgeriesDict)
+        {
+            var resolved = new List<Surgery>();
+
+            foreach (var surgery in patient.Surgeries)
+            {
+                if (surgeriesDict.TryGetValue(surgery.SurgeryId, out var existing))
+                {
+                    // 🔥 ATUALIZA a entidade rastreada
+                    existing.Sync(surgery);
+
+                    resolved.Add(existing);
+                }
+                else
+                {
+                    resolved.Add(surgery);
+                }
+            }
+
+            patient.ReplaceSurgeries(resolved); // 🔥 ESSENCIAL
         }
 
         private void ResolveReferences(Patient patient, Dictionary<string, Procedure> proceduresDict, Dictionary<string, Specialty> specialtiesDict, Dictionary<string, Unit> unitsDict, Dictionary<string, SurgicalCenter> centersDict)
@@ -128,7 +169,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories
             }
         }
 
-        public async Task<IEnumerable<Patient>> GetPatientsWithSurgeriesAsync(DateTime? date = null, SurgeryStatus? status = null)
+        public async Task<List<Patient>> GetPatientsWithSurgeriesAsync(DateTime? date = null, SurgeryStatus? status = null, int page = 1, int size = 10)
         {
             var query = _context.Patients
                 .AsSplitQuery()
@@ -155,7 +196,10 @@ namespace UFF.FichaAnestesica.Infra.Repositories
                     p.Surgeries.Any(s => s.Status == status.Value));
             }
 
-            return await query.ToListAsync();
+            return await  query
+             .Skip((page - 1) * size)
+             .Take(size)
+             .ToListAsync();
         }
     }
 }
