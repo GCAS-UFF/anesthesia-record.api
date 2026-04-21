@@ -2,8 +2,8 @@
 {
     public class Base 
     {
-        public Guid Id { get; set; }
-        public DateTime RegisteringDate { get; set; }
+        public int Id { get; set; }
+        public DateTime CreatedAt { get; set; }
         public DateTime LastUpdate { get; set; }
     }
 }

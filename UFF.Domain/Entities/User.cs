@@ -6,10 +6,8 @@ namespace UFF.FichaAnestesica.Domain.Entities
     {
         private User() { }
 
-        public User(UserDto userDto)
-        {
-            UserName = userDto.UserName;
-            PassWord = userDto.PassWord;
+        public User(PatientViewDto userDto)
+        {         
         }
 
         public string UserName { get; private set; }

@@ -2,11 +2,26 @@
 {
     public class Unit : Base
     {
-        public Unit()
-        {            
+        private Unit() { }
+
+        public string Code { get; private set; }
+        public string Description { get; private set; }
+
+        public static Unit Create(string code, string description)
+        {
+            return new Unit
+            {
+                Code = code,
+                Description = description
+            };
         }
 
-        public string Code { get; set; }
-        public string Description { get; set; }
+        public void Sync(Unit incoming)
+        {
+            if (incoming == null)
+                return;
+
+            Description = incoming.Description;
+        }
     }
 }

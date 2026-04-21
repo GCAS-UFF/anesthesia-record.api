@@ -1,6 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <None Remove="Services\SurgeryService.cs~RF236cd70.TMP" />
+    <None Remove="Services\SurgeryService.cs~RF5b91017.TMP" />
+    <None Remove="Services\SurgeryService.cs~RF5e3eccf.TMP" />
+    <None Remove="Services\SurgeryService.cs~RFb3b251.TMP" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\UFF.Domain\UFF.FichaAnestesica.Domain.csproj" />
   </ItemGroup>
 

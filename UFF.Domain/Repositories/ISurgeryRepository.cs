@@ -5,6 +5,7 @@ namespace UFF.FichaAnestesica.Domain.Repositories
 {
     public interface ISurgeryRepository
     {
-        Task<IEnumerable<Surgery>> GetSurgeriesAsync(DateTime date, SurgeryStatus status);
+        Task AddOrUpdatePatientsAsync(IEnumerable<Patient> patients);
+        Task<IEnumerable<Patient>> GetPatientsWithSurgeriesAsync(DateTime? date = null, SurgeryStatus? status = null);
     }
 }

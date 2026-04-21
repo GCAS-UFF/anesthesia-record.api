@@ -2,13 +2,38 @@
 {
     public class Procedure : Base
     {
-        private Procedure()
+        private Procedure() { }
+
+        public string ExternalId { get; private set; }
+        public string Description { get; private set; }
+        public string Cid { get; private set; }
+        public bool IsPrimary { get; private set; }
+
+
+        public static Procedure Create(string externalId, string description, string cid, bool isPrimary)
         {
+            return new Procedure
+            {
+                ExternalId = externalId,
+                Description = description,
+                Cid = cid,
+                IsPrimary = isPrimary
+            };
         }
 
-        public string Id { get; set; }
-        public string Description { get; set; }
-        public string Cid { get; set; }
-        public bool IsPrimary { get; set; }
+        public void Update(string description, string cid, bool isPrimary)
+        {
+            Description = description;
+            Cid = cid;
+            IsPrimary = isPrimary;
+        }
+
+        public void Sync(Procedure incoming)
+        {
+            if (incoming == null)
+                return;
+
+            Update(incoming.Description, incoming.Cid, incoming.IsPrimary);
+        }
     }
 }

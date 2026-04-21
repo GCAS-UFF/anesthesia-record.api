@@ -7,9 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Entities\Patient.cs~RF2dc167d.TMP" />
     <None Remove="Entities\User.cs~RF4027d567.TMP" />
     <None Remove="Entities\User.cs~RF402958ea.TMP" />
     <None Remove="Entities\User.cs~RF4062cc21.TMP" />
+    <None Remove="Response\PatientLocationResponse.cs~RFcabe48.TMP" />
+    <None Remove="Response\UnitResponse.cs~RFcc8992.TMP" />
+    <None Remove="Services\ISurgeryService.cs~RF225a8f3.TMP" />
+    <None Remove="Services\ISurgeryService.cs~RFdc1d0f.TMP" />
   </ItemGroup>
 
   <ItemGroup>
