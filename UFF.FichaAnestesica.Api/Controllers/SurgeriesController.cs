@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using UFF.FichaAnestesica.AppService.Services;
-using UFF.FichaAnestesica.Domain.Dto;
+using UFF.FichaAnestesica.Domain.Enums;
+using UFF.FichaAnestesica.Domain.Services;
 
 namespace UFF.FichaAnestesica.Api.Controllers
 {
@@ -8,25 +8,38 @@ namespace UFF.FichaAnestesica.Api.Controllers
     [Route("api/surgeries")]
     public class SurgeriesController : ControllerBase
     {
-        private readonly SurgeriesAppService _surgeriesAppService;
+        private readonly ISurgeryService _surgeriesService;
 
-        public SurgeriesController(SurgeriesAppService surgeriesAppService)
+        public SurgeriesController(ISurgeryService surgeriesService)
         {
-            _surgeriesAppService = surgeriesAppService;
+            _surgeriesService = surgeriesService;
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetAllSurgeries([FromQuery] int page = 1, [FromQuery] int size = 10)
+        {
+            var mappedList = await _surgeriesService.GetPatientsWithSurgeriesAsync(null, null, page, size);
+            return Ok(mappedList);
         }
 
-        [HttpGet("today")]
-        public async Task<IActionResult> GetSurgeriesToday()
+        [HttpGet("date/{date}")]
+        public async Task<IActionResult> GetSurgeriesByDate([FromRoute] DateTime date, [FromQuery] int page = 1, [FromQuery] int size = 10)
         {
-            try
-            {
-                var mappedList = await _surgeriesAppService.SyncAndGetSurgeriesTodayAsync();
-                return Ok(mappedList);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Failed to access or map data from HUAP.", details = ex.Message });
-            }
+            var mappedList = await _surgeriesService.GetPatientsWithSurgeriesAsync(date, null, page, size);
+            return Ok(mappedList);
+        }
+
+        [HttpGet("status/{status}")]
+        public async Task<IActionResult> GetSurgeriesByStatus([FromRoute] SurgeryStatus status, [FromQuery] int page = 1, [FromQuery] int size = 10)
+        {
+            var mappedList = await _surgeriesService.GetPatientsWithSurgeriesAsync(null, status, page, size);
+            return Ok(mappedList);
+        }
+
+        [HttpGet("date/{date}/status/{status}")]
+        public async Task<IActionResult> GetSurgeriesByDateAndStatus([FromRoute] DateTime date, [FromRoute] SurgeryStatus status, [FromQuery] int page = 1, [FromQuery] int size = 10)
+        {
+            var mappedList = await _surgeriesService.GetPatientsWithSurgeriesAsync(date, status, page, size);
+            return Ok(mappedList);
         }
     }
 }

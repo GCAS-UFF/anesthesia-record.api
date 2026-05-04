@@ -5,7 +5,7 @@
         [Fact]
         public void Teste1()
         {
-            Assert.True(true);
+            Assert.False(false);
         }
     }
 }

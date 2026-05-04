@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <None Remove="Program.cs~RF36c88f4a.TMP" />
+    <None Remove="Program.cs~RF498b2fc.TMP" />
   </ItemGroup>
 
   <ItemGroup>
@@ -22,8 +23,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\UFF.Domain\UFF.FichaAnestesica.Domain.csproj" />
+    <ProjectReference Include="..\UFF.FichaAnestesica.AppService\UFF.FichaAnestesica.Service.csproj" />
     <ProjectReference Include="..\UFF.FichaAnestesica.Repository\UFF.FichaAnestesica.Infra.csproj" />
-    <ProjectReference Include="..\UFF.FichaAnestesica.AppService\UFF.FichaAnestesica.AppService.csproj" />
   </ItemGroup>
 
 </Project>
