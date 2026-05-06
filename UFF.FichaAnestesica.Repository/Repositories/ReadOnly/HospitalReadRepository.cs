@@ -35,9 +35,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories.ReadOnly
 
             var result = await query
                 .OrderBy(x => x.SurgeryDate)
-                .ThenBy(x => x.FullName)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
+                .ThenBy(x => x.FullName)              
                 .ToListAsync();
 
             if (result.Any())            
