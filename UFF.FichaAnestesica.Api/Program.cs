@@ -65,6 +65,8 @@ var app = builder.Build();
 
 app.UseMiddleware<ExceptionMiddleware>();
 
+app.UseCors("CorsPolicy");
+
 app.MapGet("/", () => "UFF - API rodando 🚀");
 
 app.UseSwagger();

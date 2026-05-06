@@ -1,4 +1,4 @@
-﻿using UFF.FichaAnestesica.Domain.Dto;
+using UFF.FichaAnestesica.Domain.Dto;
 using UFF.FichaAnestesica.Domain.Entities;
 using UFF.FichaAnestesica.Domain.Enums;
 using UFF.FichaAnestesica.Domain.Extensions;
@@ -24,6 +24,11 @@ namespace UFF.FichaAnestesica.Service.Services
 
         public async Task<PagedResponse<PatientSurgeryResponse>> GetPatientsWithSurgeriesAsync(DateTime? date, SurgeryStatus? status, int page = 1, int size = 10)
         {
+            if (date.HasValue)
+            {
+                date = DateTime.SpecifyKind(date.Value, DateTimeKind.Utc);
+            }
+
             var hospitalData = await _hospitalReadRepository.GetSurgeriesFromHospitalAsync(date, status, page, size);
 
             if (hospitalData.Data == null || !hospitalData.Data.Any())
