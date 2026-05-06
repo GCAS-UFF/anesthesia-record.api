@@ -7,5 +7,6 @@ namespace UFF.FichaAnestesica.Domain.Repositories
     {
         Task AddOrUpdatePatientsAsync(IList<Patient> patients);
         Task<List<Patient>> GetPatientsWithSurgeriesAsync(DateTime? date = null, SurgeryStatus? status = null, int page = 1, int size = 10);
+        Task<Patient> GetPatientByIdAsync(int id);
     }
 }

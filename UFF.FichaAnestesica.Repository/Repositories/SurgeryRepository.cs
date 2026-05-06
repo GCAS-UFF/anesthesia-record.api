@@ -61,7 +61,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories
             foreach (var patient in patients)
             {
                 ResolveReferences(patient, proceduresDict, specialtiesDict, unitsDict, centersDict);
-                ResolveSurgeries(patient, surgeriesDict); // 🔥 NOVO
+                ResolveSurgeries(patient, surgeriesDict);
 
                 var existing = existingDict.GetValueOrDefault(patient.PatientId);
 
@@ -85,7 +85,6 @@ namespace UFF.FichaAnestesica.Infra.Repositories
             {
                 if (surgeriesDict.TryGetValue(surgery.SurgeryId, out var existing))
                 {
-                    // 🔥 ATUALIZA a entidade rastreada
                     existing.Sync(surgery);
 
                     resolved.Add(existing);
@@ -96,7 +95,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories
                 }
             }
 
-            patient.ReplaceSurgeries(resolved); // 🔥 ESSENCIAL
+            patient.ReplaceSurgeries(resolved);
         }
 
         private void ResolveReferences(Patient patient, Dictionary<string, Procedure> proceduresDict, Dictionary<string, Specialty> specialtiesDict, Dictionary<string, Unit> unitsDict, Dictionary<string, SurgicalCenter> centersDict)
@@ -200,6 +199,21 @@ namespace UFF.FichaAnestesica.Infra.Repositories
              .Skip((page - 1) * size)
              .Take(size)
              .ToListAsync();
+        }
+
+        public async Task<Patient> GetPatientByIdAsync(int id)
+        {
+            return await _context.Patients
+                .Include(p => p.CurrentLocation)
+                    .ThenInclude(cl => cl.Unit)
+                .Include(p => p.Surgeries)
+                    .ThenInclude(s => s.Specialty)
+                .Include(p => p.Surgeries)
+                    .ThenInclude(s => s.Location)
+                        .ThenInclude(l => l.SurgicalCenter)
+                .Include(p => p.Surgeries)
+                    .ThenInclude(s => s.Procedures)
+                .FirstOrDefaultAsync(x => x.Id == id);
         }
     }
 }

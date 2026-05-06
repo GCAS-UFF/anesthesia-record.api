@@ -24,9 +24,7 @@ namespace UFF.FichaAnestesica.Service.Services
 
         public async Task<PagedResponse<PatientSurgeryResponse>> GetPatientsWithSurgeriesAsync(DateTime? date, SurgeryStatus? status, int page = 1, int size = 10)
         {
-            var filterDate = date ?? DateTime.UtcNow;
-
-            var hospitalData = await _hospitalReadRepository.GetSurgeriesFromHospitalAsync(filterDate, status, page, size);
+            var hospitalData = await _hospitalReadRepository.GetSurgeriesFromHospitalAsync(date, status, page, size);
 
             if (hospitalData.Data == null || !hospitalData.Data.Any())
             {
@@ -43,8 +41,8 @@ namespace UFF.FichaAnestesica.Service.Services
 
             await _surgeryRepository.AddOrUpdatePatientsAsync(patients);
 
-            var savedPatients = await _surgeryRepository.GetPatientsWithSurgeriesAsync(filterDate, status, page, size);
-            var patientsList = ApplyOrdering(savedPatients);         
+            var savedPatients = await _surgeryRepository.GetPatientsWithSurgeriesAsync(date, status, page, size);
+            var patientsList = ApplyOrdering(savedPatients);
 
             var responseData = MapToResponse(patientsList);
 
@@ -55,6 +53,12 @@ namespace UFF.FichaAnestesica.Service.Services
                 PageSize = size,
                 TotalItems = hospitalData.TotalItems
             };
+        }
+
+        public async Task<PatientSurgeryResponse> GetPatientByIdAsync(int id)
+        {
+            var patient = await _surgeryRepository.GetPatientByIdAsync(id);
+            return MapToResponse(patient);
         }
 
         private List<Patient> ApplyOrdering(List<Patient> patients, bool ascending = true, string orderBy = "surgerydate")
@@ -171,10 +175,69 @@ namespace UFF.FichaAnestesica.Service.Services
 
             return patientsDict.Values.ToList();
         }
+
+        private PatientSurgeryResponse MapToResponse(Patient patient)
+        {
+            if (patient == null)
+                return null;
+
+            return new PatientSurgeryResponse
+            {
+                Id = patient.Id,
+                PatientId = patient.PatientId,
+                MedicalRecordNumber = patient.MedicalRecordNumber,
+                FullName = patient.FullName,
+                BirthDate = patient.BirthDate,
+                Age = CalculateAge(patient.BirthDate),
+                Gender = patient.Gender == GenderEnum.Male ? "M" : "F",
+                WeightKg = patient.WeightKg,
+                HeightCm = patient.HeightCm,
+                CurrentLocation = patient.CurrentLocation != null ? new PatientLocationResponse
+                {
+                    Unit = new UnitResponse
+                    {
+                        Code = patient.CurrentLocation.Unit?.Code,
+                        Description = patient.CurrentLocation.Unit?.Description
+                    },
+                    Bed = patient.CurrentLocation.Bed,
+                    Floor = patient.CurrentLocation.Floor,
+                    Room = patient.CurrentLocation.Room
+                } : null,
+                Surgeries = patient.Surgeries?.Select(s => new SurgeryResponse
+                {
+                    Id = s.Id,
+                    SurgeryDate = s.SurgeryDate,
+                    Status = s.Status,
+                    Specialty = new SpecialtyResponse
+                    {
+                        Code = s.Specialty?.Code,
+                        Description = s.Specialty?.Description
+                    },
+                    Location = new SurgeryLocationResponse
+                    {
+                        SurgicalCenter = new SurgicalCenterResponse
+                        {
+                            Code = s.Location?.SurgicalCenter?.Code,
+                            Description = s.Location?.SurgicalCenter?.Description
+                        },
+                        Room = s.Location?.Room
+                    },
+                    Procedures = s.Procedures?.Select(pr => new ProcedureResponse
+                    {
+                        Id = pr.ExternalId,
+                        Description = pr.Description,
+                        Cid = pr.Cid,
+                        IsPrimary = pr.IsPrimary
+                    }).ToList() ?? new List<ProcedureResponse>()
+                }).ToList() ?? new List<SurgeryResponse>()
+            };
+        }
+
         private List<PatientSurgeryResponse> MapToResponse(IEnumerable<Patient> patients)
         {
             return patients.Select(p => new PatientSurgeryResponse
             {
+                Id = p.Id,
                 PatientId = p.PatientId,
                 MedicalRecordNumber = p.MedicalRecordNumber,
                 FullName = p.FullName,
@@ -223,6 +286,7 @@ namespace UFF.FichaAnestesica.Service.Services
                 }).ToList() ?? new List<SurgeryResponse>()
             }).ToList();
         }
+
         private int CalculateAge(DateTime birthDate)
         {
             var today = DateTime.Today;

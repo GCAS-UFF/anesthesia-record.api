@@ -14,10 +14,11 @@ namespace UFF.FichaAnestesica.Api.Controllers
         {
             _surgeriesService = surgeriesService;
         }
+
         [HttpGet]
-        public async Task<IActionResult> GetAllSurgeries([FromQuery] int page = 1, [FromQuery] int size = 10)
+        public async Task<IActionResult> GetAllSurgeries([FromQuery] DateTime? date, SurgeryStatus? status, int page = 1, [FromQuery] int size = 10)
         {
-            var mappedList = await _surgeriesService.GetPatientsWithSurgeriesAsync(null, null, page, size);
+            var mappedList = await _surgeriesService.GetPatientsWithSurgeriesAsync(date, status, page, size);
             return Ok(mappedList);
         }
 
@@ -33,6 +34,13 @@ namespace UFF.FichaAnestesica.Api.Controllers
         {
             var mappedList = await _surgeriesService.GetPatientsWithSurgeriesAsync(null, status, page, size);
             return Ok(mappedList);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetSurgeriesById([FromRoute] int id)
+        {
+            var patient = await _surgeriesService.GetPatientByIdAsync(id);
+            return Ok(patient);
         }
 
         [HttpGet("date/{date}/status/{status}")]

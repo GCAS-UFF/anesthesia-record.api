@@ -25,6 +25,29 @@ builder.Services.AddDbContext<ISigaDbReadOnlyCtx, SigaDbReadOnlyCtx>(options =>
 // Registrar serviços
 builder.Services.RegisterServices();
 
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", builder =>
+    {
+        builder
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials()
+            .SetIsOriginAllowed(origin =>
+            {
+                if (string.IsNullOrEmpty(origin))
+                    return true;
+
+                return origin.StartsWith("http://localhost")
+                    || origin.StartsWith("http://10.0.2.2")
+                    || origin.StartsWith("capacitor://localhost")
+                    || origin.Contains("azurewebsites.net")
+                    || origin.Contains("web.app");
+            });
+    });
+});
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
