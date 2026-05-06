@@ -9,7 +9,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
 
         public string ExternalIdHuap { get; set; } = string.Empty;
         
-        public Guid PatientId { get; set; }
+        public int PatientId { get; set; }
         
         [ForeignKey("PatientId")]
         public virtual Patient Patient { get; set; } = null!;

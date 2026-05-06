@@ -15,9 +15,8 @@ namespace UFF.FichaAnestesica.Infra.Mapping
                 .HasMaxLength(50)
                 .IsRequired(false);
 
-            // Chave Estrangeira com Paciente (Patient)
             builder.HasOne(s => s.Patient)
-                .WithMany() // Paciente não tem lista reversa explicitamente
+                .WithMany()
                 .HasForeignKey(s => s.PatientId)
                 .OnDelete(DeleteBehavior.Restrict);
 
@@ -35,7 +34,7 @@ namespace UFF.FichaAnestesica.Infra.Mapping
             builder.Property(s => s.Specialty).HasMaxLength(100);
 
             builder.Property(s => s.SurgeryDate).IsRequired();
-            builder.Property(s => s.RegisteringDate).IsRequired();
+            builder.Property(s => s.CreatedAt).IsRequired();
             builder.Property(s => s.LastUpdate).IsRequired();
         }
     }

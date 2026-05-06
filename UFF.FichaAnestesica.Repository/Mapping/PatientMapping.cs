@@ -15,11 +15,11 @@ namespace UFF.FichaAnestesica.Infra.Mapping
                 .HasMaxLength(50)
                 .IsRequired(false);
 
-            builder.Property(p => p.MedicalRecord)
+            builder.Property(p => p.MedicalRecordNumber)
                 .HasMaxLength(50)
                 .IsRequired();
 
-            builder.Property(p => p.Name)
+            builder.Property(p => p.FullName)
                 .HasMaxLength(150)
                 .IsRequired();
 
@@ -27,7 +27,7 @@ namespace UFF.FichaAnestesica.Infra.Mapping
                 .HasMaxLength(20);
                 
             builder.Property(p => p.BirthDate).IsRequired();
-            builder.Property(p => p.RegisteringDate).IsRequired();
+            builder.Property(p => p.CreatedAt).IsRequired();
             builder.Property(p => p.LastUpdate).IsRequired();
         }
     }

@@ -2,18 +2,21 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using UFF.FichaAnestesica.Infra.Context;
 
 #nullable disable
 
-namespace UFF.FichaAnestesica.Infra.Migrations
+namespace UFF.FichaAnestesica.Infra.Migrations.SigaDbCtxMigrations
 {
     [DbContext(typeof(SigaDbCtx))]
-    partial class SigaDbCtxModelSnapshot : ModelSnapshot
+    [Migration("20260506132158_ajusta tipo de id para integer")]
+    partial class ajustatipodeidparainteger
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

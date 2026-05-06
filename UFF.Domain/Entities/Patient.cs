@@ -15,10 +15,13 @@ namespace UFF.FichaAnestesica.Domain.Entities
         public GenderEnum Gender { get; private set; }
         public double WeightKg { get; private set; }
         public int HeightCm { get; private set; }
+        public string ExternalIdHuap { get; set; }
 
         public CurrentLocation CurrentLocation { get; private set; }
 
         public List<Surgery> Surgeries => _surgeries;
+
+    
 
         public static Patient Create(
             string patientId,
