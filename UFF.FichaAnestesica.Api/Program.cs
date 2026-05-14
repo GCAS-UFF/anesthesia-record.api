@@ -43,7 +43,8 @@ builder.Services.AddCors(options =>
                     || origin.StartsWith("http://10.0.2.2")
                     || origin.StartsWith("capacitor://localhost")
                     || origin.Contains("azurewebsites.net")
-                    || origin.Contains("web.app");
+                    || origin.Contains("web.app")
+                    || origin.Contains("https://anesthesia-record-app-ionic.web.app/");
             });
     });
 });
