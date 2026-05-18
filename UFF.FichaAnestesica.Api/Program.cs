@@ -28,24 +28,19 @@ builder.Services.RegisterServices();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("CorsPolicy", builder =>
+    options.AddPolicy("CorsPolicy", policy =>
     {
-        builder
+        policy
+            .WithOrigins(
+                "http://localhost:8100",
+                "http://10.0.2.2:8100",
+                "capacitor://localhost",
+                "https://anesthesia-record-app-ionic.web.app",
+                "https://anesthesia-record-app-ionic.firebaseapp.com"
+            )
             .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowCredentials()
-            .SetIsOriginAllowed(origin =>
-            {
-                if (string.IsNullOrEmpty(origin))
-                    return true;
-
-                return origin.StartsWith("http://localhost")
-                    || origin.StartsWith("http://10.0.2.2")
-                    || origin.StartsWith("capacitor://localhost")
-                    || origin.Contains("azurewebsites.net")
-                    || origin.Contains("web.app")
-                    || origin.Contains("https://anesthesia-record-app-ionic.web.app/");
-            });
+            .AllowCredentials();
     });
 });
 
@@ -66,14 +61,12 @@ var app = builder.Build();
 
 app.UseMiddleware<ExceptionMiddleware>();
 
-app.UseCors("CorsPolicy");
+app.UseHttpsRedirection();
 
-app.MapGet("/", () => "UFF - API rodando 🚀");
+app.UseCors("CorsPolicy");
 
 app.UseSwagger();
 app.UseSwaggerUI();
-
-app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
