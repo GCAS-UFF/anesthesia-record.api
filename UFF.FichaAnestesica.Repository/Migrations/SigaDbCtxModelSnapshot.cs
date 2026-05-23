@@ -61,6 +61,14 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .HasColumnType("varchar(10)")
                         .HasColumnName("floor");
 
+                    b.Property<DateTime?>("LastLoginAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_login_at");
+
+                    b.Property<DateTime?>("LastSyncAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_sync_at");
+
                     b.Property<DateTime>("LastUpdate")
                         .HasColumnType("timestamptz")
                         .HasColumnName("last_update");
@@ -104,19 +112,17 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .HasColumnName("created_at");
 
                     b.Property<string>("ExternalIdHuap")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .IsRequired()
+                        .HasColumnType("text")
                         .HasColumnName("external_id_huap");
 
                     b.Property<string>("FullName")
                         .IsRequired()
-                        .HasMaxLength(150)
                         .HasColumnType("varchar(200)")
                         .HasColumnName("full_name");
 
                     b.Property<string>("Gender")
                         .IsRequired()
-                        .HasMaxLength(20)
                         .HasColumnType("varchar(1)")
                         .HasColumnName("gender");
 
@@ -124,13 +130,20 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("height_cm");
 
+                    b.Property<DateTime?>("LastLoginAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_login_at");
+
+                    b.Property<DateTime?>("LastSyncAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_sync_at");
+
                     b.Property<DateTime>("LastUpdate")
                         .HasColumnType("timestamptz")
                         .HasColumnName("last_update");
 
                     b.Property<string>("MedicalRecordNumber")
                         .IsRequired()
-                        .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
                         .HasColumnName("medical_record_number");
 
@@ -180,6 +193,14 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_primary");
 
+                    b.Property<DateTime?>("LastLoginAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_login_at");
+
+                    b.Property<DateTime?>("LastSyncAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_sync_at");
+
                     b.Property<DateTime>("LastUpdate")
                         .HasColumnType("timestamptz")
                         .HasColumnName("last_update");
@@ -215,6 +236,14 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .HasColumnType("varchar(200)")
                         .HasColumnName("description");
 
+                    b.Property<DateTime?>("LastLoginAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_login_at");
+
+                    b.Property<DateTime?>("LastSyncAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_sync_at");
+
                     b.Property<DateTime>("LastUpdate")
                         .HasColumnType("timestamptz")
                         .HasColumnName("last_update");
@@ -236,6 +265,14 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamptz")
                         .HasColumnName("created_at");
+
+                    b.Property<DateTime?>("LastLoginAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_login_at");
+
+                    b.Property<DateTime?>("LastSyncAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_sync_at");
 
                     b.Property<DateTime>("LastUpdate")
                         .HasColumnType("timestamptz")
@@ -295,6 +332,14 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .HasColumnType("timestamptz")
                         .HasColumnName("created_at");
 
+                    b.Property<DateTime?>("LastLoginAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_login_at");
+
+                    b.Property<DateTime?>("LastSyncAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_sync_at");
+
                     b.Property<DateTime>("LastUpdate")
                         .HasColumnType("timestamptz")
                         .HasColumnName("last_update");
@@ -312,69 +357,6 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                     b.HasIndex("surgical_center_id");
 
                     b.ToTable("surgery_locations", "siga_db");
-                });
-
-            modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.SurgicalCase", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Bed")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("ExternalIdHuap")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<DateTime>("LastUpdate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("PatientId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("ProposedProcedure")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)");
-
-                    b.Property<string>("Room")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<string>("Specialty")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)")
-                        .HasDefaultValue("waiting");
-
-                    b.Property<string>("Surgeon")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.Property<DateTime>("SurgeryDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PatientId");
-
-                    b.ToTable("SurgicalCase", "siga_db");
                 });
 
             modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.SurgicalCenter", b =>
@@ -399,6 +381,14 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(200)")
                         .HasColumnName("description");
+
+                    b.Property<DateTime?>("LastLoginAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_login_at");
+
+                    b.Property<DateTime?>("LastSyncAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_sync_at");
 
                     b.Property<DateTime>("LastUpdate")
                         .HasColumnType("timestamptz")
@@ -435,6 +425,14 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .HasColumnType("varchar(200)")
                         .HasColumnName("description");
 
+                    b.Property<DateTime?>("LastLoginAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_login_at");
+
+                    b.Property<DateTime?>("LastSyncAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_sync_at");
+
                     b.Property<DateTime>("LastUpdate")
                         .HasColumnType("timestamptz")
                         .HasColumnName("last_update");
@@ -456,28 +454,68 @@ namespace UFF.FichaAnestesica.Infra.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("CanLogIn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("can_login");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamptz")
                         .HasColumnName("created_at");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("varchar(150)")
+                        .HasColumnName("email");
+
+                    b.Property<DateTime?>("LastLoginAt")
+                        .IsRequired()
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("last_login_at");
+
+                    b.Property<DateTime?>("LastSyncAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("last_sync_at");
 
                     b.Property<DateTime>("LastUpdate")
                         .HasColumnType("timestamptz")
                         .HasColumnName("last_update");
 
-                    b.Property<string>("PassWord")
+                    b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("password");
+                        .HasColumnType("varchar(150)")
+                        .HasColumnName("name");
 
-                    b.Property<string>("UserName")
+                    b.Property<string>("Registration")
+                        .IsRequired()
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("registration");
+
+                    b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("varchar(100)")
-                        .HasColumnName("username");
+                        .HasColumnName("role");
+
+                    b.Property<string>("Sector")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("sector");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserName")
+                    b.HasIndex("CanLogIn");
+
+                    b.HasIndex("Email");
+
+                    b.HasIndex("Registration")
                         .IsUnique();
+
+                    b.HasIndex("Status");
 
                     b.ToTable("users", "siga_db");
                 });
@@ -555,17 +593,6 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .HasConstraintName("f_k_surgery_locations__surgical_centers_surgical_center_id");
 
                     b.Navigation("SurgicalCenter");
-                });
-
-            modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.SurgicalCase", b =>
-                {
-                    b.HasOne("UFF.FichaAnestesica.Domain.Entities.Patient", "Patient")
-                        .WithMany()
-                        .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Patient");
                 });
 
             modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.Patient", b =>

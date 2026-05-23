@@ -19,9 +19,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
 
         public CurrentLocation CurrentLocation { get; private set; }
 
-        public List<Surgery> Surgeries => _surgeries;
-
-    
+        public List<Surgery> Surgeries => _surgeries;    
 
         public static Patient Create(
             string patientId,

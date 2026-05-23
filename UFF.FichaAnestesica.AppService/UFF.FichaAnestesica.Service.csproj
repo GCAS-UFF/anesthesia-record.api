@@ -1,10 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <None Remove="Services\AuthService.cs~RF54ad576.TMP" />
+    <None Remove="Services\AuthService.cs~RF7eae977.TMP" />
     <None Remove="Services\SurgeryService.cs~RF236cd70.TMP" />
     <None Remove="Services\SurgeryService.cs~RF5b91017.TMP" />
     <None Remove="Services\SurgeryService.cs~RF5e3eccf.TMP" />
     <None Remove="Services\SurgeryService.cs~RFb3b251.TMP" />
+    <None Remove="Services\UserService.cs~RF3c2d896.TMP" />
   </ItemGroup>
 
   <ItemGroup>
@@ -13,6 +16,9 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.5" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.18.0" />
+    <PackageReference Include="System.DirectoryServices.Protocols" Version="10.0.8" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.18.0" />
   </ItemGroup>
 
   <PropertyGroup>

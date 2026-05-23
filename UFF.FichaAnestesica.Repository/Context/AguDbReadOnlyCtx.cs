@@ -3,9 +3,9 @@ using UFF.FichaAnestesica.Domain.Dto;
 
 namespace UFF.FichaAnestesica.Infra.Context
 {
-    public class SigaDbReadOnlyCtx : DbContext, ISigaDbReadOnlyCtx
+    public class AguDbReadOnlyCtx : DbContext, IAguDbReadOnlyCtx
     {
-        public SigaDbReadOnlyCtx(DbContextOptions<SigaDbReadOnlyCtx> options)
+        public AguDbReadOnlyCtx(DbContextOptions<AguDbReadOnlyCtx> options)
                 : base(options)
         {
             ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;

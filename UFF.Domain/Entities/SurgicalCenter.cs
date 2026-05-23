@@ -9,10 +9,6 @@
             if (incoming == null)
                 return;
 
-            // ⚠️ NUNCA mexer em Id nem Code (chave natural)
-            // Id = incoming.Id; ❌
-            // Code = incoming.Code; ❌
-
             Description = incoming.Description;
         }
 

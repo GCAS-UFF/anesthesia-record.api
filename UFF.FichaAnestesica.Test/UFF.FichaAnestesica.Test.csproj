@@ -17,13 +17,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Using Include="Xunit" />
+    <ProjectReference Include="..\UFF.FichaAnestesica.AppService\UFF.FichaAnestesica.Service.csproj" />
+    <ProjectReference Include="..\UFF.FichaAnestesica.Repository\UFF.FichaAnestesica.Infra.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\UFF.FichaAnestesica.Service\UFF.FichaAnestesica.Service.csproj" />
-    <ProjectReference Include="..\UFF.FichaAnestesica.Repository\UFF.FichaAnestesica.Infra.csproj" />
-    <ProjectReference Include="..\UFF.FichaAnestesica.AppService\UFF.FichaAnestesica.Service.csproj" />
+    <Using Include="Xunit" />
   </ItemGroup>
 
 </Project>

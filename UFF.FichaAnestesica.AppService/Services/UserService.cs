@@ -1,4 +1,4 @@
-﻿namespace UFF.FichaAnestesica.AppService.Services
+﻿namespace UFF.FichaAnestesica.Api.Controllers
 {
     public class UserService
     {

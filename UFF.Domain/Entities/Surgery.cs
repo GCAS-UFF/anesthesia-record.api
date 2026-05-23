@@ -41,13 +41,10 @@ namespace UFF.FichaAnestesica.Domain.Entities
 
         public void Sync(Surgery incoming)
         {
-            // ⚠️ NUNCA mexer no Id
-            // Id = incoming.Id; ❌ NÃO FAÇA ISSO
 
             SurgeryDate = incoming.SurgeryDate;
             Status = incoming.Status;
 
-            // 🔁 Specialty (referência)
             if (incoming.Specialty != null)
             {
                 if (Specialty == null)
@@ -60,7 +57,6 @@ namespace UFF.FichaAnestesica.Domain.Entities
                 }
             }
 
-            // 🔁 Location
             if (incoming.Location != null)
             {
                 if (Location == null)
@@ -72,9 +68,6 @@ namespace UFF.FichaAnestesica.Domain.Entities
                     Location.Sync(incoming.Location);
                 }
             }
-
-            // ❌ NÃO mexe em Procedures aqui
-            // 👉 Isso já foi resolvido no repository com ReplaceProcedures
         }
 
         public void SyncProcedures(IEnumerable<Procedure> incoming)

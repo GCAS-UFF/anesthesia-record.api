@@ -11,6 +11,10 @@
     <None Remove="Entities\User.cs~RF4027d567.TMP" />
     <None Remove="Entities\User.cs~RF402958ea.TMP" />
     <None Remove="Entities\User.cs~RF4062cc21.TMP" />
+    <None Remove="Entities\User.cs~RF7ddc786.TMP" />
+    <None Remove="Entities\User.cs~RF7e6f467.TMP" />
+    <None Remove="Entities\User.cs~RF8205b0b.TMP" />
+    <None Remove="Repositories\IUserRepository.cs~RF7c5d333.TMP" />
     <None Remove="Response\PatientLocationResponse.cs~RFcabe48.TMP" />
     <None Remove="Response\UnitResponse.cs~RFcc8992.TMP" />
     <None Remove="Services\ISurgeryService.cs~RF225a8f3.TMP" />

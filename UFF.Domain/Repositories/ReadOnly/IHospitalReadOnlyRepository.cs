@@ -4,7 +4,7 @@ using UFF.FichaAnestesica.Domain.Response;
 
 namespace UFF.FichaAnestesica.Domain.Repositories.ReadOnly
 {
-    public interface IHospitalReadRepository
+    public interface IHospitalReadOnlyRepository
     {
         Task<PagedResponse<PatientViewDto>> GetSurgeriesFromHospitalAsync(DateTime? date, SurgeryStatus? status, int page = 1, int pageSize = 10);
     }

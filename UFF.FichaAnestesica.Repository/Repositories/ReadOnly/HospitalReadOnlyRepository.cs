@@ -8,11 +8,11 @@ using UFF.FichaAnestesica.Infra.Context;
 
 namespace UFF.FichaAnestesica.Infra.Repositories.ReadOnly
 {
-    public class HospitalReadRepository : IHospitalReadRepository
+    public class HospitalReadOnlyRepository : IHospitalReadOnlyRepository
     {
-        private readonly ISigaDbReadOnlyCtx _context;
+        private readonly IAguDbReadOnlyCtx _context;
 
-        public HospitalReadRepository(ISigaDbReadOnlyCtx context)
+        public HospitalReadOnlyRepository(IAguDbReadOnlyCtx context)
         {
             _context = context;
         }

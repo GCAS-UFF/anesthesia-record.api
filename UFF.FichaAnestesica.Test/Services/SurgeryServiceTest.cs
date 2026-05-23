@@ -1,20 +1,15 @@
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Xunit;
-using SurgeryService = UFF.FichaAnestesica.Service.Services.SurgeryService;
 using UFF.FichaAnestesica.Domain.Dto;
 using UFF.FichaAnestesica.Domain.Entities;
 using UFF.FichaAnestesica.Domain.Enums;
 using UFF.FichaAnestesica.Domain.Repositories;
 using UFF.FichaAnestesica.Domain.Repositories.ReadOnly;
 using UFF.FichaAnestesica.Domain.Response;
+using SurgeryService = UFF.FichaAnestesica.Service.Services.SurgeryService;
 
 public class SurgeryServiceTests
 {
-    private readonly Mock<IHospitalReadRepository> _hospitalRepoMock;
+    private readonly Mock<IHospitalReadOnlyRepository> _hospitalRepoMock;
     private readonly Mock<ISurgeryRepository> _surgeryRepoMock;
     private readonly SurgeryService _service;
 
@@ -23,7 +18,7 @@ public class SurgeryServiceTests
 
     public SurgeryServiceTests()
     {
-        _hospitalRepoMock = new Mock<IHospitalReadRepository>();
+        _hospitalRepoMock = new Mock<IHospitalReadOnlyRepository>();
         _surgeryRepoMock = new Mock<ISurgeryRepository>();
         _service = new SurgeryService(_hospitalRepoMock.Object, _surgeryRepoMock.Object);
     }

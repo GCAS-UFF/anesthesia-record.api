@@ -9,20 +9,18 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("postgresConnection");
 var connectionStringReadOnly = builder.Configuration.GetConnectionString("postgresConnectionReadOnly");
 
-// Registrar DbContexts com suas interfaces
 builder.Services.AddDbContext<ISigaDbCtx, SigaDbCtx>(options =>
 {
     options.UseNpgsql(connectionString, x =>
      x.MigrationsHistoryTable("__EFMigrationsHistory", "siga_db"));
 });
 
-builder.Services.AddDbContext<ISigaDbReadOnlyCtx, SigaDbReadOnlyCtx>(options =>
+builder.Services.AddDbContext<IAguDbReadOnlyCtx, AguDbReadOnlyCtx>(options =>
 {
     options.UseNpgsql(connectionStringReadOnly);
     options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 });
 
-// Registrar serviços
 builder.Services.RegisterServices();
 
 
@@ -34,6 +32,7 @@ builder.Services.AddCors(options =>
             .WithOrigins(
                 "http://localhost:8100",
                 "http://10.0.2.2:8100",
+                "http://localhost:4200",
                 "capacitor://localhost",
                 "https://anesthesia-record-app-ionic.web.app",
                 "https://anesthesia-record-app-ionic.firebaseapp.com"

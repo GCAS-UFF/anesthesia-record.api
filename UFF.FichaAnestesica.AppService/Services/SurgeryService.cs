@@ -11,11 +11,11 @@ namespace UFF.FichaAnestesica.Service.Services
 {
     public class SurgeryService : ISurgeryService
     {
-        private readonly IHospitalReadRepository _hospitalReadRepository;
+        private readonly IHospitalReadOnlyRepository _hospitalReadRepository;
         private readonly ISurgeryRepository _surgeryRepository;
 
         public SurgeryService(
-            IHospitalReadRepository hospitalReadRepository,
+            IHospitalReadOnlyRepository hospitalReadRepository,
             ISurgeryRepository surgeryRepository)
         {
             _hospitalReadRepository = hospitalReadRepository;

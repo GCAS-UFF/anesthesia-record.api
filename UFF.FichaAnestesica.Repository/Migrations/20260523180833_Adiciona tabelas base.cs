@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace UFF.FichaAnestesica.Infra.Migrations
 {
     /// <inheritdoc />
-    public partial class Incluitabelas : Migration
+    public partial class Adicionatabelasbase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -29,8 +29,11 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                     gender = table.Column<string>(type: "varchar(1)", nullable: false),
                     weight_kg = table.Column<double>(type: "numeric(10,2)", nullable: false),
                     height_cm = table.Column<int>(type: "integer", nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
-                    last_update = table.Column<DateTime>(type: "timestamp", nullable: false)
+                    external_id_huap = table.Column<string>(type: "text", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamptz", nullable: false),
+                    last_update = table.Column<DateTime>(type: "timestamptz", nullable: false),
+                    last_login_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    last_sync_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -48,8 +51,10 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                     description = table.Column<string>(type: "varchar(500)", nullable: false),
                     cid = table.Column<string>(type: "varchar(20)", nullable: false),
                     is_primary = table.Column<bool>(type: "boolean", nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    last_update = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    created_at = table.Column<DateTime>(type: "timestamptz", nullable: false),
+                    last_update = table.Column<DateTime>(type: "timestamptz", nullable: false),
+                    last_login_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    last_sync_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -65,8 +70,10 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     code = table.Column<string>(type: "varchar(50)", nullable: false),
                     description = table.Column<string>(type: "varchar(200)", nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
-                    last_update = table.Column<DateTime>(type: "timestamp", nullable: false)
+                    created_at = table.Column<DateTime>(type: "timestamptz", nullable: false),
+                    last_update = table.Column<DateTime>(type: "timestamptz", nullable: false),
+                    last_login_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    last_sync_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -82,8 +89,10 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     code = table.Column<string>(type: "varchar(50)", nullable: false),
                     description = table.Column<string>(type: "varchar(200)", nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
-                    last_update = table.Column<DateTime>(type: "timestamp", nullable: false)
+                    created_at = table.Column<DateTime>(type: "timestamptz", nullable: false),
+                    last_update = table.Column<DateTime>(type: "timestamptz", nullable: false),
+                    last_login_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    last_sync_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -99,8 +108,10 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     code = table.Column<string>(type: "varchar(50)", nullable: false),
                     description = table.Column<string>(type: "varchar(200)", nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
-                    last_update = table.Column<DateTime>(type: "timestamp", nullable: false)
+                    created_at = table.Column<DateTime>(type: "timestamptz", nullable: false),
+                    last_update = table.Column<DateTime>(type: "timestamptz", nullable: false),
+                    last_login_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    last_sync_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -114,10 +125,17 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    username = table.Column<string>(type: "varchar(100)", nullable: false),
-                    password = table.Column<string>(type: "varchar(255)", nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
-                    last_update = table.Column<DateTime>(type: "timestamp", nullable: false)
+                    name = table.Column<string>(type: "varchar(150)", nullable: false),
+                    registration = table.Column<string>(type: "varchar(50)", nullable: false),
+                    sector = table.Column<string>(type: "varchar(100)", nullable: false),
+                    email = table.Column<string>(type: "varchar(150)", nullable: false),
+                    role = table.Column<string>(type: "varchar(100)", nullable: false),
+                    can_login = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    status = table.Column<int>(type: "integer", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamptz", nullable: false),
+                    last_update = table.Column<DateTime>(type: "timestamptz", nullable: false),
+                    last_login_at = table.Column<DateTime>(type: "timestamptz", nullable: false),
+                    last_sync_at = table.Column<DateTime>(type: "timestamptz", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -133,8 +151,10 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     surgical_center_id = table.Column<int>(type: "integer", nullable: false),
                     room = table.Column<string>(type: "varchar(50)", nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
-                    last_update = table.Column<DateTime>(type: "timestamp", nullable: false)
+                    created_at = table.Column<DateTime>(type: "timestamptz", nullable: false),
+                    last_update = table.Column<DateTime>(type: "timestamptz", nullable: false),
+                    last_login_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    last_sync_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -160,8 +180,10 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                     floor = table.Column<string>(type: "varchar(10)", nullable: false),
                     room = table.Column<string>(type: "varchar(50)", nullable: false),
                     patient_id = table.Column<int>(type: "integer", nullable: true),
-                    created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
-                    last_update = table.Column<DateTime>(type: "timestamp", nullable: false)
+                    created_at = table.Column<DateTime>(type: "timestamptz", nullable: false),
+                    last_update = table.Column<DateTime>(type: "timestamptz", nullable: false),
+                    last_login_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    last_sync_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -195,8 +217,10 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                     specialty_id = table.Column<int>(type: "integer", nullable: false),
                     surgery_location_id = table.Column<int>(type: "integer", nullable: false),
                     patient_id1 = table.Column<int>(type: "integer", nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp", nullable: false),
-                    last_update = table.Column<DateTime>(type: "timestamp", nullable: false)
+                    created_at = table.Column<DateTime>(type: "timestamptz", nullable: false),
+                    last_update = table.Column<DateTime>(type: "timestamptz", nullable: false),
+                    last_login_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    last_sync_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -317,11 +341,29 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_users_username",
+                name: "IX_users_can_login",
                 schema: "siga_db",
                 table: "users",
-                column: "username",
+                column: "can_login");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_users_email",
+                schema: "siga_db",
+                table: "users",
+                column: "email");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_users_registration",
+                schema: "siga_db",
+                table: "users",
+                column: "registration",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_users_status",
+                schema: "siga_db",
+                table: "users",
+                column: "status");
         }
 
         /// <inheritdoc />

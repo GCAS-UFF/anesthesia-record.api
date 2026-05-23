@@ -12,8 +12,11 @@
     <None Remove="EntityConfig\CurrentLocationConfig.cs~RF5d9750f.TMP" />
     <None Remove="EntityConfig\SpecialtyConfig.cs~RF56243e0.TMP" />
     <None Remove="EntityConfig\UnitConfig.cs~RF7e8b72.TMP" />
+    <None Remove="Repositories\ReadOnly\LdapAuthReadRepository.cs~RF549393b.TMP" />
     <None Remove="Repositories\SurgeriesRepository.cs~RFf4fef99.TMP" />
     <None Remove="Repositories\SurgeryRepository.cs~RF5b28af6.TMP" />
+    <None Remove="Repositories\UserRepository.cs~RF7f920ee.TMP" />
+    <None Remove="Repositories\UserRepository.cs~RF82377ad.TMP" />
   </ItemGroup>
 
   <ItemGroup>
