@@ -15,21 +15,14 @@ namespace UFF.FichaAnestesica.Domain.Entities
         public GenderEnum Gender { get; private set; }
         public double WeightKg { get; private set; }
         public int HeightCm { get; private set; }
-        public string ExternalIdHuap { get; set; }
+        public string ExternalIdHuap { get; private set; }
 
         public CurrentLocation CurrentLocation { get; private set; }
 
-        public List<Surgery> Surgeries => _surgeries;    
+        public List<Surgery> Surgeries => _surgeries;
 
-        public static Patient Create(
-            string patientId,
-            string medicalRecordNumber,
-            string fullName,
-            DateTime birthDate,
-            GenderEnum gender,
-            double weightKg,
-            int heightCm,
-            CurrentLocation currentLocation)
+        public static Patient Create(string patientId, string medicalRecordNumber, string fullName, DateTime birthDate, GenderEnum gender,
+            double weightKg, int heightCm, CurrentLocation currentLocation)
         {
             return new Patient
             {
@@ -44,41 +37,22 @@ namespace UFF.FichaAnestesica.Domain.Entities
             };
         }
 
-        public void Sync(Patient incoming)
+        public void UpdateExternalCode(string externalCode)
+            => this.ExternalIdHuap = externalCode;
+
+        public void UpdatePatient(Patient patient)
         {
-            UpdateBasicInfo(incoming);
-            SyncLocation(incoming.CurrentLocation);
-            SyncSurgeries(incoming.Surgeries);
+            FullName = patient.FullName;
+            BirthDate = patient.BirthDate;
+            Gender = patient.Gender;
+            WeightKg = patient.WeightKg;
+            HeightCm = patient.HeightCm;
+            MedicalRecordNumber = patient.MedicalRecordNumber;
+            ExternalIdHuap = patient.ExternalIdHuap;
         }
 
-   
-        private void UpdateBasicInfo(Patient incoming)
-        {
-            FullName = incoming.FullName;
-            MedicalRecordNumber = incoming.MedicalRecordNumber;
-            BirthDate = incoming.BirthDate;
-            Gender = incoming.Gender;
-            WeightKg = incoming.WeightKg;
-            HeightCm = incoming.HeightCm;
-        }
-
-       
-        private void SyncLocation(CurrentLocation incoming)
-        {
-            if (incoming == null)
-            {
-                CurrentLocation = null;
-                return;
-            }
-
-            if (CurrentLocation == null)
-            {
-                CurrentLocation = incoming;
-                return;
-            }
-
-            CurrentLocation.Sync(incoming);
-        }
+        public void SetCurrentLocation(CurrentLocation currentLocation)
+            => this.CurrentLocation = currentLocation;
 
         public void SyncSurgery(Surgery incoming)
         {
@@ -105,34 +79,6 @@ namespace UFF.FichaAnestesica.Domain.Entities
 
             foreach (var s in surgeries)
                 Surgeries.Add(s);
-        }
-
-        private void SyncSurgeries(IEnumerable<Surgery> incoming)
-        {
-            var existingDict = _surgeries.ToDictionary(s => s.Id);
-
-            foreach (var surgery in incoming)
-            {
-                if (!existingDict.TryGetValue(surgery.Id, out var existing))
-                {
-                    _surgeries.Add(surgery);
-                }
-                else
-                {
-                    existing.SyncProcedures(surgery.Procedures);
-                }
-            }
-
-            var incomingIds = incoming.Select(s => s.SurgeryId).ToHashSet();
-
-            var toRemove = _surgeries
-                .Where(s => !incomingIds.Contains(s.SurgeryId))
-                .ToList();
-
-            foreach (var remove in toRemove)
-            {
-                _surgeries.Remove(remove);
-            }
         }
     }
 }

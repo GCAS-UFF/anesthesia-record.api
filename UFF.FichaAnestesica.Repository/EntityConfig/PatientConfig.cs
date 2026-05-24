@@ -37,6 +37,10 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .HasColumnType("date")
                 .IsRequired();
 
+            builder.Property(p => p.ExternalIdHuap)
+                .HasMaxLength(50)
+                .IsRequired();
+
             builder.HasMany(p => p.Surgeries)
                 .WithOne(s => s.Patient)
                 .HasForeignKey(s => s.Id);

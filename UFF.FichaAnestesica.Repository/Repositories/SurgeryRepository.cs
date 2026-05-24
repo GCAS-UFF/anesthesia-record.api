@@ -16,7 +16,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories
         }
 
         public async Task AddOrUpdatePatientsAsync(IList<Patient> patients)
-        {          
+        {
             var patientIds = patients.Select(p => p.PatientId).ToList();
 
             var existingPatients = await _context.Patients
@@ -33,86 +33,43 @@ namespace UFF.FichaAnestesica.Infra.Repositories
                 .Where(p => patientIds.Contains(p.PatientId))
                 .ToListAsync();
 
-            var existingDict = existingPatients.ToDictionary(p => p.PatientId);
-            var proceduresDict = await _context.Procedures.ToDictionaryAsync(p => p.ExternalId);
-            var specialtiesDict = await _context.Specialties.ToDictionaryAsync(s => s.Code);
-            var unitsDict = await _context.Units.ToDictionaryAsync(u => u.Code);
-            var centersDict = await _context.SurgicalCenters.ToDictionaryAsync(sc => sc.Code);
-
-
-            var allSurgeryIds = patients
-                    .SelectMany(p => p.Surgeries)
-                    .Select(s => s.SurgeryId)
-                    .Where(id => !string.IsNullOrEmpty(id))
-                    .Distinct()
-                    .ToList();
-
-            var existingSurgeries = await _context.Surgeries
-                    .Include(s => s.Procedures)
-                    .Include(s => s.Specialty)
-                    .Include(s => s.Location)
-                        .ThenInclude(l => l.SurgicalCenter)
-                    .Where(s => allSurgeryIds.Contains(s.SurgeryId))
-                    .ToListAsync();
-
-            var surgeriesDict = existingSurgeries
-                    .ToDictionary(s => s.SurgeryId);
+            var existingPatientsDict = existingPatients.ToDictionary(p => p.PatientId);
+            var unitsDict = await _context.Units.ToDictionaryAsync(x => x.Code);
+            var specialtiesDict = await _context.Specialties.ToDictionaryAsync(x => x.Code);
+            var centersDict = await _context.SurgicalCenters.ToDictionaryAsync(x => x.Code);
+            var proceduresDict = await _context.Procedures.ToDictionaryAsync(x => x.ExternalId);
 
             foreach (var patient in patients)
             {
-                ResolveReferences(patient, proceduresDict, specialtiesDict, unitsDict, centersDict);
-                ResolveSurgeries(patient, surgeriesDict);
+                ResolveOrCreateRelatedEntities(patient, unitsDict, specialtiesDict, centersDict, proceduresDict);
 
-                var existing = existingDict.GetValueOrDefault(patient.PatientId);
-
-                if (existing == null)
+                if (!existingPatientsDict.TryGetValue(patient.PatientId, out var existingPatient))
                 {
                     await _context.Patients.AddAsync(patient);
-                    continue;
                 }
-
-                existing.Sync(patient);
+                else
+                {
+                    UpdateExistingPatient(existingPatient, patient);
+                }
             }
 
             await _context.SaveChangesAsync();
         }
 
-        private void ResolveSurgeries(Patient patient, Dictionary<string, Surgery> surgeriesDict)
+        private void ResolveOrCreateRelatedEntities(Patient patient, Dictionary<string, Unit> unitsDict, Dictionary<string, Specialty> specialtiesDict,
+            Dictionary<string, SurgicalCenter> centersDict, Dictionary<string, Procedure> proceduresDict)
         {
-            var resolved = new List<Surgery>();
-
-            foreach (var surgery in patient.Surgeries)
-            {
-                if (surgeriesDict.TryGetValue(surgery.SurgeryId, out var existing))
-                {
-                    existing.Sync(surgery);
-
-                    resolved.Add(existing);
-                }
-                else
-                {
-                    resolved.Add(surgery);
-                }
-            }
-
-            patient.ReplaceSurgeries(resolved);
-        }
-
-        private void ResolveReferences(Patient patient, Dictionary<string, Procedure> proceduresDict, Dictionary<string, Specialty> specialtiesDict, Dictionary<string, Unit> unitsDict, Dictionary<string, SurgicalCenter> centersDict)
-        {
-
             if (patient.CurrentLocation?.Unit != null)
             {
                 var code = patient.CurrentLocation.Unit.Code;
-
-                if (unitsDict.TryGetValue(code, out var existing))
+                if (unitsDict.TryGetValue(code, out var existingUnit))
                 {
-                    patient.CurrentLocation.SyncUnit(existing);
+                    patient.CurrentLocation.SetUnit(existingUnit);
                 }
                 else
                 {
-                    unitsDict[code] = patient.CurrentLocation.Unit;
                     _context.Units.Add(patient.CurrentLocation.Unit);
+                    unitsDict[code] = patient.CurrentLocation.Unit;
                 }
             }
 
@@ -121,53 +78,67 @@ namespace UFF.FichaAnestesica.Infra.Repositories
                 if (surgery.Specialty != null)
                 {
                     var code = surgery.Specialty.Code;
-
-                    if (specialtiesDict.TryGetValue(code, out var existing))
+                    if (specialtiesDict.TryGetValue(code, out var existingSpecialty))
                     {
-                        surgery.SetSpecialty(existing);
+                        surgery.SetSpecialty(existingSpecialty);
                     }
                     else
                     {
-                        specialtiesDict[code] = surgery.Specialty;
                         _context.Specialties.Add(surgery.Specialty);
+                        specialtiesDict[code] = surgery.Specialty;
                     }
                 }
 
                 if (surgery.Location?.SurgicalCenter != null)
                 {
                     var code = surgery.Location.SurgicalCenter.Code;
-
-                    if (centersDict.TryGetValue(code, out var existing))
+                    if (centersDict.TryGetValue(code, out var existingCenter))
                     {
-                        surgery.Location.SetSurgicalCenter(existing);
+                        surgery.Location.SetSurgicalCenter(existingCenter);
                     }
                     else
                     {
-                        centersDict[code] = surgery.Location.SurgicalCenter;
                         _context.SurgicalCenters.Add(surgery.Location.SurgicalCenter);
+                        centersDict[code] = surgery.Location.SurgicalCenter;
                     }
                 }
 
-                var resolved = new List<Procedure>();
-
-                foreach (var proc in surgery.Procedures)
+                var resolvedProcedures = new List<Procedure>();
+                foreach (var procedure in surgery.Procedures)
                 {
-                    if (proceduresDict.TryGetValue(proc.ExternalId, out var existing))
+                    if (proceduresDict.TryGetValue(procedure.ExternalId, out var existingProcedure))
                     {
-                        existing.Sync(proc);
-                        resolved.Add(existing);
+
+                        existingProcedure.Update(procedure.Description, procedure.Cid, procedure.IsPrimary);
+                        resolvedProcedures.Add(existingProcedure);
                     }
                     else
                     {
-                        proceduresDict[proc.ExternalId] = proc;
-                        resolved.Add(proc);
+                        _context.Procedures.Add(procedure);
+                        proceduresDict[procedure.ExternalId] = procedure;
+                        resolvedProcedures.Add(procedure);
                     }
                 }
-
-                surgery.ReplaceProcedures(resolved);
+                surgery.ReplaceProcedures(resolvedProcedures);
             }
         }
 
+        private void UpdateExistingPatient(Patient existingPatient, Patient newPatientData)
+        {
+            existingPatient.UpdatePatient(newPatientData);
+
+            if (newPatientData.CurrentLocation != null)
+            {
+                if (existingPatient.CurrentLocation == null)
+                    existingPatient.SetCurrentLocation(CurrentLocation.Update(newPatientData.CurrentLocation));
+            }
+
+            existingPatient.Surgeries.Clear();
+            foreach (var surgery in newPatientData.Surgeries)
+            {
+                existingPatient.Surgeries.Add(surgery);
+            }
+        }
         public async Task<List<Patient>> GetPatientsWithSurgeriesAsync(DateTime? date = null, SurgeryStatus? status = null, int page = 1, int size = 10)
         {
             var query = _context.Patients
@@ -195,7 +166,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories
                     p.Surgeries.Any(s => s.Status == status.Value));
             }
 
-            return await  query
+            return await query
              .Skip((page - 1) * size)
              .Take(size)
              .ToListAsync();

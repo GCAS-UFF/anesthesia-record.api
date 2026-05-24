@@ -5,7 +5,6 @@ using UFF.FichaAnestesica.Domain.Enums;
 using UFF.FichaAnestesica.Domain.Repositories;
 using UFF.FichaAnestesica.Domain.Repositories.ReadOnly;
 using UFF.FichaAnestesica.Domain.Response;
-using SurgeryService = UFF.FichaAnestesica.Service.Services.SurgeryService;
 
 public class SurgeryServiceTests
 {

@@ -2,7 +2,10 @@
 {
     public class CurrentLocation : Base
     {
-        private CurrentLocation() { }
+        private CurrentLocation()
+        {
+        }
+        
         public Unit Unit { get; private set; }
         public string Bed { get; private set; }
         public string Floor { get; private set; }
@@ -18,7 +21,18 @@
                 Unit = unit
             };
         }
-   
+
+        public static CurrentLocation Update(CurrentLocation currentLocation)
+        {
+            return new CurrentLocation
+            {
+                Bed = currentLocation.Bed,
+                Floor = currentLocation.Floor,
+                Room = currentLocation.Room,
+                Unit = currentLocation.Unit
+            };
+        }
+
         public void Sync(CurrentLocation incoming)
         {
             if (incoming == null)
@@ -30,7 +44,10 @@
 
             SyncUnit(incoming.Unit);
         }
-      
+
+        public void SetUnit(Unit unit)
+            => this.Unit = unit;
+
         public void SyncUnit(Unit incoming)
         {
             if (incoming == null)
@@ -39,13 +56,14 @@
                 return;
             }
 
-            if (Unit == null)
+            if (Unit == null || Unit.Code != incoming.Code)
             {
                 Unit = incoming;
-                return;
             }
-
-            Unit.Sync(incoming);
+            else
+            {
+                Unit.Sync(incoming);
+            }
         }
     }
 }

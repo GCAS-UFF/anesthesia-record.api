@@ -7,6 +7,8 @@
     <None Remove="Services\SurgeryService.cs~RF5b91017.TMP" />
     <None Remove="Services\SurgeryService.cs~RF5e3eccf.TMP" />
     <None Remove="Services\SurgeryService.cs~RFb3b251.TMP" />
+    <None Remove="Services\SurgeryService.cs~RFcd94e31.TMP" />
+    <None Remove="Services\SurgeryService.cs~RFd158897.TMP" />
     <None Remove="Services\UserService.cs~RF3c2d896.TMP" />
   </ItemGroup>
 
