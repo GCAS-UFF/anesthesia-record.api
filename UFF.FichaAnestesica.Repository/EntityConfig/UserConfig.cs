@@ -27,27 +27,27 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .HasColumnType("varchar(50)")
                 .IsRequired();
 
+            builder.Property(u => u.ExternalId)
+              .HasColumnName("external_id")
+              .HasColumnType("varchar(50)")
+              .IsRequired();
+
             builder.Property(u => u.Sector)
                 .HasColumnName("sector")
                 .HasColumnType("varchar(100)");
 
             builder.Property(u => u.Email)
                 .HasColumnName("email")
-                .HasColumnType("varchar(150)");
-
-            builder.Property(u => u.Role)
-                .HasColumnName("role")
-                .HasColumnType("varchar(100)");
+                .HasColumnType("varchar(150)")
+                .IsRequired();
 
             builder.Property(u => u.CanLogIn)
                 .HasColumnName("can_login")
-                .HasDefaultValue(false)
-                .IsRequired();
+                .HasDefaultValue(false);
 
             builder.Property(u => u.Status)
                 .HasColumnName("status")
-                .HasConversion<int>()
-                .IsRequired();
+                .HasConversion<int>();
 
             builder.Property(u => u.CreatedAt)
                 .HasColumnName("created_at")

@@ -18,7 +18,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories.ReadOnly
         {
             try
             {
-                return username == "admin@siga.com.br" && password == "admin";
+                return username == "admin" || username == "amanda.onishi";
 
                 //var ldapServer = _configuration["Ldap:Server"];
                 //var ldapPort = int.Parse(_configuration["Ldap:Port"]);

@@ -4,28 +4,28 @@ namespace UFF.FichaAnestesica.Domain.Extensions
 {
     public static class SurgeryStatusExtensions
     {
-        public static SurgeryStatus ToSurgeryStatus(this string status)
+        public static SurgeryStatusEnum ToSurgeryStatus(this string status)
         {
             return status?.ToLower() switch
             {
-                "agendada" => SurgeryStatus.Scheduled,
-                "waiting" or "aguardando" => SurgeryStatus.Waiting,
-                "em_andamento" or "in_progress" => SurgeryStatus.InProgress,
-                "concluida" or "completed" => SurgeryStatus.Completed,
-                "cancelada" or "cancelled" => SurgeryStatus.Cancelled,
-                _ => SurgeryStatus.Scheduled
+                "agendada" => SurgeryStatusEnum.Scheduled,
+                "waiting" or "aguardando" => SurgeryStatusEnum.Waiting,
+                "em_andamento" or "in_progress" => SurgeryStatusEnum.InProgress,
+                "concluida" or "completed" => SurgeryStatusEnum.Completed,
+                "cancelada" or "cancelled" => SurgeryStatusEnum.Cancelled,
+                _ => SurgeryStatusEnum.Scheduled
             };
         }
 
-        public static string ToStatusString(this SurgeryStatus status)
+        public static string ToStatusString(this SurgeryStatusEnum status)
         {
             return status switch
             {
-                SurgeryStatus.Scheduled => "agendada",
-                SurgeryStatus.Waiting => "aguardando",
-                SurgeryStatus.InProgress => "em_andamento",
-                SurgeryStatus.Completed => "concluida",
-                SurgeryStatus.Cancelled => "cancelada",
+                SurgeryStatusEnum.Scheduled => "agendada",
+                SurgeryStatusEnum.Waiting => "aguardando",
+                SurgeryStatusEnum.InProgress => "em_andamento",
+                SurgeryStatusEnum.Completed => "concluida",
+                SurgeryStatusEnum.Cancelled => "cancelada",
                 _ => "agendada"
             };
         }

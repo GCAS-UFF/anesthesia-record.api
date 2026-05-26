@@ -23,22 +23,7 @@ namespace UFF.FichaAnestesica.Infra.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("ProcedureSurgery", b =>
-                {
-                    b.Property<int>("ProceduresId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("SurgeryId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("ProceduresId", "SurgeryId");
-
-                    b.HasIndex("SurgeryId");
-
-                    b.ToTable("surgery_procedures", "siga_db");
-                });
-
-            modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.CurrentLocation", b =>
+            modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.AnesthesiaRecord", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -47,121 +32,280 @@ namespace UFF.FichaAnestesica.Infra.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Bed")
+                    b.Property<int>("ActivityScore")
+                        .HasColumnType("integer")
+                        .HasColumnName("activity_score");
+
+                    b.Property<string>("AirwayDeviceNumber")
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("airway_device_number");
+
+                    b.Property<int?>("AirwayDeviceType")
+                        .HasColumnType("integer")
+                        .HasColumnName("airway_device_type");
+
+                    b.Property<int?>("AirwayType")
+                        .HasColumnType("integer")
+                        .HasColumnName("airway_type");
+
+                    b.Property<TimeOnly>("AnesthesiaEndTime")
+                        .HasColumnType("time")
+                        .HasColumnName("anesthesia_end_time");
+
+                    b.Property<bool>("AnesthesiaEquipmentChecked")
+                        .HasColumnType("boolean")
+                        .HasColumnName("anesthesia_equipment_checked");
+
+                    b.Property<TimeOnly>("AnesthesiaStartTime")
+                        .HasColumnType("time")
+                        .HasColumnName("anesthesia_start_time");
+
+                    b.Property<bool>("AnestheticConsentSigned")
+                        .HasColumnType("boolean")
+                        .HasColumnName("anesthetic_consent_signed");
+
+                    b.Property<int>("AsaClassification")
+                        .HasColumnType("integer")
+                        .HasColumnName("asa_classification");
+
+                    b.Property<string>("Assistant")
                         .IsRequired()
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("bed");
+                        .HasColumnType("varchar(150)")
+                        .HasColumnName("assistant");
+
+                    b.Property<string>("BloodPressure")
+                        .IsRequired()
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("blood_pressure");
+
+                    b.Property<bool>("Bronchofibroscopy")
+                        .HasColumnType("boolean")
+                        .HasColumnName("bronchofibroscopy");
+
+                    b.Property<int>("CirculationScore")
+                        .HasColumnType("integer")
+                        .HasColumnName("circulation_score");
+
+                    b.Property<int>("ClinicalDischargeCondition")
+                        .HasColumnType("integer")
+                        .HasColumnName("clinical_discharge_condition");
+
+                    b.Property<bool>("Co2AbsorberCircuit")
+                        .HasColumnType("boolean")
+                        .HasColumnName("co2_absorber_circuit");
+
+                    b.Property<int>("ConsciousnessScore")
+                        .HasColumnType("integer")
+                        .HasColumnName("consciousness_score");
+
+                    b.Property<int?>("ControlledVentilationMode")
+                        .HasColumnType("integer")
+                        .HasColumnName("controlled_ventilation_mode");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamptz")
                         .HasColumnName("created_at");
 
-                    b.Property<string>("Floor")
-                        .IsRequired()
-                        .HasColumnType("varchar(10)")
-                        .HasColumnName("floor");
-
-                    b.Property<DateTime?>("LastLoginAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_login_at");
-
-                    b.Property<DateTime?>("LastSyncAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_sync_at");
-
-                    b.Property<DateTime>("LastUpdate")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("last_update");
-
-                    b.Property<string>("Room")
-                        .IsRequired()
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("room");
-
-                    b.Property<int?>("patient_id")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("unit_id")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("patient_id")
-                        .IsUnique();
-
-                    b.HasIndex("unit_id");
-
-                    b.ToTable("current_locations", "siga_db");
-                });
-
-            modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.Patient", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("Destination")
                         .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnName("destination");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    b.Property<bool>("DifficultVenousPuncture")
+                        .HasColumnType("boolean")
+                        .HasColumnName("difficult_venous_puncture");
 
-                    b.Property<DateTime>("BirthDate")
-                        .HasColumnType("date")
-                        .HasColumnName("birth_date");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("ExternalIdHuap")
+                    b.Property<string>("ExternalPatientId")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("external_id_huap");
-
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasColumnType("varchar(200)")
-                        .HasColumnName("full_name");
-
-                    b.Property<string>("Gender")
-                        .IsRequired()
-                        .HasColumnType("varchar(1)")
-                        .HasColumnName("gender");
-
-                    b.Property<int>("HeightCm")
-                        .HasColumnType("integer")
-                        .HasColumnName("height_cm");
-
-                    b.Property<DateTime?>("LastLoginAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_login_at");
-
-                    b.Property<DateTime?>("LastSyncAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_sync_at");
-
-                    b.Property<DateTime>("LastUpdate")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("last_update");
-
-                    b.Property<string>("MedicalRecordNumber")
-                        .IsRequired()
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("medical_record_number");
-
-                    b.Property<string>("PatientId")
-                        .IsRequired()
-                        .HasColumnType("varchar(50)")
+                        .HasColumnType("varchar(100)")
                         .HasColumnName("patient_id");
 
-                    b.Property<double>("WeightKg")
-                        .HasColumnType("numeric(10,2)")
+                    b.Property<int?>("FirstAnesthesiologistId")
+                        .HasColumnType("integer")
+                        .HasColumnName("first_anesthesiologist_id");
+
+                    b.Property<bool>("GeneralAnesthesia")
+                        .HasColumnType("boolean")
+                        .HasColumnName("general_anesthesia");
+
+                    b.Property<bool>("HasPain")
+                        .HasColumnType("boolean")
+                        .HasColumnName("has_pain");
+
+                    b.Property<int?>("IntubationDifficulty")
+                        .HasColumnType("integer")
+                        .HasColumnName("intubation_difficulty");
+
+                    b.Property<bool>("Laryngoscopy")
+                        .HasColumnType("boolean")
+                        .HasColumnName("laryngoscopy");
+
+                    b.Property<DateTime?>("LastLoginAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("last_login_at");
+
+                    b.Property<DateTime?>("LastSyncAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("last_sync_at");
+
+                    b.Property<DateTime>("LastUpdate")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("last_update");
+
+                    b.Property<bool>("NasalTube")
+                        .HasColumnType("boolean")
+                        .HasColumnName("nasal_tube");
+
+                    b.Property<bool>("OralTube")
+                        .HasColumnType("boolean")
+                        .HasColumnName("oral_tube");
+
+                    b.Property<string>("OtherAirwayTechnique")
+                        .HasColumnType("varchar(200)")
+                        .HasColumnName("other_airway_technique");
+
+                    b.Property<string>("OtherAirwayTypeDescription")
+                        .HasColumnType("varchar(200)")
+                        .HasColumnName("other_airway_type_description");
+
+                    b.Property<int>("OxygenSaturation")
+                        .HasColumnType("integer")
+                        .HasColumnName("oxygen_saturation");
+
+                    b.Property<int>("OxygenSaturationScore")
+                        .HasColumnType("integer")
+                        .HasColumnName("oxygen_saturation_score");
+
+                    b.Property<bool>("OxygenSupplementation")
+                        .HasColumnType("boolean")
+                        .HasColumnName("oxygen_supplementation");
+
+                    b.Property<bool>("PatientIdentifiedBeforeInduction")
+                        .HasColumnType("boolean")
+                        .HasColumnName("patient_identified_before_induction");
+
+                    b.Property<bool>("PlexusBlockPerformed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("plexus_block_performed");
+
+                    b.Property<string>("PostOperativeDiagnosis")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("post_operative_diagnosis");
+
+                    b.Property<bool>("PreAnestheticMedication")
+                        .HasColumnType("boolean")
+                        .HasColumnName("pre_anesthetic_medication");
+
+                    b.Property<string>("PreOperativeDiagnosis")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("pre_operative_diagnosis");
+
+                    b.Property<bool>("ProphylacticAntibioticUsed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("prophylactic_antibiotic_used");
+
+                    b.Property<DateOnly>("RecordDate")
+                        .HasColumnType("date")
+                        .HasColumnName("record_date");
+
+                    b.Property<int>("RespirationMode")
+                        .HasColumnType("integer")
+                        .HasColumnName("respiration_mode");
+
+                    b.Property<int>("RespirationScore")
+                        .HasColumnType("integer")
+                        .HasColumnName("respiration_score");
+
+                    b.Property<int>("RespiratoryRate")
+                        .HasColumnType("integer")
+                        .HasColumnName("respiratory_rate");
+
+                    b.Property<bool>("RetrogradeTechnique")
+                        .HasColumnType("boolean")
+                        .HasColumnName("retrograde_technique");
+
+                    b.Property<TimeOnly>("RoomEntryTime")
+                        .HasColumnType("time")
+                        .HasColumnName("room_entry_time");
+
+                    b.Property<string>("SafetyObservations")
+                        .HasColumnType("text")
+                        .HasColumnName("safety_observations");
+
+                    b.Property<int?>("SecondAnesthesiologistId")
+                        .HasColumnType("integer")
+                        .HasColumnName("second_anesthesiologist_id");
+
+                    b.Property<bool>("SedationPerformed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("sedation_performed");
+
+                    b.Property<bool>("SpinalBlockPerformed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("spinal_block_performed");
+
+                    b.Property<string>("Surgeon")
+                        .IsRequired()
+                        .HasColumnType("varchar(150)")
+                        .HasColumnName("surgeon");
+
+                    b.Property<TimeOnly>("SurgeryEndTime")
+                        .HasColumnType("time")
+                        .HasColumnName("surgery_end_time");
+
+                    b.Property<string>("SurgeryPerformed")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("surgery_performed");
+
+                    b.Property<int>("SurgicalPosition")
+                        .HasColumnType("integer")
+                        .HasColumnName("surgical_position");
+
+                    b.Property<decimal>("Temperature")
+                        .HasColumnType("numeric(5,2)")
+                        .HasColumnName("temperature");
+
+                    b.Property<int>("TotalAldreteKroulikScore")
+                        .HasColumnType("integer")
+                        .HasColumnName("total_aldrete_kroulik_score");
+
+                    b.Property<bool>("Tracheostomy")
+                        .HasColumnType("boolean")
+                        .HasColumnName("tracheostomy");
+
+                    b.Property<bool>("UsesCushions")
+                        .HasColumnType("boolean")
+                        .HasColumnName("uses_cushions");
+
+                    b.Property<string>("VenousAccessLocation")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("venous_access_location");
+
+                    b.Property<int>("VenousAccessType")
+                        .HasColumnType("integer")
+                        .HasColumnName("venous_access_type");
+
+                    b.Property<bool>("VideoLaryngoscopy")
+                        .HasColumnType("boolean")
+                        .HasColumnName("video_laryngoscopy");
+
+                    b.Property<decimal>("WeightKg")
+                        .HasColumnType("numeric(6,2)")
                         .HasColumnName("weight_kg");
 
                     b.HasKey("Id");
 
-                    b.ToTable("patients", "siga_db");
+                    b.HasIndex("FirstAnesthesiologistId");
+
+                    b.HasIndex("SecondAnesthesiologistId");
+
+                    b.ToTable("anesthesia_records", "siga_db");
                 });
 
-            modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.Procedure", b =>
+            modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.PreAnesthesiaRecord", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -170,279 +314,286 @@ namespace UFF.FichaAnestesica.Infra.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Cid")
+                    b.Property<int>("ActivityScore")
+                        .HasColumnType("integer")
+                        .HasColumnName("activity_score");
+
+                    b.Property<string>("AirwayDeviceNumber")
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("airway_device_number");
+
+                    b.Property<int?>("AirwayDeviceType")
+                        .HasColumnType("integer")
+                        .HasColumnName("airway_device_type");
+
+                    b.Property<int?>("AirwayType")
+                        .HasColumnType("integer")
+                        .HasColumnName("airway_type");
+
+                    b.Property<TimeOnly>("AnesthesiaEndTime")
+                        .HasColumnType("time")
+                        .HasColumnName("anesthesia_end_time");
+
+                    b.Property<bool>("AnesthesiaEquipmentChecked")
+                        .HasColumnType("boolean")
+                        .HasColumnName("anesthesia_equipment_checked");
+
+                    b.Property<TimeOnly>("AnesthesiaStartTime")
+                        .HasColumnType("time")
+                        .HasColumnName("anesthesia_start_time");
+
+                    b.Property<bool>("AnestheticConsentSigned")
+                        .HasColumnType("boolean")
+                        .HasColumnName("anesthetic_consent_signed");
+
+                    b.Property<int>("AsaClassification")
+                        .HasColumnType("integer")
+                        .HasColumnName("asa_classification");
+
+                    b.Property<string>("Assistant")
+                        .IsRequired()
+                        .HasColumnType("varchar(150)")
+                        .HasColumnName("assistant");
+
+                    b.Property<string>("BloodPressure")
                         .IsRequired()
                         .HasColumnType("varchar(20)")
-                        .HasColumnName("cid");
+                        .HasColumnName("blood_pressure");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("varchar(500)")
-                        .HasColumnName("description");
-
-                    b.Property<string>("ExternalId")
-                        .IsRequired()
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("procedure_id");
-
-                    b.Property<bool>("IsPrimary")
+                    b.Property<bool>("Bronchofibroscopy")
                         .HasColumnType("boolean")
-                        .HasColumnName("is_primary");
+                        .HasColumnName("bronchofibroscopy");
+
+                    b.Property<int>("CirculationScore")
+                        .HasColumnType("integer")
+                        .HasColumnName("circulation_score");
+
+                    b.Property<int>("ClinicalDischargeCondition")
+                        .HasColumnType("integer")
+                        .HasColumnName("clinical_discharge_condition");
+
+                    b.Property<bool>("Co2AbsorberCircuit")
+                        .HasColumnType("boolean")
+                        .HasColumnName("co2_absorber_circuit");
+
+                    b.Property<int>("ConsciousnessScore")
+                        .HasColumnType("integer")
+                        .HasColumnName("consciousness_score");
+
+                    b.Property<int?>("ControlledVentilationMode")
+                        .HasColumnType("integer")
+                        .HasColumnName("controlled_ventilation_mode");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("Destination")
+                        .HasColumnType("integer")
+                        .HasColumnName("destination");
+
+                    b.Property<bool>("DifficultVenousPuncture")
+                        .HasColumnType("boolean")
+                        .HasColumnName("difficult_venous_puncture");
+
+                    b.Property<int>("FirstAnesthesiologistId")
+                        .HasColumnType("integer")
+                        .HasColumnName("first_anesthesiologist_id");
+
+                    b.Property<bool>("GeneralAnesthesia")
+                        .HasColumnType("boolean")
+                        .HasColumnName("general_anesthesia");
+
+                    b.Property<bool>("HasPain")
+                        .HasColumnType("boolean")
+                        .HasColumnName("has_pain");
+
+                    b.Property<int?>("IntubationDifficulty")
+                        .HasColumnType("integer")
+                        .HasColumnName("intubation_difficulty");
+
+                    b.Property<bool>("Laryngoscopy")
+                        .HasColumnType("boolean")
+                        .HasColumnName("laryngoscopy");
 
                     b.Property<DateTime?>("LastLoginAt")
-                        .HasColumnType("timestamp with time zone")
+                        .IsRequired()
+                        .HasColumnType("timestamptz")
                         .HasColumnName("last_login_at");
 
                     b.Property<DateTime?>("LastSyncAt")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamptz")
                         .HasColumnName("last_sync_at");
 
                     b.Property<DateTime>("LastUpdate")
                         .HasColumnType("timestamptz")
                         .HasColumnName("last_update");
 
-                    b.HasKey("Id");
+                    b.Property<bool>("NasalTube")
+                        .HasColumnType("boolean")
+                        .HasColumnName("nasal_tube");
 
-                    b.HasIndex("ExternalId")
-                        .IsUnique();
+                    b.Property<bool>("OralTube")
+                        .HasColumnType("boolean")
+                        .HasColumnName("oral_tube");
 
-                    b.ToTable("procedures", "siga_db");
-                });
-
-            modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.Specialty", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("code");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
+                    b.Property<string>("OtherAirwayTechnique")
                         .HasColumnType("varchar(200)")
-                        .HasColumnName("description");
+                        .HasColumnName("other_airway_technique");
 
-                    b.Property<DateTime?>("LastLoginAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_login_at");
+                    b.Property<string>("OtherAirwayTypeDescription")
+                        .HasColumnType("varchar(200)")
+                        .HasColumnName("other_airway_type_description");
 
-                    b.Property<DateTime?>("LastSyncAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_sync_at");
-
-                    b.Property<DateTime>("LastUpdate")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("last_update");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Code")
-                        .IsUnique();
-
-                    b.ToTable("specialties", "siga_db");
-                });
-
-            modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.Surgery", b =>
-                {
-                    b.Property<int>("Id")
+                    b.Property<int>("OxygenSaturation")
                         .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnName("oxygen_saturation");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("created_at");
+                    b.Property<int>("OxygenSaturationScore")
+                        .HasColumnType("integer")
+                        .HasColumnName("oxygen_saturation_score");
 
-                    b.Property<DateTime?>("LastLoginAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_login_at");
+                    b.Property<bool>("OxygenSupplementation")
+                        .HasColumnType("boolean")
+                        .HasColumnName("oxygen_supplementation");
 
-                    b.Property<DateTime?>("LastSyncAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_sync_at");
+                    b.Property<bool>("PatientIdentifiedBeforeInduction")
+                        .HasColumnType("boolean")
+                        .HasColumnName("patient_identified_before_induction");
 
-                    b.Property<DateTime>("LastUpdate")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("last_update");
+                    b.Property<bool>("PlexusBlockPerformed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("plexus_block_performed");
 
-                    b.Property<string>("PatientId")
+                    b.Property<string>("PostOperativeDiagnosis")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("patient_id");
+                        .HasColumnName("post_operative_diagnosis");
 
-                    b.Property<string>("Status")
+                    b.Property<bool>("PreAnestheticMedication")
+                        .HasColumnType("boolean")
+                        .HasColumnName("pre_anesthetic_medication");
+
+                    b.Property<string>("PreOperativeDiagnosis")
                         .IsRequired()
-                        .HasColumnType("varchar(20)")
-                        .HasColumnName("status");
+                        .HasColumnType("text")
+                        .HasColumnName("pre_operative_diagnosis");
 
-                    b.Property<DateTime>("SurgeryDate")
+                    b.Property<bool>("ProphylacticAntibioticUsed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("prophylactic_antibiotic_used");
+
+                    b.Property<DateOnly>("RecordDate")
                         .HasColumnType("date")
-                        .HasColumnName("surgery_date");
+                        .HasColumnName("record_date");
 
-                    b.Property<string>("SurgeryId")
+                    b.Property<int>("RespirationMode")
+                        .HasColumnType("integer")
+                        .HasColumnName("respiration_mode");
+
+                    b.Property<int>("RespirationScore")
+                        .HasColumnType("integer")
+                        .HasColumnName("respiration_score");
+
+                    b.Property<int>("RespiratoryRate")
+                        .HasColumnType("integer")
+                        .HasColumnName("respiratory_rate");
+
+                    b.Property<bool>("RetrogradeTechnique")
+                        .HasColumnType("boolean")
+                        .HasColumnName("retrograde_technique");
+
+                    b.Property<TimeOnly>("RoomEntryTime")
+                        .HasColumnType("time")
+                        .HasColumnName("room_entry_time");
+
+                    b.Property<string>("SafetyObservations")
+                        .HasColumnType("text")
+                        .HasColumnName("safety_observations");
+
+                    b.Property<int>("SecondAnesthesiologistId")
+                        .HasColumnType("integer")
+                        .HasColumnName("second_anesthesiologist_id");
+
+                    b.Property<bool>("SedationPerformed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("sedation_performed");
+
+                    b.Property<bool>("SpinalBlockPerformed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("spinal_block_performed");
+
+                    b.Property<string>("Surgeon")
                         .IsRequired()
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("surgery_id");
+                        .HasColumnType("varchar(150)")
+                        .HasColumnName("surgeon");
 
-                    b.Property<int>("patient_id")
+                    b.Property<TimeOnly>("SurgeryEndTime")
+                        .HasColumnType("time")
+                        .HasColumnName("surgery_end_time");
+
+                    b.Property<string>("SurgeryPerformed")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("surgery_performed");
+
+                    b.Property<int>("SurgicalPosition")
+                        .HasColumnType("integer")
+                        .HasColumnName("surgical_position");
+
+                    b.Property<decimal>("Temperature")
+                        .HasColumnType("numeric(5,2)")
+                        .HasColumnName("temperature");
+
+                    b.Property<int>("TotalAldreteKroulikScore")
+                        .HasColumnType("integer")
+                        .HasColumnName("total_aldrete_kroulik_score");
+
+                    b.Property<bool>("Tracheostomy")
+                        .HasColumnType("boolean")
+                        .HasColumnName("tracheostomy");
+
+                    b.Property<bool>("UsesCushions")
+                        .HasColumnType("boolean")
+                        .HasColumnName("uses_cushions");
+
+                    b.Property<string>("VenousAccessLocation")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("venous_access_location");
+
+                    b.Property<int>("VenousAccessType")
+                        .HasColumnType("integer")
+                        .HasColumnName("venous_access_type");
+
+                    b.Property<bool>("VideoLaryngoscopy")
+                        .HasColumnType("boolean")
+                        .HasColumnName("video_laryngoscopy");
+
+                    b.Property<decimal>("WeightKg")
+                        .HasColumnType("numeric(6,2)")
+                        .HasColumnName("weight_kg");
+
+                    b.Property<int>("first_anesthesiologist_id")
                         .HasColumnType("integer");
 
-                    b.Property<int>("specialty_id")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("surgery_location_id")
+                    b.Property<int>("second_anesthesiologist_id")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("specialty_id");
+                    b.HasIndex("first_anesthesiologist_id");
 
-                    b.HasIndex("surgery_location_id");
+                    b.HasIndex("second_anesthesiologist_id");
 
-                    b.ToTable("surgeries", "siga_db", t =>
+                    b.ToTable("pre_anesthesia_records", "siga_db", t =>
                         {
-                            t.Property("patient_id")
-                                .HasColumnName("patient_id1");
+                            t.Property("first_anesthesiologist_id")
+                                .HasColumnName("first_anesthesiologist_id1");
+
+                            t.Property("second_anesthesiologist_id")
+                                .HasColumnName("second_anesthesiologist_id1");
                         });
-                });
-
-            modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.SurgeryLocation", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("created_at");
-
-                    b.Property<DateTime?>("LastLoginAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_login_at");
-
-                    b.Property<DateTime?>("LastSyncAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_sync_at");
-
-                    b.Property<DateTime>("LastUpdate")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("last_update");
-
-                    b.Property<string>("Room")
-                        .IsRequired()
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("room");
-
-                    b.Property<int>("surgical_center_id")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("surgical_center_id");
-
-                    b.ToTable("surgery_locations", "siga_db");
-                });
-
-            modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.SurgicalCenter", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("code");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("varchar(200)")
-                        .HasColumnName("description");
-
-                    b.Property<DateTime?>("LastLoginAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_login_at");
-
-                    b.Property<DateTime?>("LastSyncAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_sync_at");
-
-                    b.Property<DateTime>("LastUpdate")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("last_update");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Code")
-                        .IsUnique();
-
-                    b.ToTable("surgical_centers", "siga_db");
-                });
-
-            modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.Unit", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("code");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("varchar(200)")
-                        .HasColumnName("description");
-
-                    b.Property<DateTime?>("LastLoginAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_login_at");
-
-                    b.Property<DateTime?>("LastSyncAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_sync_at");
-
-                    b.Property<DateTime>("LastUpdate")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("last_update");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Code")
-                        .IsUnique();
-
-                    b.ToTable("units", "siga_db");
                 });
 
             modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.User", b =>
@@ -469,6 +620,11 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .HasColumnType("varchar(150)")
                         .HasColumnName("email");
 
+                    b.Property<string>("ExternalId")
+                        .IsRequired()
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("external_id");
+
                     b.Property<DateTime?>("LastLoginAt")
                         .IsRequired()
                         .HasColumnType("timestamptz")
@@ -482,6 +638,11 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .HasColumnType("timestamptz")
                         .HasColumnName("last_update");
 
+                    b.Property<string>("Login")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("login");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("varchar(150)")
@@ -492,13 +653,7 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .HasColumnType("varchar(50)")
                         .HasColumnName("registration");
 
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("role");
-
                     b.Property<string>("Sector")
-                        .IsRequired()
                         .HasColumnType("varchar(100)")
                         .HasColumnName("sector");
 
@@ -520,87 +675,44 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                     b.ToTable("users", "siga_db");
                 });
 
-            modelBuilder.Entity("ProcedureSurgery", b =>
+            modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.AnesthesiaRecord", b =>
                 {
-                    b.HasOne("UFF.FichaAnestesica.Domain.Entities.Procedure", null)
+                    b.HasOne("UFF.FichaAnestesica.Domain.Entities.User", "FirstAnesthesiologist")
                         .WithMany()
-                        .HasForeignKey("ProceduresId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("FirstAnesthesiologistId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("f_k_anesthesia_record__users_first_anesthesiologist_id");
 
-                    b.HasOne("UFF.FichaAnestesica.Domain.Entities.Surgery", null)
+                    b.HasOne("UFF.FichaAnestesica.Domain.Entities.User", "SecondAnesthesiologist")
                         .WithMany()
-                        .HasForeignKey("SurgeryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SecondAnesthesiologistId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("f_k_anesthesia_record__users_second_anesthesiologist_id");
+
+                    b.Navigation("FirstAnesthesiologist");
+
+                    b.Navigation("SecondAnesthesiologist");
                 });
 
-            modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.CurrentLocation", b =>
+            modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.PreAnesthesiaRecord", b =>
                 {
-                    b.HasOne("UFF.FichaAnestesica.Domain.Entities.Patient", null)
-                        .WithOne("CurrentLocation")
-                        .HasForeignKey("UFF.FichaAnestesica.Domain.Entities.CurrentLocation", "patient_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .HasConstraintName("f_k_patients_current_locations_current_location_id");
-
-                    b.HasOne("UFF.FichaAnestesica.Domain.Entities.Unit", "Unit")
+                    b.HasOne("UFF.FichaAnestesica.Domain.Entities.User", "FirstAnesthesiologist")
                         .WithMany()
-                        .HasForeignKey("unit_id")
+                        .HasForeignKey("first_anesthesiologist_id")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("f_k_current_locations__units_unit_id");
+                        .HasConstraintName("f_k_pre_anesthesia_record__users_first_anesthesiologist_id");
 
-                    b.Navigation("Unit");
-                });
-
-            modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.Surgery", b =>
-                {
-                    b.HasOne("UFF.FichaAnestesica.Domain.Entities.Patient", "Patient")
-                        .WithMany("Surgeries")
-                        .HasForeignKey("Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("f_k_surgeries_patients_patient_id1");
-
-                    b.HasOne("UFF.FichaAnestesica.Domain.Entities.Specialty", "Specialty")
+                    b.HasOne("UFF.FichaAnestesica.Domain.Entities.User", "SecondAnesthesiologist")
                         .WithMany()
-                        .HasForeignKey("specialty_id")
+                        .HasForeignKey("second_anesthesiologist_id")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("f_k_surgeries_specialties_specialty_id");
+                        .HasConstraintName("f_k_pre_anesthesia_record__users_second_anesthesiologist_id");
 
-                    b.HasOne("UFF.FichaAnestesica.Domain.Entities.SurgeryLocation", "Location")
-                        .WithMany()
-                        .HasForeignKey("surgery_location_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("f_k_surgeries__surgery_locations_location_id");
+                    b.Navigation("FirstAnesthesiologist");
 
-                    b.Navigation("Location");
-
-                    b.Navigation("Patient");
-
-                    b.Navigation("Specialty");
-                });
-
-            modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.SurgeryLocation", b =>
-                {
-                    b.HasOne("UFF.FichaAnestesica.Domain.Entities.SurgicalCenter", "SurgicalCenter")
-                        .WithMany()
-                        .HasForeignKey("surgical_center_id")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("f_k_surgery_locations__surgical_centers_surgical_center_id");
-
-                    b.Navigation("SurgicalCenter");
-                });
-
-            modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.Patient", b =>
-                {
-                    b.Navigation("CurrentLocation")
-                        .IsRequired();
-
-                    b.Navigation("Surgeries");
+                    b.Navigation("SecondAnesthesiologist");
                 });
 #pragma warning restore 612, 618
         }

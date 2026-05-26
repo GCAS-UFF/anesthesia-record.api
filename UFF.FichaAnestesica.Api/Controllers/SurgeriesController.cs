@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UFF.FichaAnestesica.Domain.Enums;
 using UFF.FichaAnestesica.Domain.Services;
@@ -16,37 +17,26 @@ namespace UFF.FichaAnestesica.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllSurgeries([FromQuery] DateTime? date, SurgeryStatus? status, int page = 1, [FromQuery] int size = 10)
+        //    [Authorize]
+        public async Task<IActionResult> GetAllSurgeriesNoPaged([FromQuery] DateTime? date, SurgeryStatusEnum? status, int page = 1, [FromQuery] int size = 10)
         {
-            var mappedList = await _surgeriesService.GetPatientsWithSurgeriesAsync(date, status, page, size);
-            return Ok(mappedList);
-        }
-
-        [HttpGet("date/{date}")]
-        public async Task<IActionResult> GetSurgeriesByDate([FromRoute] DateTime date, [FromQuery] int page = 1, [FromQuery] int size = 10)
-        {
-            var mappedList = await _surgeriesService.GetPatientsWithSurgeriesAsync(date, null, page, size);
-            return Ok(mappedList);
-        }
-
-        [HttpGet("status/{status}")]
-        public async Task<IActionResult> GetSurgeriesByStatus([FromRoute] SurgeryStatus status, [FromQuery] int page = 1, [FromQuery] int size = 10)
-        {
-            var mappedList = await _surgeriesService.GetPatientsWithSurgeriesAsync(null, status, page, size);
-            return Ok(mappedList);
+            var surgeries = await _surgeriesService.GetPatientsWithSurgeriesAsync(date, status, page, size);
+            return Ok(surgeries);
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetSurgeriesById([FromRoute] int id)
+        //    [Authorize]
+        public async Task<IActionResult> GetPatientById([FromRoute] string id)
         {
-            var patient = await _surgeriesService.GetPatientByIdAsync(id);
-            return Ok(patient);
+            var surgerie = await _surgeriesService.GetPatientByIdAsync(id);
+            return Ok(surgerie);
         }
 
-        [HttpGet("date/{date}/status/{status}")]
-        public async Task<IActionResult> GetSurgeriesByDateAndStatus([FromRoute] DateTime date, [FromRoute] SurgeryStatus status, [FromQuery] int page = 1, [FromQuery] int size = 10)
+        [HttpPatch("{patientId}/{responsableId}")]
+        //    [Authorize]
+        public async Task<IActionResult> AssumePatient([FromRoute] string patientId, int responsableId)
         {
-            var mappedList = await _surgeriesService.GetPatientsWithSurgeriesAsync(date, status, page, size);
+            var mappedList = await _surgeriesService.AssumePatientAsync(patientId, responsableId);
             return Ok(mappedList);
         }
     }

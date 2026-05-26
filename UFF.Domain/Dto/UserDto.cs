@@ -1,11 +1,22 @@
-﻿namespace UFF.FichaAnestesica.Domain.Dto
+﻿using System.Text.Json.Serialization;
+
+namespace UFF.FichaAnestesica.Domain.Dto
 {
     public class UserDto
     {
-        public string UserName { get; set; }
-        public string Role { get; set; }
-        public string PassWord { get; set; }
+        [JsonPropertyName("id")]
+        public string Id { get; set; }
+
+        [JsonPropertyName("nome")]
+        public string Name { get; set; }
+
+        [JsonPropertyName("email")]
+        public string Email { get; set; }
+
+        [JsonPropertyName("login")]
+        public string Login { get; set; }
+
+        [JsonPropertyName("matricula")]
+        public string Registration { get; set; }
     }
-
-
 }

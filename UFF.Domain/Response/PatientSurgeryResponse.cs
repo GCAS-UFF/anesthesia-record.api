@@ -13,5 +13,7 @@
         public int Age { get; set; } 
         public PatientLocationResponse CurrentLocation { get; set; }
         public List<SurgeryResponse> Surgeries { get; set; }
+        public List<AllergyResponse> Allergies { get; set; }
+        public ResponsibleAnesthesiologistResponse ResponsibleAnesthesiologist { get; set; }
     }
 }

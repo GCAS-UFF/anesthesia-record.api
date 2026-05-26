@@ -1,4 +1,4 @@
-﻿using UFF.FichaAnestesica.Domain.Entities;
+﻿using UFF.FichaAnestesica.Domain.Dto;
 using UFF.FichaAnestesica.Domain.Enums;
 using UFF.FichaAnestesica.Domain.Response;
 
@@ -6,39 +6,42 @@ namespace UFF.FichaAnestesica.Service.Mappers
 {
     public static class PatientResponseMapper
     {
-        public static PatientSurgeryResponse Map(Patient patient)
+        public static PatientSurgeryResponse Map(PatientDto patient)
         {
             if (patient == null)
                 return null;
 
             return new PatientSurgeryResponse
             {
-                Id = patient.Id,
                 PatientId = patient.PatientId,
                 MedicalRecordNumber = patient.MedicalRecordNumber,
                 FullName = patient.FullName,
                 BirthDate = patient.BirthDate,
-
                 Age = CalculateAge(patient.BirthDate),
-
-                Gender = patient.Gender == GenderEnum.Male
+                Gender = patient.Gender == "M"
                     ? "M"
                     : "F",
-
                 WeightKg = patient.WeightKg,
                 HeightCm = patient.HeightCm,
-
-                CurrentLocation = MapLocation(patient),
-
+                CurrentLocation = MapLocation(patient.CurrentLocation),
                 Surgeries = patient.Surgeries?
                     .Select(MapSurgery)
-                    .ToList() ?? new List<SurgeryResponse>()
+                    .ToList() ?? new List<SurgeryResponse>(),
+
+                ResponsibleAnesthesiologist = MapResponsible(
+                    patient.ResponsibleAnesthesiologist
+                ),
+                Allergies = patient.Allergies?
+                    .Select(MapAllergy)
+                    .ToList() ?? new List<AllergyResponse>()
             };
         }
 
-        public static List<PatientSurgeryResponse> Map(IEnumerable<Patient> patients)
+        public static List<PatientSurgeryResponse> Map(IEnumerable<PatientDto> patients)
         {
-            return patients.Select(Map).ToList();
+            return patients
+                .Select(Map)
+                .ToList();
         }
 
         private static int CalculateAge(DateTime birthDate)
@@ -53,36 +56,51 @@ namespace UFF.FichaAnestesica.Service.Mappers
             return age;
         }
 
-        private static PatientLocationResponse? MapLocation(Patient patient)
+        private static ResponsibleAnesthesiologistResponse? MapResponsible(UserDto? responsible)
         {
-            if (patient.CurrentLocation == null)
+            if (responsible == null)
+                return null;
+
+            return new ResponsibleAnesthesiologistResponse
+            {
+                Id = responsible.Id,
+                FullName = responsible.Name,
+                Registration = responsible.Registration
+            };
+        }
+
+        private static PatientLocationResponse? MapLocation(CurrentLocationDto? location)
+        {
+            if (location == null)
                 return null;
 
             return new PatientLocationResponse
             {
-                Unit = patient.CurrentLocation.Unit == null
+                Unit = location.Unit == null
                     ? null
                     : new UnitResponse
                     {
-                        Code = patient.CurrentLocation.Unit.Code,
-                        Description = patient.CurrentLocation.Unit.Description
+                        Code = location.Unit.Code,
+                        Description = location.Unit.Description
                     },
 
-                Bed = patient.CurrentLocation.Bed,
-                Floor = patient.CurrentLocation.Floor,
-                Room = patient.CurrentLocation.Room
+                Bed = location.Bed,
+
+                Floor = location.Floor,
+
+                Room = location.Room
             };
         }
 
-        private static SurgeryResponse MapSurgery(Surgery surgery)
+        private static SurgeryResponse MapSurgery(SurgeryDto surgery)
         {
             return new SurgeryResponse
             {
-                Id = surgery.Id,
+                Id = surgery.SurgeryId,
 
                 SurgeryDate = surgery.SurgeryDate,
 
-                Status = surgery.Status,
+                Status = ParseStatus(surgery.Status),
 
                 Specialty = surgery.Specialty == null
                     ? null
@@ -116,6 +134,40 @@ namespace UFF.FichaAnestesica.Service.Mappers
                         IsPrimary = p.IsPrimary
                     })
                     .ToList() ?? new List<ProcedureResponse>()
+            };
+        }
+
+        private static AllergyResponse MapAllergy(AllergyDto allergy)
+        {
+            return new AllergyResponse
+            {
+                RegisterDate = allergy.RegisterDate,
+                CreatedAt = allergy.CreatedAt,
+                Description = allergy.Description,
+                Reason = allergy.Reason,
+                AllergyCriticality = allergy.AllergyCriticality,
+                CertaintyLevel = allergy.CertaintyLevel,
+                AllergyManifestation = allergy.AllergyManifestation,
+                CausativeAgent = allergy.CausativeAgent,
+
+                Medication = allergy.Medication == null
+                    ? null
+                    : new MedicationResponse
+                    {
+                        Description = allergy.Medication.Description
+                    }
+            };
+        }
+
+        private static SurgeryStatusEnum ParseStatus(string status)
+        {
+            return status?.ToLower() switch
+            {
+                "agendada" => SurgeryStatusEnum.Scheduled,
+                "em_andamento" => SurgeryStatusEnum.InProgress,
+                "finalizada" => SurgeryStatusEnum.Completed,
+                "cancelada" => SurgeryStatusEnum.Cancelled,
+                _ => SurgeryStatusEnum.Scheduled
             };
         }
     }

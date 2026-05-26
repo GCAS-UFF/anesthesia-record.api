@@ -11,14 +11,8 @@ namespace UFF.FichaAnestesica.Infra.Context
         {
         }
 
-        public DbSet<Patient> Patients { get; set; }
-        public DbSet<CurrentLocation> CurrentLocations { get; set; }
-        public DbSet<Unit> Units { get; set; }
-        public DbSet<Surgery> Surgeries { get; set; }
-        public DbSet<Specialty> Specialties { get; set; }
-        public DbSet<Procedure> Procedures { get; set; }
-        public DbSet<SurgeryLocation> SurgeryLocations { get; set; }
-        public DbSet<SurgicalCenter> SurgicalCenters { get; set; }
+        public DbSet<AnesthesiaRecord> AnesthesiaRecord { get; set; }
+        public DbSet<PreAnesthesiaRecord> PreAnesthesiaRecord { get; set; }
         public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -7,7 +7,6 @@ using UFF.FichaAnestesica.Infra.DependencyInjection;
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("postgresConnection");
-var connectionStringReadOnly = builder.Configuration.GetConnectionString("postgresConnectionReadOnly");
 
 builder.Services.AddDbContext<ISigaDbCtx, SigaDbCtx>(options =>
 {
@@ -15,14 +14,7 @@ builder.Services.AddDbContext<ISigaDbCtx, SigaDbCtx>(options =>
      x.MigrationsHistoryTable("__EFMigrationsHistory", "siga_db"));
 });
 
-builder.Services.AddDbContext<IAguDbReadOnlyCtx, AguDbReadOnlyCtx>(options =>
-{
-    options.UseNpgsql(connectionStringReadOnly);
-    options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-});
-
-builder.Services.RegisterServices();
-
+builder.Services.RegisterServices(builder.Configuration);
 
 builder.Services.AddCors(options =>
 {

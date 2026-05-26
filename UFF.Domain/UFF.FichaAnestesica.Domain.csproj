@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Commands\AnesthesiaRecord\AnesthesiaRecordCommand.cs~RF46a311a.TMP" />
+    <None Remove="Dto\PatientDto.cs~RF6a792ed.TMP" />
+    <None Remove="Dto\UserDto.cs~RF74b85f0.TMP" />
+    <None Remove="Entities\AnesthesiaRecord.cs~RF4a0de5a.TMP" />
+    <None Remove="Entities\AnesthesiaRecord.cs~RFc19c74.TMP" />
+    <None Remove="Entities\jvjfzato.mov~" />
+    <None Remove="Entities\l0iyuavp.pq5~" />
     <None Remove="Entities\Patient.cs~RF2dc167d.TMP" />
     <None Remove="Entities\User.cs~RF4027d567.TMP" />
     <None Remove="Entities\User.cs~RF402958ea.TMP" />
@@ -14,9 +21,17 @@
     <None Remove="Entities\User.cs~RF7ddc786.TMP" />
     <None Remove="Entities\User.cs~RF7e6f467.TMP" />
     <None Remove="Entities\User.cs~RF8205b0b.TMP" />
+    <None Remove="Enums\ClinicalDischargeCondition.cs~RFd4d9ed.TMP" />
+    <None Remove="Repositories\IAnesthesiaRecordRepository.cs~RF4815b56.TMP" />
+    <None Remove="Repositories\IAnesthesiaRecordRepository.cs~RFe51439.TMP" />
+    <None Remove="Repositories\IUserRepository.cs~RF4dacd3.TMP" />
     <None Remove="Repositories\IUserRepository.cs~RF7c5d333.TMP" />
+    <None Remove="Repositories\ReadOnly\IHospitalApiRepository.cs~RF93d82fb.TMP" />
     <None Remove="Response\PatientLocationResponse.cs~RFcabe48.TMP" />
+    <None Remove="Response\PatientSurgeryResponse.cs~RF6a9299b.TMP" />
     <None Remove="Response\UnitResponse.cs~RFcc8992.TMP" />
+    <None Remove="Services\IAnesthesiaRecordService.cs~RF46f688d.TMP" />
+    <None Remove="Services\IProfessionalsService.cs~RF92fa647.TMP" />
     <None Remove="Services\ISurgeryService.cs~RF225a8f3.TMP" />
     <None Remove="Services\ISurgeryService.cs~RFdc1d0f.TMP" />
   </ItemGroup>

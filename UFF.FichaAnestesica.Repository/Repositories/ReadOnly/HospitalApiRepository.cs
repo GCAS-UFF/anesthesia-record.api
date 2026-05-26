@@ -1,0 +1,65 @@
+﻿using System.Net.Http.Json;
+using UFF.FichaAnestesica.Domain.Dto;
+using UFF.FichaAnestesica.Domain.Enums;
+using UFF.FichaAnestesica.Domain.Repositories.ReadOnly;
+using UFF.FichaAnestesica.Domain.Response;
+
+namespace UFF.FichaAnestesica.Infra.Repositories.ReadOnly
+{
+    public class HospitalApiRepository : IHospitalApiRepository
+    {
+        private readonly HttpClient _httpClient;
+
+        public HospitalApiRepository(IHttpClientFactory factory)
+        {
+            _httpClient = factory.CreateClient("HospitalApi");
+        }      
+
+        public async Task<PagedResponse<PatientDto>> GetPatientsFromHospitalAsync(DateTime? date, SurgeryStatusEnum? status, int page = 1, int pageSize = 10)
+        {
+            var queryParams = new List<string>();
+
+            if (date.HasValue)
+                queryParams.Add($"date={date.Value:yyyy-MM-dd}");
+
+            if (status.HasValue)
+                queryParams.Add($"status={status}");
+
+            queryParams.Add($"page={page}");
+            queryParams.Add($"pageSize={pageSize}");
+
+            var queryString = string.Join("&", queryParams);
+
+          //  var response = await _httpClient.GetAsync($"/cirurgias?{queryString}");
+
+            var response = await _httpClient.GetAsync($"/cirurgias");
+
+            response.EnsureSuccessStatusCode();
+
+            var data = await response.Content.ReadFromJsonAsync<HospitalApiResponseDto>();
+
+            return new PagedResponse<PatientDto>
+            {
+                Data = data?.Patients ?? [],
+                Page = page,
+                PageSize = pageSize,
+                TotalItems = data?.Patients.Count ?? 0
+            };
+        }
+
+        public async Task<PatientDto?> GetPatientFromHospitalByIdAsync(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+                return null;
+
+            var response = await _httpClient.GetAsync($"/cirurgias/{id}");
+
+            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                return null;
+
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadFromJsonAsync<PatientDto>();
+        }
+    }
+}

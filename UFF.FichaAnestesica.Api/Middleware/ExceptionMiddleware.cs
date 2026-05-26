@@ -23,12 +23,12 @@ namespace UFF.FichaAnestesica.Api.Middleware
                     message = ex.Message
                 });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 context.Response.StatusCode = 500;
                 await context.Response.WriteAsJsonAsync(new
                 {
-                    message = "Erro interno no servidor"
+                    message = $"Erro interno no servidor - {ex.Message}"
                 });
             }
         }

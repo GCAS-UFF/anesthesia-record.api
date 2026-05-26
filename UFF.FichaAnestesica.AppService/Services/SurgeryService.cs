@@ -3,62 +3,79 @@ using UFF.FichaAnestesica.Domain.Repositories;
 using UFF.FichaAnestesica.Domain.Repositories.ReadOnly;
 using UFF.FichaAnestesica.Domain.Response;
 using UFF.FichaAnestesica.Domain.Services;
-using UFF.FichaAnestesica.Service.Helpers;
 using UFF.FichaAnestesica.Service.Mappers;
 
-public class SurgeryService : ISurgeryService
+namespace UFF.FichaAnestesica.Service.Services
 {
-    private readonly IHospitalReadOnlyRepository _hospitalReadRepository;
-    private readonly ISurgeryRepository _surgeryRepository;
-
-    public SurgeryService(
-        IHospitalReadOnlyRepository hospitalReadRepository,
-        ISurgeryRepository surgeryRepository)
+    public class SurgeryService : ISurgeryService
     {
-        _hospitalReadRepository = hospitalReadRepository;
-        _surgeryRepository = surgeryRepository;
-    }
+        private readonly IUserRepository _userRepository;
+        private readonly IHospitalApiRepository _hospitalApiRepository;
 
-    public async Task<PagedResponse<PatientSurgeryResponse>> GetPatientsWithSurgeriesAsync(DateTime? date, SurgeryStatus? status, int page = 1, int size = 10)
-    {
-        if (date.HasValue)
-            date = DateTime.SpecifyKind(date.Value, DateTimeKind.Utc);
-
-        var hospitalData = await _hospitalReadRepository.GetSurgeriesFromHospitalAsync(date, status, page, size);
-
-
-        if (hospitalData.Data == null || !hospitalData.Data.Any())
+        public SurgeryService(IUserRepository userRepository, IHospitalApiRepository hospitalApiRepository)
         {
+            _userRepository = userRepository;
+            _hospitalApiRepository = hospitalApiRepository;
+        }
+
+        public async Task<PagedResponse<PatientSurgeryResponse>> GetPatientsWithSurgeriesAsync(DateTime? date, SurgeryStatusEnum? status, int page = 1, int size = 10)
+        {
+            if (date.HasValue)
+                date = DateTime.SpecifyKind(date.Value, DateTimeKind.Utc);
+
+            var hospitalData = await _hospitalApiRepository.GetPatientsFromHospitalAsync(date, status, page, size);
+
+            if (hospitalData.Data == null || !hospitalData.Data.Any())
+            {
+                return new PagedResponse<PatientSurgeryResponse>
+                {
+                    Data = [],
+                    Page = hospitalData.Page,
+                    PageSize = hospitalData.PageSize,
+                    TotalItems = hospitalData.TotalItems
+                };
+            }
+
             return new PagedResponse<PatientSurgeryResponse>
             {
-                Data = [],
-                Page = page,
-                PageSize = size,
+                Data = PatientResponseMapper.Map(hospitalData.Data),
+                Page = hospitalData.Page,
+                PageSize = hospitalData.PageSize,
                 TotalItems = hospitalData.TotalItems
             };
         }
 
-        var patients = PatientMapper.Map(hospitalData.Data);
-
-
-        await _surgeryRepository.AddOrUpdatePatientsAsync(patients);
-
-        var savedPatients = await _surgeryRepository.GetPatientsWithSurgeriesAsync(date, status, page, size);
-        var ordered = PatientOrderingHelper.Apply(savedPatients);
-
-        return new PagedResponse<PatientSurgeryResponse>
+        public async Task<PatientSurgeryResponse?> GetPatientByIdAsync(string id)
         {
-            Data = PatientResponseMapper.Map(ordered),
-            Page = page,
-            PageSize = size,
-            TotalItems = hospitalData.TotalItems
-        };
-    }
+            var surgery = await _hospitalApiRepository.GetPatientFromHospitalByIdAsync(id);
 
-    public async Task<PatientSurgeryResponse> GetPatientByIdAsync(int id)
-    {
-        var patient = await _surgeryRepository.GetPatientByIdAsync(id);
+            if (surgery == null)
+                return null;
 
-        return PatientResponseMapper.Map(patient);
+            return PatientResponseMapper.Map(surgery);
+        }
+
+        public async Task<PatientSurgeryResponse> AssumePatientAsync(string patientId, int responsibleAnesthesiologistId)
+        {
+            var hospitalData = await _hospitalApiRepository.GetPatientsFromHospitalAsync(null, null, 1, int.MaxValue);
+            var patient = hospitalData.Data.FirstOrDefault(x => x.PatientId == patientId);
+
+            if (patient == null)
+                throw new Exception("Paciente não encontrado");
+
+            var responsibleAnesthesiologist = await _userRepository.GetUserByIdAsync(responsibleAnesthesiologistId);
+
+            if (responsibleAnesthesiologist == null)
+                throw new Exception("Médico não encontrado");
+
+            patient.ResponsibleAnesthesiologist = new Domain.Dto.UserDto
+            {
+                Id = responsibleAnesthesiologist.ExternalId,
+                Name = responsibleAnesthesiologist.Name,
+                Registration = responsibleAnesthesiologist.Registration
+            };
+
+            return PatientResponseMapper.Map(patient);
+        }
     }
 }
