@@ -12,6 +12,7 @@
     <None Remove="EntityConfig\CurrentLocationConfig.cs~RF5d9750f.TMP" />
     <None Remove="EntityConfig\SpecialtyConfig.cs~RF56243e0.TMP" />
     <None Remove="EntityConfig\UnitConfig.cs~RF7e8b72.TMP" />
+    <None Remove="Repositories\AnesthesiaRecordRepository.cs~RFb622d3c.TMP" />
     <None Remove="Repositories\ReadOnly\HospitalApiRepository.cs~RF64ee7b5.TMP" />
     <None Remove="Repositories\ReadOnly\HospitalApiRepository.cs~RF6edb064.TMP" />
     <None Remove="Repositories\ReadOnly\LdapAuthReadRepository.cs~RF549393b.TMP" />

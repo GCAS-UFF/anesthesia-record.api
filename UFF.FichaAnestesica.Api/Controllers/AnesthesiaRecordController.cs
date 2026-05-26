@@ -1,8 +1,7 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using UFF.FichaAnestesica.Application.Interfaces;
 using UFF.FichaAnestesica.Domain.Commands;
 using UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord;
-using UFF.FichaAnestesica.Domain.Enums;
 using UFF.FichaAnestesica.Domain.Services;
 
 namespace UFF.FichaAnestesica.Api.Controllers
@@ -13,9 +12,16 @@ namespace UFF.FichaAnestesica.Api.Controllers
     {
         private readonly IAnesthesiaRecordService _anesthesiaRecordService;
 
-        public AnesthesiaRecordController(IAnesthesiaRecordService anesthesiaRecordService)
+        private readonly IRazorViewRenderer _razorViewRenderer;
+        private readonly IPdfService _pdfService;
+
+        public AnesthesiaRecordController(IAnesthesiaRecordService anesthesiaRecordService, IRazorViewRenderer razorViewRenderer,
+            IPdfService pdfService)
         {
             _anesthesiaRecordService = anesthesiaRecordService;
+
+            _razorViewRenderer = razorViewRenderer;
+            _pdfService = pdfService;
         }
 
         [HttpPost]
@@ -49,5 +55,16 @@ namespace UFF.FichaAnestesica.Api.Controllers
             var surgeries = await _anesthesiaRecordService.GetByIdAsync(id);
             return Ok(surgeries);
         }
+
+        [HttpGet("{id}/pdf")]
+        public async Task<IActionResult> GeneratePdf([FromRoute] int id)
+        {          
+            (byte[] pdf, string extenalPatientId) = await _pdfService.GeneratePdfAsync(id);
+
+            if (pdf == null)
+                throw new Exception("Não foi possível gerar o PDF");
+
+            return File(pdf, "application/pdf", $"ficha-anestesica-{extenalPatientId}.pdf");
+        }       
     }
 }
