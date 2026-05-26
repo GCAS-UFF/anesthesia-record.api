@@ -1,5 +1,4 @@
 ﻿using UFF.FichaAnestesica.Domain.Dto;
-using UFF.FichaAnestesica.Domain.Response;
 
 namespace UFF.FichaAnestesica.Service.Mappers
 {
@@ -20,7 +19,7 @@ namespace UFF.FichaAnestesica.Service.Mappers
             };
         }
 
-        public static List<UserResponse> Map(IEnumerable<UserDto> professionals)
-            => professionals.Select(Map).ToList();
+        public static List<UserResponse> Map(UserListDto professionals)
+            => professionals.Professionals.Select(Map).ToList();
     }
 }

@@ -2,6 +2,14 @@
 
 namespace UFF.FichaAnestesica.Domain.Dto
 {
+
+    public class UserListDto
+    {
+        [JsonPropertyName("profissionais")]
+        public List<UserDto> Professionals { get; set; }
+    }
+
+
     public class UserDto
     {
         [JsonPropertyName("id")]
