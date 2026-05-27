@@ -6,7 +6,7 @@ using UFF.FichaAnestesica.Domain.Services;
 namespace UFF.FichaAnestesica.Api.Controllers
 {
     [ApiController]
-    [Route("api/surgeries")]
+    [Route("surgeries")]
     public class SurgeriesController : ControllerBase
     {
         private readonly ISurgeryService _surgeriesService;
@@ -17,8 +17,8 @@ namespace UFF.FichaAnestesica.Api.Controllers
         }
 
         [HttpGet]
-        //    [Authorize]
-        public async Task<IActionResult> GetAllSurgeriesNoPaged([FromQuery] DateTime? date, SurgeryStatusEnum? status, int page = 1, [FromQuery] int size = 10)
+        // [Authorize]
+        public async Task<IActionResult> GetSurgeries([FromQuery] DateTime? date, [FromQuery] SurgeryStatusEnum? status, [FromQuery] int page = 1, [FromQuery] int size = 10)
         {
             var surgeries = await _surgeriesService.GetPatientsWithSurgeriesAsync(date, status, page, size);
             return Ok(surgeries);
