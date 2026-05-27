@@ -1,95 +1,63 @@
 ﻿@using UFF.FichaAnestesica.Domain.Entities
 @using System.Globalization
-
 @model AnesthesiaRecord
-
 @{
-    string SimNao(bool value) => value ? "Sim" : "Não";
-
+    string SimNao(bool? value) => value == true ? "Sim" : value == false ? "Não" : "-";
     string EnumFormatado(Enum? valor)
     {
-        if (valor == null)
-            return "-";
-
-        return System.Text.RegularExpressions.Regex
-            .Replace(valor.ToString()!, "([a-z])([A-Z])", "$1 $2");
+        if (valor == null) return "-";
+        return System.Text.RegularExpressions.Regex.Replace(valor.ToString()!, "([a-z])([A-Z])", "$1 $2");
     }
 
-    // LOGO HOSPITAL
-    var hospitalLogoPath = System.IO.Path.Combine(
-        Directory.GetCurrentDirectory(),
-        "wwwroot",
-        "images",
-        "logo-huap.png");
-
-    var hospitalLogoBase64 =
-        $"data:image/png;base64,{Convert.ToBase64String(System.IO.File.ReadAllBytes(hospitalLogoPath))}";
-
-    // LOGO UFF
-    var uffLogoPath = System.IO.Path.Combine(
-        Directory.GetCurrentDirectory(),
-        "wwwroot",
-        "images",
-        "logo-uff.png");
-
-    var uffLogoBase64 =
-        $"data:image/png;base64,{Convert.ToBase64String(System.IO.File.ReadAllBytes(uffLogoPath))}";
+    var hospitalLogoPath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "logo-huap.png");
+    var hospitalLogoBase64 = $"data:image/png;base64,{Convert.ToBase64String(System.IO.File.ReadAllBytes(hospitalLogoPath))}";
 }
 
 <!DOCTYPE html>
-
 <html lang="pt-br">
 <head>
     <meta charset="utf-8" />
-
     <style>
-
         body {
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 11px;
-            color: #222;
-            margin: 20px;
+            font-size: 10.5px;
+            color: #1f2937;
+            margin: 12px 12px 45px 12px;
+            line-height: 1.35;
         }
 
         .header {
-            border-bottom: 3px solid #1f3c88;
-            margin-bottom: 18px;
             padding-bottom: 10px;
+            margin-bottom: 15px;
         }
 
         .hospital-name {
-            font-size: 24px;
+            font-size: 18px;
             font-weight: bold;
             color: #1f3c88;
+            line-height: 1.1;
         }
 
         .document-title {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: bold;
-            margin-top: 4px;
-        }
-
-        .document-subtitle {
-            color: #666;
-            font-size: 10px;
-            margin-top: 3px;
+            margin-top: 2px;
         }
 
         .section {
-            border: 1px solid #d9d9d9;
-            margin-top: 14px;
+            border: 1px solid #d1d5db;
+            margin-top: 12px;
             border-radius: 6px;
             overflow: hidden;
             page-break-inside: avoid;
         }
 
         .section-title {
-            background: #f1f4f8;
-            padding: 8px 12px;
-            font-weight: bold;
-            font-size: 12px;
+            background: #f3f4f6;
             color: #1f3c88;
-            border-bottom: 1px solid #d9d9d9;
+            font-weight: bold;
+            padding: 7px 10px;
+            font-size: 12px;
         }
 
         .section-content {
@@ -101,541 +69,249 @@
             border-collapse: collapse;
         }
 
-        td {
-            padding: 6px 8px;
+        td, th {
+            padding: 5px 7px;
             vertical-align: top;
+            border: 1px solid #d1d5db;
+        }
+
+        .header table td,
+        .signature-table td,
+        .signature-table th {
+            border: none !important;
         }
 
         .label {
             font-weight: bold;
-            color: #444;
+            color: #374151;
             display: block;
             margin-bottom: 2px;
-        }
-
-        .value {
-            color: #111;
-        }
-
-        .tag {
-            display: inline-block;
-            padding: 2px 8px;
-            border: 1px solid #999;
-            border-radius: 12px;
-            font-size: 10px;
-        }
-
-        .check-yes {
-            color: #0a7d22;
-            font-weight: bold;
-        }
-
-        .check-no {
-            color: #b00020;
-            font-weight: bold;
-        }
-
-        .grid-table th {
-            background: #f3f3f3;
-            border: 1px solid #ccc;
-            padding: 8px;
             font-size: 10px;
         }
 
         .grid-table td {
-            border: 1px solid #ccc;
-            padding: 8px;
             text-align: center;
+            font-size: 10px;
         }
 
-        .signature-container {
-            margin-top: 60px;
+        .yes {
+            color: #15803d;
+            font-weight: bold;
         }
 
-        .signature-box {
-            width: 45%;
-            display: inline-block;
-            text-align: center;
+        .no {
+            color: #b91c1c;
+            font-weight: bold;
+        }
+
+        .small {
+            font-size: 9.5px;
+            color: #6b7280;
         }
 
         .signature-line {
-            border-top: 1px solid #000;
+            margin-top: 45px;
             padding-top: 5px;
-            margin-top: 60px;
+            text-align: center;
+            font-size: 11px;
+            border-top: 1px solid #333;
         }
 
-        .footer {
-            margin-top: 40px;
-            font-size: 10px;
-            color: #777;
+        footer {
+            position: fixed;
+            bottom: 8px;
+            left: 0;
+            right: 0;
+            font-size: 9px;
+            color: #6b7280;
+            text-align: center;
+            border-top: 1px solid #d1d5db;
+            padding-top: 6px;
+            margin: 0 12px;
+            background: white;
         }
 
+        @@media print {
+            footer {
+                position: fixed;
+                bottom: 8px;
+            }
+        }
+
+        .page-break {
+            page-break-before: always;
+        }
     </style>
 </head>
-
 <body>
-
     <!-- CABEÇALHO -->
     <div class="header">
-
-        <table style="width:100%;">
+        <table>
             <tr>
-
-                <!-- LOGO HOSPITAL -->
-                <td style="width:140px; vertical-align:middle;">
-
-                    <img src="@hospitalLogoBase64"
-                         style="height:70px;" />
-
+                <td style="width:120px;"><img src="@hospitalLogoBase64" style="height:65px;" /></td>
+                <td style="text-align:center;">
+                    <div class="hospital-name">HOSPITAL UNIVERSITÁRIO ANTÔNIO PEDRO</div>
+                    <div class="document-title">FICHA ANESTÉSICA</div>
                 </td>
-
-                <!-- TÍTULO -->
-                <td style="text-align:center; vertical-align:middle;">
-
-                    <div class="hospital-name">
-                        HOSPITAL UNIVERSITÁRIO ANTÔNIO PEDRO
-                    </div>
-
-                    <div class="document-title">
-                        FICHA ANESTÉSICA
-                    </div>
-
-                    <div class="document-subtitle">
-                        Registro anestésico intraoperatório
-                    </div>
-
+                <td style="width:140px; text-align:right; font-size:11px;">
+                    <strong>Data:</strong> 27/05/2026<br>
+                    <strong>ASA:</strong> <span style="border:1px solid #6b7280; padding:2px 8px; border-radius:12px;">III</span>
                 </td>
-
-                <!-- ESPAÇO -->
-                <td style="width:140px;"></td>
-
             </tr>
         </table>
-
     </div>
 
     <!-- IDENTIFICAÇÃO -->
     <div class="section">
-
-        <div class="section-title">
-            IDENTIFICAÇÃO
-        </div>
-
+        <div class="section-title">IDENTIFICAÇÃO DO PACIENTE</div>
         <div class="section-content">
-
             <table>
                 <tr>
-
-                    <td width="30%">
-                        <span class="label">Data do Registro</span>
-                        <span class="value">
-                            @Model.RecordDate.ToString("dd/MM/yyyy")
-                        </span>
-                    </td>
-
-                    <td width="35%">
-                        <span class="label">Paciente</span>
-                        <span class="value">
-                            @Model.ExternalPatientId
-                        </span>
-                    </td>
-
-                    <td width="35%">
-                        <span class="label">Classificação ASA</span>
-
-                        <span class="tag">
-                            @EnumFormatado(Model.AsaClassification)
-                        </span>
-                    </td>
-
+                    <td><span class="label">Nome Completo</span> João Silva Santos</td>
+                    <td><span class="label">Registro</span> 456789</td>
+                    <td><span class="label">Data de Nascimento</span> 15/03/1968</td>
+                    <td><span class="label">Sexo</span> Masculino</td>
+                </tr>
+                <tr>
+                    <td><span class="label">Leito / Andar</span> 405 - 4º Andar</td>
+                    <td colspan="3"><span class="label">Convênio</span> SUS</td>
                 </tr>
             </table>
-
         </div>
-
     </div>
 
-    <!-- EQUIPE -->
+    <!-- SEGURANÇA DO PACIENTE -->
     <div class="section">
-
-        <div class="section-title">
-            EQUIPE CIRÚRGICA
-        </div>
-
+        <div class="section-title">SEGURANÇA DO PACIENTE / PRÉ-INDUÇÃO</div>
         <div class="section-content">
-
             <table>
                 <tr>
-
-                    <td width="33%">
-                        <span class="label">Cirurgião</span>
-                        @Model.Surgeon
+                    <td>Paciente identificado: <span class="yes">Sim</span></td>
+                    <td>Consentimento assinado: <span class="yes">Sim</span></td>
+                    <td>Equipamentos checados: <span class="yes">Sim</span></td>
+                </tr>
+                <tr>
+                    <td>Antibiótico Profilático: <span class="yes">Sim</span> (Cefazolina 2g - 08:10)</td>
+                    <td colspan="2">
+                        Medicação Pré-Anestésica: <span class="yes">Sim</span>
+                        <span class="small">(Midazolam 3mg - 08:05 - IV)</span>
                     </td>
-
-                    <td width="33%">
-                        <span class="label">Auxiliar</span>
-                        @Model.Assistant
-                    </td>
-
-                    <td width="33%">
-                        <span class="label">Anestesista</span>
-                        @(Model.FirstAnesthesiologist?.Name ?? "-")
-                    </td>
-
+                </tr>
+                <tr>
+                    <td>Repique: <span class="no">Não</span></td>
+                    <td colspan="2"><span class="label">Atenção:</span> Hipertenso controlado, sem alergias conhecidas.</td>
                 </tr>
             </table>
-
         </div>
-
     </div>
 
-    <!-- HORÁRIOS -->
+    <!-- DADOS VITAIS -->
     <div class="section">
-
-        <div class="section-title">
-            TEMPOS CIRÚRGICOS
-        </div>
-
+        <div class="section-title">DADOS VITAIS E ANTROPOMÉTRICOS (Antes da indução)</div>
         <div class="section-content">
-
             <table class="grid-table">
-
-                <thead>
-                    <tr>
-                        <th>Entrada Sala</th>
-                        <th>Início Anestesia</th>
-                        <th>Fim Cirurgia</th>
-                        <th>Fim Anestesia</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    <tr>
-                        <td>@Model.RoomEntryTime</td>
-                        <td>@Model.AnesthesiaStartTime</td>
-                        <td>@Model.SurgeryEndTime</td>
-                        <td>@Model.AnesthesiaEndTime</td>
-                    </tr>
-                </tbody>
-
+                <tr>
+                    <td><span class="label">Hora Entrada Sala</span><br>08:00</td>
+                    <td><span class="label">PA</span><br>138/82 mmHg</td>
+                    <td><span class="label">FR</span><br>16 irpm</td>
+                    <td><span class="label">T°C</span><br>36.7</td>
+                    <td><span class="label">SpO₂</span><br>97 %</td>
+                    <td><span class="label">Peso</span><br>78 kg</td>
+                    <td><span class="label">ASA</span><br>III</td>
+                </tr>
             </table>
-
         </div>
-
     </div>
 
-    <!-- SEGURANÇA -->
+    <!-- EQUIPE E PRÉ-PROCEDIMENTO -->
     <div class="section">
-
-        <div class="section-title">
-            SEGURANÇA E AVALIAÇÃO PRÉ-ANESTÉSICA
-        </div>
-
+        <div class="section-title">EQUIPE CIRÚRGICA E PRÉ-PROCEDIMENTO</div>
         <div class="section-content">
-
             <table>
-
                 <tr>
-
-                    <td width="33%">
-                        <span class="label">Paciente Identificado</span>
-
-                        <span class="@(Model.PatientIdentifiedBeforeInduction ? "check-yes" : "check-no")">
-                            @SimNao(Model.PatientIdentifiedBeforeInduction)
-                        </span>
-                    </td>
-
-                    <td width="33%">
-                        <span class="label">Consentimento Assinado</span>
-
-                        <span class="@(Model.AnestheticConsentSigned ? "check-yes" : "check-no")">
-                            @SimNao(Model.AnestheticConsentSigned)
-                        </span>
-                    </td>
-
-                    <td width="33%">
-                        <span class="label">Equipamentos Conferidos</span>
-
-                        <span class="@(Model.AnesthesiaEquipmentChecked ? "check-yes" : "check-no")">
-                            @SimNao(Model.AnesthesiaEquipmentChecked)
-                        </span>
-                    </td>
-
+                    <td><span class="label">Cirurgião</span> Dr. Carlos Mendes</td>
+                    <td><span class="label">Auxiliar</span> Dra. Ana Beatriz</td>
+                    <td><span class="label">1º Anestesista</span> Dr. Rafael Costa</td>
+                    <td><span class="label">2º Anestesista</span> Dra. Juliana Mendes</td>
                 </tr>
-
                 <tr>
-
-                    <td>
-                        <span class="label">Medicação Pré-Anestésica</span>
-                        @SimNao(Model.PreAnestheticMedication)
-                    </td>
-
-                    <td>
-                        <span class="label">Antibiótico Profilático</span>
-                        @SimNao(Model.ProphylacticAntibioticUsed)
-                    </td>
-
-                    <td>
-                        <span class="label">Dor</span>
-                        @SimNao(Model.HasPain)
-                    </td>
-
+                    <td><span class="label">Hora Início Anestesia</span> 08:15</td>
+                    <td><span class="label">Posição</span> Supina</td>
+                    <td><span class="label">Uso de Coxins</span> Sim (sacral e joelhos)</td>
+                    <td><span class="label">Dificuldade Punção</span> Não</td>
                 </tr>
-
+                <tr>
+                    <td colspan="2"><span class="label">Acesso Venoso</span> Periférico - Veia Cefálica MMSS Direito</td>
+                    <td colspan="2"><span class="label">Diagnóstico Pré-Operatório</span> Colelitíase sintomática</td>
+                </tr>
             </table>
-
-            @if (!string.IsNullOrWhiteSpace(Model.SafetyObservations))
-            {
-                <div style="margin-top:15px;">
-
-                    <span class="label">
-                        Observações de Segurança
-                    </span>
-
-                    <div>
-                        @Model.SafetyObservations
-                    </div>
-
-                </div>
-            }
-
         </div>
-
     </div>
 
-    <!-- SINAIS VITAIS -->
+    <!-- TÉCNICA ANESTÉSICA -->
     <div class="section">
-
-        <div class="section-title">
-            SINAIS VITAIS
-        </div>
-
+        <div class="section-title">TÉCNICA ANESTÉSICA</div>
         <div class="section-content">
+            <table>
+                <tr>
+                    <td><span class="label">Anestesia Geral</span> <span class="yes">Sim</span></td>
+                    <td colspan="3">
+                        <span class="label">Respiração</span><br>
+                        Assistida: <span class="no">Não</span>
+                        Controlada: <span class="yes">Sim</span> - Volume
+                    </td>
+                </tr>
+                <tr>
+                    <td><span class="label">Circuito</span><br>Absorvedor CO₂: <span class="yes">Sim</span></td>
+                    <td colspan="3">
+                        <span class="label">Via Aérea</span><br>
+                        Tubo Orotraqueal Nº 7.5 - Tipo: Simples - Fácil
+                    </td>
+                </tr>
+            </table>
 
+            <table style="margin-top:12px;">
+                <tr>
+                    <td>Raquianestesia: <span class="no">Não</span></td>
+                    <td>Sedação: <span class="no">Não</span></td>
+                    <td>Suplementação O₂: <span class="yes">Sim</span> (Máscara facial)</td>
+                </tr>
+                <tr>
+                    <td>Bloqueio Plexo: <span class="no">Não</span></td>
+                    <td>Neuroestimulador: <span class="yes">Sim</span> (Agulha Stimuplex) - Femoral</td>
+                    <td>Laringoscopia: <span class="yes">Sim</span></td>
+                </tr>
+                <tr>
+                    <td>Videolaringoscopia: <span class="no">Não</span></td>
+                    <td>Fibroscopia: <span class="no">Não</span></td>
+                    <td>Técnica Retrógrada: <span class="no">Não</span></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- PÓS-PROCEDIMENTO -->
+    <div class="section">
+        <div class="section-title">PÓS-PROCEDIMENTO</div>
+        <div class="section-content">
+            <table>
+                <tr>
+                    <td><span class="label">Cirurgia Realizada</span> Colecistectomia videolaparoscópica</td>
+                    <td><span class="label">Hora Término Cirurgia</span> 09:55</td>
+                    <td><span class="label">Hora Término Anestesia</span> 10:05</td>
+                </tr>
+                <tr>
+                    <td colspan="3"><span class="label">Diagnóstico Pós-Operatório</span> Colelitíase com colecistite crônica</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- ALDERETE E KROULIK -->
+    <div class="section">
+        <div class="section-title">ÍNDICE DE ALDERETE E KROULIK</div>
+        <div class="section-content">
             <table class="grid-table">
-
-                <thead>
-                    <tr>
-                        <th>Pressão Arterial</th>
-                        <th>Freq. Respiratória</th>
-                        <th>Temperatura</th>
-                        <th>Saturação O₂</th>
-                        <th>Peso</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-
-                    <tr>
-                        <td>@Model.BloodPressure</td>
-                        <td>@Model.RespiratoryRate irpm</td>
-                        <td>@Model.Temperature °C</td>
-                        <td>@Model.OxygenSaturation %</td>
-                        <td>@Model.WeightKg kg</td>
-                    </tr>
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </div>
-
-    <!-- PROCEDIMENTO -->
-    <div class="section">
-
-        <div class="section-title">
-            PROCEDIMENTO CIRÚRGICO
-        </div>
-
-        <div class="section-content">
-
-            <table>
-
-                <tr>
-
-                    <td width="50%">
-                        <span class="label">
-                            Diagnóstico Pré-Operatório
-                        </span>
-
-                        @Model.PreOperativeDiagnosis
-                    </td>
-
-                    <td width="50%">
-                        <span class="label">
-                            Diagnóstico Pós-Operatório
-                        </span>
-
-                        @Model.PostOperativeDiagnosis
-                    </td>
-
-                </tr>
-
-                <tr>
-
-                    <td>
-                        <span class="label">
-                            Cirurgia Realizada
-                        </span>
-
-                        @Model.SurgeryPerformed
-                    </td>
-
-                    <td>
-                        <span class="label">
-                            Posição Cirúrgica
-                        </span>
-
-                        @EnumFormatado(Model.SurgicalPosition)
-                    </td>
-
-                </tr>
-
-            </table>
-
-        </div>
-
-    </div>
-
-    <!-- ACESSO VENOSO -->
-    <div class="section">
-
-        <div class="section-title">
-            ACESSO VENOSO
-        </div>
-
-        <div class="section-content">
-
-            <table>
-
-                <tr>
-
-                    <td width="33%">
-                        <span class="label">Tipo</span>
-                        @EnumFormatado(Model.VenousAccessType)
-                    </td>
-
-                    <td width="33%">
-                        <span class="label">Local</span>
-                        @Model.VenousAccessLocation
-                    </td>
-
-                    <td width="33%">
-                        <span class="label">Punção Difícil</span>
-                        @SimNao(Model.DifficultVenousPuncture)
-                    </td>
-
-                </tr>
-
-            </table>
-
-        </div>
-
-    </div>
-
-    <!-- VIA AÉREA -->
-    <div class="section">
-
-        <div class="section-title">
-            VIA AÉREA E VENTILAÇÃO
-        </div>
-
-        <div class="section-content">
-
-            <table>
-
-                <tr>
-
-                    <td width="33%">
-                        <span class="label">Anestesia Geral</span>
-                        @SimNao(Model.GeneralAnesthesia)
-                    </td>
-
-                    <td width="33%">
-                        <span class="label">Modo Respiratório</span>
-                        @EnumFormatado(Model.RespirationMode)
-                    </td>
-
-                    <td width="33%">
-                        <span class="label">Ventilação Controlada</span>
-                        @EnumFormatado(Model.ControlledVentilationMode)
-                    </td>
-
-                </tr>
-
-                <tr>
-
-                    <td>
-                        <span class="label">Dispositivo Via Aérea</span>
-                        @EnumFormatado(Model.AirwayDeviceType)
-                    </td>
-
-                    <td>
-                        <span class="label">Número Dispositivo</span>
-                        @(Model.AirwayDeviceNumber ?? "-")
-                    </td>
-
-                    <td>
-                        <span class="label">Dificuldade de Intubação</span>
-                        @EnumFormatado(Model.IntubationDifficulty)
-                    </td>
-
-                </tr>
-
-            </table>
-
-        </div>
-
-    </div>
-
-    <!-- TÉCNICAS -->
-    <div class="section">
-
-        <div class="section-title">
-            TÉCNICAS E PROCEDIMENTOS
-        </div>
-
-        <div class="section-content">
-
-            <table>
-
-                <tr>
-                    <td>Raquianestesia: <strong>@SimNao(Model.SpinalBlockPerformed)</strong></td>
-                    <td>Sedação: <strong>@SimNao(Model.SedationPerformed)</strong></td>
-                    <td>Suplementação O₂: <strong>@SimNao(Model.OxygenSupplementation)</strong></td>
-                </tr>
-
-                <tr>
-                    <td>Bloqueio Plexo: <strong>@SimNao(Model.PlexusBlockPerformed)</strong></td>
-                    <td>Laringoscopia: <strong>@SimNao(Model.Laryngoscopy)</strong></td>
-                    <td>Videolaringoscopia: <strong>@SimNao(Model.VideoLaryngoscopy)</strong></td>
-                </tr>
-
-                <tr>
-                    <td>Fibroscopia: <strong>@SimNao(Model.Bronchofibroscopy)</strong></td>
-                    <td>Traqueostomia: <strong>@SimNao(Model.Tracheostomy)</strong></td>
-                    <td>Técnica Retrógrada: <strong>@SimNao(Model.RetrogradeTechnique)</strong></td>
-                </tr>
-
-            </table>
-
-        </div>
-
-    </div>
-
-    <!-- RECUPERAÇÃO -->
-    <div class="section">
-
-        <div class="section-title">
-            RECUPERAÇÃO PÓS-ANESTÉSICA
-        </div>
-
-        <div class="section-content">
-
-            <table class="grid-table">
-
                 <thead>
                     <tr>
                         <th>Consciência</th>
@@ -643,122 +319,104 @@
                         <th>Circulação</th>
                         <th>Respiração</th>
                         <th>Saturação</th>
-                        <th>Total</th>
+                        <th><strong>TOTAL</strong></th>
                     </tr>
                 </thead>
-
                 <tbody>
-
                     <tr>
-                        <td>@Model.ConsciousnessScore</td>
-                        <td>@Model.ActivityScore</td>
-                        <td>@Model.CirculationScore</td>
-                        <td>@Model.RespirationScore</td>
-                        <td>@Model.OxygenSaturationScore</td>
-
-                        <td>
-                            <strong>
-                                @Model.TotalAldreteKroulikScore
-                            </strong>
-                        </td>
+                        <td>2 (Desperto quando chamado)</td>
+                        <td>2 (Mov. 4 extremidades)</td>
+                        <td>2 (PA ±20% pré)</td>
+                        <td>2 (Respira bem)</td>
+                        <td>2 (SpO₂ >92% ar)</td>
+                        <td><strong>10</strong></td>
                     </tr>
-
                 </tbody>
-
             </table>
-
-            <table style="margin-top:15px;">
-
+            <br>
+            <table>
                 <tr>
-
-                    <td width="50%">
-
-                        <span class="label">
-                            Condição Clínica de Alta
-                        </span>
-
-                        @EnumFormatado(Model.ClinicalDischargeCondition)
-
-                    </td>
-
-                    <td width="50%">
-
-                        <span class="label">
-                            Destino do Paciente
-                        </span>
-
-                        @EnumFormatado(Model.Destination)
-
-                    </td>
-
+                    <td><span class="label">Condição Clínica para Alta</span> Acordado</td>
+                    <td><span class="label">Destino</span> Quarto</td>
+                    <td><span class="label">Hora</span> 10:20</td>
                 </tr>
-
             </table>
-
         </div>
-
     </div>
 
-    <!-- ASSINATURA -->
-    <div class="signature-container">
-
-        <div class="signature-box">
-
-            <div class="signature-line">
-                @(Model.FirstAnesthesiologist?.Name ?? "Anestesista Responsável")
-            </div>
-
+    <!-- CONDIÇÕES FINAIS -->
+    <div class="section">
+        <div class="section-title">CONDIÇÕES FINAIS</div>
+        <div class="section-content">
+            <table>
+                <tr>
+                    <td>Dor: <span class="no">Não</span></td>
+                    <td colspan="2">ENV: - PAINAD: - BPS: - Conduta: -</td>
+                </tr>
+            </table>
         </div>
-
-        <div class="signature-box" style="float:right;">
-
-            <div class="signature-line">
-                Assinatura
-            </div>
-
-        </div>
-
     </div>
 
-    <!-- RODAPÉ -->
-    <div class="footer"
-         style="
-            border-top:1px solid #dcdcdc;
-            padding-top:10px;
-            margin-top:50px;">
-
-        <table>
-
+    <!-- ASSINATURAS -->
+    <div style="margin-top:35px;">
+        <table class="signature-table" style="width:100%">
             <tr>
-
-                <!-- LOGO UFF -->
-                <td style="width:120px;">
-
-                    <img src="@uffLogoBase64"
-                         style="height:45px;" />
-
+                <td style="width:50%; text-align:center;">
+                    <div class="signature-line">Dr. Rafael Costa<br><span class="small">1º Anestesista</span></div>
                 </td>
-
-                <!-- TEXTO -->
-                <td style="text-align:center; font-size:10px; color:#777;">
-
-                    Documento confidencial hospitalar •
-                    Gerado eletronicamente pelo sistema <strong>SIGA</strong>
-
+                <td style="width:50%; text-align:center;">
+                    <div class="signature-line">Dra. Juliana Mendes<br><span class="small">2º Anestesista</span></div>
                 </td>
-
-                <!-- DATA -->
-                <td style="width:160px; text-align:right; font-size:10px; color:#777;">
-
-                    @DateTime.Now.ToString("dd/MM/yyyy HH:mm")
-
-                </td>
-
             </tr>
-
+            <tr>
+                <td colspan="2" style="text-align:center; padding-top:25px; font-size:11px;">
+                    <strong>Data:</strong> 27/05/2026
+                </td>
+            </tr>
         </table>
-
     </div>
 
+    <!-- MONITORIZAÇÃO -->
+    <div class="page-break"></div>
+    <div class="header">
+        <div style="text-align:center;">
+            <strong>MONITORIZAÇÃO INTRAOPERATÓRIA</strong><br>
+            <small>Paciente: João Silva Santos | 27/05/2026</small>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-content">
+            <table class="grid-table" style="font-size:9.8px;">
+                <thead>
+                    <tr>
+                        <th>Horário</th>
+                        <th>FC</th>
+                        <th>PA</th>
+                        <th>SpO₂</th>
+                        <th>EtCO₂</th>
+                        <th>T°C</th>
+                        <th>Observações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>08:15</td><td>78</td><td>132/78</td><td>98</td><td>38</td><td>36.5</td><td>Indução</td></tr>
+                    <tr><td>08:30</td><td>82</td><td>118/72</td><td>99</td><td>36</td><td>36.4</td><td>Pneumoperitônio</td></tr>
+                    <tr><td>09:00</td><td>75</td><td>125/75</td><td>97</td><td>37</td><td>36.3</td><td></td></tr>
+                    <tr><td>09:30</td><td>80</td><td>110/68</td><td>98</td><td>35</td><td>36.2</td><td></td></tr>
+                    <tr><td>10:00</td><td>72</td><td>128/80</td><td>99</td><td>36</td><td>36.4</td><td>Fim cirurgia</td></tr>
+                    @for (int i = 0; i < 13; i++)
+                    {
+                        <tr style="height:26px;"><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- RODAPÉ EM TODAS AS PÁGINAS -->
+    <footer>
+        Documento confidencial • Gerado eletronicamente pelo sistema SIGA • HUAP - UFF • 27/05/2026
+    </footer>
 </body>
 </html>
