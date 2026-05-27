@@ -1,9 +1,9 @@
-﻿using UFF.FichaAnestesica.Domain.Dto;
+﻿using UFF.FichaAnestesica.Domain.Commands;
 
 namespace UFF.FichaAnestesica.Domain.Services
 {
     public interface IProfessionalService
     {
-        Task<List<UserResponse>> GetProfessionalsForAnethesiaRecord(string name);      
+        Task<CommandResult> GetProfessionalsForAnethesiaRecord(string name);      
     }
 }
