@@ -27,21 +27,25 @@
 <html lang="pt-br">
 <head>
     <meta charset="utf-8" />
+    <title>Ficha Anestésica - HUAP</title>
 
     <style>
         @@page {
             size: A4;
-            margin: 5mm;
+            margin: 5mm; 
         }
 
         body {
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 8px;
+            font-size: 8pt; 
             color: #111827;
             margin: 0;
-            line-height: 1.15;
+            padding: 0;
+            line-height: 1.2;
+            background: white;
         }
 
+        /* TABELAS BASE */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -49,40 +53,43 @@
         }
 
         td, th {
-            border: 1px solid #cbd5e1;
-            padding: 4px 5px;
+            border: 1px solid #9ca3af;
+            padding: 1.5mm 2mm;
             vertical-align: top;
-            word-wrap: break-word;
-            font-size: 8px;
+            word-break: break-word;
+            font-size: 7.5pt;
         }
 
+      
         .header table td,
         .signature-table td {
             border: none !important;
         }
 
+      
         .header {
-            margin-bottom: 5px;
+            margin-bottom: 1.5mm;
         }
 
         .hospital-name {
-            font-size: 14px;
+            font-size: 12pt;
             font-weight: bold;
             color: #1e3a8a;
-            line-height: 1;
+            line-height: 1.1;
         }
 
         .document-title {
-            font-size: 13px;
+            font-size: 10pt;
             font-weight: bold;
-            margin-top: 2px;
+            margin-top: 0.5mm;
         }
 
+     
         .section {
-            border: 1px solid #cbd5e1;
-            border-radius: 3px;
+            border: 1px solid #9ca3af;
+            border-radius: 1mm;
             overflow: hidden;
-            margin-bottom: 5px;
+            margin-bottom: 2mm;
             page-break-inside: avoid;
         }
 
@@ -90,32 +97,23 @@
             background: #e5e7eb;
             color: #1e3a8a;
             font-weight: bold;
-            font-size: 8.5px;
-            padding: 4px 6px;
-            letter-spacing: .2px;
+            font-size: 8.5pt;
+            padding: 1.2mm 2mm;
+            letter-spacing: 0.2px;
         }
 
         .section-content {
-            padding: 4px;
+            padding: 1mm;
         }
 
+  
         .label {
             display: block;
-            font-size: 7px;
+            font-size: 6.5pt;
             font-weight: bold;
             color: #374151;
-            margin-bottom: 1px;
+            margin-bottom: 0.3mm;
             text-transform: uppercase;
-        }
-
-        .grid-table td,
-        .grid-table th {
-            text-align: center;
-        }
-
-        .grid-table th {
-            background: #f8fafc;
-            font-weight: bold;
         }
 
         .yes {
@@ -129,75 +127,86 @@
         }
 
         .small {
-            font-size: 7px;
-            color: #6b7280;
+            font-size: 6pt;
+            color: #4b5563;
         }
 
+      
         .signature-area {
-            margin-top: 18px;
+            margin-top: 3mm;
+            page-break-inside: avoid;
         }
 
         .signature-line {
-            border-top: 1px solid #111827;
-            width: 82%;
-            margin: 22px auto 0 auto;
-            padding-top: 4px;
+            border-top: 0.5pt solid #111827;
+            width: 80%;
+            margin: 3mm auto 0 auto;
+            padding-top: 1mm;
             text-align: center;
-            font-size: 8px;
+            font-size: 7.5pt;
         }
 
+     
         footer {
             position: fixed;
-            bottom: 1px;
+            bottom: 0;
             left: 0;
             right: 0;
             text-align: center;
-            font-size: 6.5px;
+            font-size: 6pt;
             color: #6b7280;
+            margin-bottom: 1mm;
         }
 
+        
         .page-break {
             page-break-before: always;
+            margin-top: 2mm;
         }
 
+       
         .monitor-table td,
         .monitor-table th {
-            height: 18px;
-            font-size: 7.6px;
+            height: 4mm;
+            font-size: 7pt;
+            text-align: center;
+            vertical-align: middle;
+            padding: 1mm 1mm;
+        }
+
+       
+        .section, .header, .signature-area {
+            page-break-inside: avoid;
+        }
+
+       
+        .grid-table td, .grid-table th {
+            text-align: center;
         }
     </style>
 </head>
 
 <body>
 
-    <!-- CABEÇALHO -->
+    <!-- CABEÇALHO PRIMEIRA PÁGINA -->
     <div class="header">
         <table>
             <tr>
-                <td style="width:80px;">
-                    <img src="@hospitalLogoBase64" style="height:50px;" />
+                <td style="width: 18mm;">
+                    <img src="@hospitalLogoBase64" style="height: 10mm; width: auto;" alt="Logo HUAP" />
                 </td>
-
-                <td style="text-align:center;">
+                <td style="text-align: center;">
                     <div class="hospital-name">
                         HOSPITAL UNIVERSITÁRIO ANTÔNIO PEDRO
                     </div>
-
                     <div class="document-title">
                         FICHA ANESTÉSICA
                     </div>
                 </td>
-
-                <td style="width:95px; text-align:right;">
-                    <strong>Data:</strong> 27/05/2026<br />
+                <td style="width: 25mm; text-align: right;">
+                    <strong>Data:</strong> @DateTime.Now.ToString("dd/MM/yyyy")<br />
                     <strong>ASA:</strong>
-
-                    <span style="
-                        border:1px solid #9ca3af;
-                        padding:1px 6px;
-                        border-radius:8px;
-                        display:inline-block;
-                        margin-top:2px;">
+                    <span style="border: 1px solid #9ca3af; padding: 0px 4px; border-radius: 3px; display: inline-block; margin-top: 0.5mm;">
                         III
                     </span>
                 </td>
@@ -207,37 +216,15 @@
 
     <!-- IDENTIFICAÇÃO -->
     <div class="section">
-        <div class="section-title">
-            IDENTIFICAÇÃO
-        </div>
-
+        <div class="section-title">IDENTIFICAÇÃO</div>
         <div class="section-content">
             <table>
                 <tr>
-                    <td style="width:34%">
-                        <span class="label">Paciente</span>
-                        João Silva Santos
-                    </td>
-
-                    <td style="width:16%">
-                        <span class="label">Registro</span>
-                        456789
-                    </td>
-
-                    <td style="width:18%">
-                        <span class="label">Nascimento</span>
-                        15/03/1968
-                    </td>
-
-                    <td style="width:12%">
-                        <span class="label">Sexo</span>
-                        Masculino
-                    </td>
-
-                    <td style="width:20%">
-                        <span class="label">Leito</span>
-                        405 - 4º Andar
-                    </td>
+                    <td style="width: 34%"><span class="label">Paciente</span>João Silva Santos</td>
+                    <td style="width: 16%"><span class="label">Registro</span>456789</td>
+                    <td style="width: 18%"><span class="label">Nascimento</span>15/03/1968</td>
+                    <td style="width: 12%"><span class="label">Sexo</span>Masculino</td>
+                    <td style="width: 20%"><span class="label">Leito</span>405 - 4º Andar</td>
                 </tr>
             </table>
         </div>
@@ -245,51 +232,21 @@
 
     <!-- SEGURANÇA -->
     <div class="section">
-        <div class="section-title">
-            SEGURANÇA / PRÉ-INDUÇÃO
-        </div>
-
+        <div class="section-title">SEGURANÇA / PRÉ-INDUÇÃO</div>
         <div class="section-content">
             <table>
                 <tr>
-                    <td>
-                        Paciente identificado:
-                        <span class="yes">Sim</span>
-                    </td>
-
-                    <td>
-                        Consentimento:
-                        <span class="yes">Sim</span>
-                    </td>
-
-                    <td>
-                        Equipamentos:
-                        <span class="yes">Sim</span>
-                    </td>
-
-                    <td>
-                        Repique:
-                        <span class="no">Não</span>
-                    </td>
+                    <td>Paciente identificado: <span class="yes">Sim</span></td>
+                    <td>Consentimento: <span class="yes">Sim</span></td>
+                    <td>Equipamentos: <span class="yes">Sim</span></td>
+                    <td>Repique: <span class="no">Não</span></td>
                 </tr>
-
                 <tr>
-                    <td colspan="2">
-                        <span class="label">ATB Profilático</span>
-                        Cefazolina 2g - 08:10
-                    </td>
-
-                    <td colspan="2">
-                        <span class="label">Pré-Anestésica</span>
-                        Midazolam 3mg IV - 08:05
-                    </td>
+                    <td colspan="2"><span class="label">ATB Profilático</span>Cefazolina 2g - 08:10</td>
+                    <td colspan="2"><span class="label">Pré-Anestésica</span>Midazolam 3mg IV - 08:05</td>
                 </tr>
-
                 <tr>
-                    <td colspan="4">
-                        <span class="label">Atenção</span>
-                        Hipertenso controlado, sem alergias conhecidas.
-                    </td>
+                    <td colspan="4"><span class="label">Atenção</span>Hipertenso controlado, sem alergias conhecidas.</td>
                 </tr>
             </table>
         </div>
@@ -297,47 +254,17 @@
 
     <!-- DADOS VITAIS -->
     <div class="section">
-        <div class="section-title">
-            DADOS VITAIS
-        </div>
-
+        <div class="section-title">DADOS VITAIS</div>
         <div class="section-content">
             <table class="grid-table">
                 <tr>
-                    <td>
-                        <span class="label">Entrada</span>
-                        08:00
-                    </td>
-
-                    <td>
-                        <span class="label">PA</span>
-                        138/82
-                    </td>
-
-                    <td>
-                        <span class="label">FR</span>
-                        16
-                    </td>
-
-                    <td>
-                        <span class="label">T°C</span>
-                        36.7
-                    </td>
-
-                    <td>
-                        <span class="label">SpO₂</span>
-                        97%
-                    </td>
-
-                    <td>
-                        <span class="label">Peso</span>
-                        78kg
-                    </td>
-
-                    <td>
-                        <span class="label">ASA</span>
-                        III
-                    </td>
+                    <td><span class="label">Entrada</span>08:00</td>
+                    <td><span class="label">PA</span>138/82</td>
+                    <td><span class="label">FR</span>16</td>
+                    <td><span class="label">T°C</span>36.7</td>
+                    <td><span class="label">SpO₂</span>97%</td>
+                    <td><span class="label">Peso</span>78kg</td>
+                    <td><span class="label">ASA</span>III</td>
                 </tr>
             </table>
         </div>
@@ -345,256 +272,102 @@
 
     <!-- EQUIPE -->
     <div class="section">
-        <div class="section-title">
-            EQUIPE / PRÉ-PROCEDIMENTO
-        </div>
-
+        <div class="section-title">EQUIPE / PRÉ-PROCEDIMENTO</div>
         <div class="section-content">
             <table>
                 <tr>
-                    <td>
-                        <span class="label">Cirurgião</span>
-                        Dr. Carlos Mendes
-                    </td>
-
-                    <td>
-                        <span class="label">Auxiliar</span>
-                        Dra. Ana Beatriz
-                    </td>
-
-                    <td>
-                        <span class="label">1º Anestesista</span>
-                        Dr. Rafael Costa
-                    </td>
-
-                    <td>
-                        <span class="label">2º Anestesista</span>
-                        Dra. Juliana Mendes
-                    </td>
+                    <td><span class="label">Cirurgião</span>Dr. Carlos Mendes</td>
+                    <td><span class="label">Auxiliar</span>Dra. Ana Beatriz</td>
+                    <td><span class="label">1º Anestesista</span>Dr. Rafael Costa</td>
+                    <td><span class="label">2º Anestesista</span>Dra. Juliana Mendes</td>
                 </tr>
-
                 <tr>
-                    <td>
-                        <span class="label">Início Anestesia</span>
-                        08:15
-                    </td>
-
-                    <td>
-                        <span class="label">Posição</span>
-                        Supina
-                    </td>
-
-                    <td>
-                        <span class="label">Coxins</span>
-                        Sim
-                    </td>
-
-                    <td>
-                        <span class="label">Punção Difícil</span>
-                        Não
-                    </td>
+                    <td><span class="label">Início Anestesia</span>08:15</td>
+                    <td><span class="label">Posição</span>Supina</td>
+                    <td><span class="label">Coxins</span>Sim</td>
+                    <td><span class="label">Punção Difícil</span>Não</td>
                 </tr>
-
                 <tr>
-                    <td colspan="2">
-                        <span class="label">Acesso Venoso</span>
-                        Periférico - Veia Cefálica MSD
-                    </td>
-
-                    <td colspan="2">
-                        <span class="label">Diagnóstico Pré-Op</span>
-                        Colelitíase sintomática
-                    </td>
+                    <td colspan="2"><span class="label">Acesso Venoso</span>Periférico - Veia Cefálica MSD</td>
+                    <td colspan="2"><span class="label">Diagnóstico Pré-Op</span>Colelitíase sintomática</td>
                 </tr>
             </table>
         </div>
     </div>
 
-    <!-- TÉCNICA -->
+    <!-- TÉCNICA ANESTÉSICA -->
     <div class="section">
-        <div class="section-title">
-            TÉCNICA ANESTÉSICA
-        </div>
-
+        <div class="section-title">TÉCNICA ANESTÉSICA</div>
         <div class="section-content">
             <table>
                 <tr>
-                    <td>
-                        AG:
-                        <span class="yes">Sim</span>
-                    </td>
-
-                    <td>
-                        Raqui:
-                        <span class="no">Não</span>
-                    </td>
-
-                    <td>
-                        Sedação:
-                        <span class="no">Não</span>
-                    </td>
-
-                    <td>
-                        O₂:
-                        <span class="yes">Máscara</span>
-                    </td>
+                    <td>AG: <span class="yes">Sim</span></td>
+                    <td>Raqui: <span class="no">Não</span></td>
+                    <td>Sedação: <span class="no">Não</span></td>
+                    <td>O₂: <span class="yes">Máscara</span></td>
                 </tr>
-
                 <tr>
-                    <td>
-                        Assistida:
-                        <span class="no">Não</span>
-                    </td>
-
-                    <td>
-                        Controlada:
-                        <span class="yes">Volume</span>
-                    </td>
-
-                    <td>
-                        Absorvedor CO₂:
-                        <span class="yes">Sim</span>
-                    </td>
-
-                    <td>
-                        Laringoscopia:
-                        <span class="yes">Sim</span>
-                    </td>
+                    <td>Assistida: <span class="no">Não</span></td>
+                    <td>Controlada: <span class="yes">Volume</span></td>
+                    <td>Absorvedor CO₂: <span class="yes">Sim</span></td>
+                    <td>Laringoscopia: <span class="yes">Sim</span></td>
                 </tr>
-
                 <tr>
-                    <td colspan="2">
-                        <span class="label">Via Aérea</span>
-                        TOT 7.5 - Fácil
-                    </td>
-
-                    <td>
-                        Fibroscopia:
-                        <span class="no">Não</span>
-                    </td>
-
-                    <td>
-                        Videolaringo:
-                        <span class="no">Não</span>
-                    </td>
+                    <td colspan="2"><span class="label">Via Aérea</span>TOT 7.5 - Fácil</td>
+                    <td>Fibroscopia: <span class="no">Não</span></td>
+                    <td>Videolaringo: <span class="no">Não</span></td>
                 </tr>
-
                 <tr>
-                    <td>
-                        Plexo:
-                        <span class="no">Não</span>
-                    </td>
-
-                    <td colspan="3">
-                        <span class="label">Neuroestimulador</span>
-                        Femoral - Agulha Stimuplex
-                    </td>
+                    <td>Plexo: <span class="no">Não</span></td>
+                    <td colspan="3"><span class="label">Neuroestimulador</span>Femoral - Agulha Stimuplex</td>
                 </tr>
             </table>
         </div>
     </div>
 
-    <!-- PÓS -->
+    <!-- PÓS-PROCEDIMENTO -->
     <div class="section">
-        <div class="section-title">
-            PÓS-PROCEDIMENTO
-        </div>
-
+        <div class="section-title">PÓS-PROCEDIMENTO</div>
         <div class="section-content">
             <table>
                 <tr>
-                    <td>
-                        <span class="label">Cirurgia</span>
-                        Colecistectomia videolaparoscópica
-                    </td>
-
-                    <td>
-                        <span class="label">Fim Cirurgia</span>
-                        09:55
-                    </td>
-
-                    <td>
-                        <span class="label">Fim Anestesia</span>
-                        10:05
-                    </td>
+                    <td><span class="label">Cirurgia</span>Colecistectomia videolaparoscópica</td>
+                    <td><span class="label">Fim Cirurgia</span>09:55</td>
+                    <td><span class="label">Fim Anestesia</span>10:05</td>
                 </tr>
-
                 <tr>
-                    <td colspan="3">
-                        <span class="label">Diagnóstico Pós-Op</span>
-                        Colelitíase com colecistite crônica
-                    </td>
+                    <td colspan="3"><span class="label">Diagnóstico Pós-Op</span>Colelitíase com colecistite crônica</td>
                 </tr>
             </table>
         </div>
     </div>
 
-    <!-- ALDERETE -->
+    <!-- ALDERETE E KROULIK -->
     <div class="section">
-        <div class="section-title">
-            ALDERETE E KROULIK
-        </div>
-
+        <div class="section-title">ALDERETE E KROULIK</div>
         <div class="section-content">
             <table class="grid-table">
-                <tr>
-                    <th>Cons.</th>
-                    <th>Ativ.</th>
-                    <th>Circ.</th>
-                    <th>Resp.</th>
-                    <th>Sat.</th>
-                    <th>Total</th>
-                </tr>
-
-                <tr>
-                    <td>2</td>
-                    <td>2</td>
-                    <td>2</td>
-                    <td>2</td>
-                    <td>2</td>
-                    <td><strong>10</strong></td>
-                </tr>
+                <tr><th>Cons.</th><th>Ativ.</th><th>Circ.</th><th>Resp.</th><th>Sat.</th><th>Total</th></tr>
+                <tr><td>2</td><td>2</td><td>2</td><td>2</td><td>2</td><td><strong>10</strong></td></tr>
             </table>
-
-            <table style="margin-top:4px;">
+            <table style="margin-top: 1mm;">
                 <tr>
-                    <td>
-                        <span class="label">Alta</span>
-                        Acordado
-                    </td>
-
-                    <td>
-                        <span class="label">Destino</span>
-                        Quarto
-                    </td>
-
-                    <td>
-                        <span class="label">Hora</span>
-                        10:20
-                    </td>
+                    <td><span class="label">Alta</span>Acordado</td>
+                    <td><span class="label">Destino</span>Quarto</td>
+                    <td><span class="label">Hora</span>10:20</td>
                 </tr>
             </table>
         </div>
     </div>
 
-    <!-- CONDIÇÕES -->
+    <!-- CONDIÇÕES FINAIS -->
     <div class="section">
-        <div class="section-title">
-            CONDIÇÕES FINAIS
-        </div>
-
+        <div class="section-title">CONDIÇÕES FINAIS</div>
         <div class="section-content">
             <table>
                 <tr>
-                    <td style="width:20%">
-                        <span class="label">Dor</span>
-                        <span class="no">Não</span>
-                    </td>
-
-                    <td>
-                        <span class="label">Escalas / Conduta</span>
-                        ENV: - | PAINAD: - | BPS: - | Conduta: -
-                    </td>
+                    <td style="width: 25%"><span class="label">Dor</span><span class="no">Não</span></td>
+                    <td><span class="label">Escalas / Conduta</span>ENV: - | PAINAD: - | BPS: - | Conduta: -</td>
                 </tr>
             </table>
         </div>
@@ -604,118 +377,65 @@
     <div class="signature-area">
         <table class="signature-table">
             <tr>
-                <td style="width:50%">
+                <td style="width: 50%; text-align: center;">
                     <div class="signature-line">
                         Dr. Rafael Costa<br />
                         <span class="small">1º Anestesista</span>
                     </div>
                 </td>
-
-                <td style="width:50%">
+                <td style="width: 50%; text-align: center;">
                     <div class="signature-line">
                         Dra. Juliana Mendes<br />
                         <span class="small">2º Anestesista</span>
                     </div>
                 </td>
             </tr>
-
             <tr>
-                <td colspan="2" style="text-align:center; padding-top:10px;">
-                    <strong>Data:</strong> 27/05/2026
+                <td colspan="2" style="text-align: center; padding-top: 2mm;">
+                    <strong>Data:</strong> @DateTime.Now.ToString("dd/MM/yyyy")
                 </td>
             </tr>
         </table>
     </div>
 
-    <!-- MONITORIZAÇÃO -->
+    <!-- ========================================= -->
+    <!-- QUEBRA DE PÁGINA – MONITORIZAÇÃO          -->
+    <!-- ========================================= -->
     <div class="page-break"></div>
 
+    <!-- CABEÇALHO DA SEGUNDA PÁGINA -->
     <div class="header">
-        <div style="text-align:center;">
+        <div style="text-align: center;">
             <strong>MONITORIZAÇÃO INTRAOPERATÓRIA</strong><br />
-            <small>
-                Paciente: João Silva Santos | 27/05/2026
-            </small>
+            <small>Paciente: João Silva Santos | @DateTime.Now.ToString("dd/MM/yyyy")</small>
         </div>
     </div>
 
+    <!-- TABELA DE MONITORIZAÇÃO (COMPACTA, CABE EM UMA PÁGINA) -->
     <div class="section">
         <div class="section-content">
             <table class="grid-table monitor-table">
                 <thead>
                     <tr>
-                        <th>Horário</th>
-                        <th>FC</th>
-                        <th>PA</th>
-                        <th>SpO₂</th>
-                        <th>EtCO₂</th>
-                        <th>T°C</th>
-                        <th>Observações</th>
+                        <th style="width: 12%">Horário</th>
+                        <th style="width: 8%">FC</th>
+                        <th style="width: 12%">PA</th>
+                        <th style="width: 8%">SpO₂</th>
+                        <th style="width: 8%">EtCO₂</th>
+                        <th style="width: 8%">T°C</th>
+                        <th style="width: 44%">Observações</th>
                     </tr>
                 </thead>
-
                 <tbody>
-                    <tr>
-                        <td>08:15</td>
-                        <td>78</td>
-                        <td>132/78</td>
-                        <td>98</td>
-                        <td>38</td>
-                        <td>36.5</td>
-                        <td>Indução</td>
-                    </tr>
-
-                    <tr>
-                        <td>08:30</td>
-                        <td>82</td>
-                        <td>118/72</td>
-                        <td>99</td>
-                        <td>36</td>
-                        <td>36.4</td>
-                        <td>Pneumoperitônio</td>
-                    </tr>
-
-                    <tr>
-                        <td>09:00</td>
-                        <td>75</td>
-                        <td>125/75</td>
-                        <td>97</td>
-                        <td>37</td>
-                        <td>36.3</td>
-                        <td></td>
-                    </tr>
-
-                    <tr>
-                        <td>09:30</td>
-                        <td>80</td>
-                        <td>110/68</td>
-                        <td>98</td>
-                        <td>35</td>
-                        <td>36.2</td>
-                        <td></td>
-                    </tr>
-
-                    <tr>
-                        <td>10:00</td>
-                        <td>72</td>
-                        <td>128/80</td>
-                        <td>99</td>
-                        <td>36</td>
-                        <td>36.4</td>
-                        <td>Fim cirurgia</td>
-                    </tr>
-
-                    @for (int i = 0; i < 15; i++)
+                    <tr><td>08:15</td><td>78</td><td>132/78</td><td>98</td><td>38</td><td>36.5</td><td>Indução</td></tr>
+                    <tr><td>08:30</td><td>82</td><td>118/72</td><td>99</td><td>36</td><td>36.4</td><td>Pneumoperitônio</td></tr>
+                    <tr><td>09:00</td><td>75</td><td>125/75</td><td>97</td><td>37</td><td>36.3</td><td></td></tr>
+                    <tr><td>09:30</td><td>80</td><td>110/68</td><td>98</td><td>35</td><td>36.2</td><td></td></tr>
+                    <tr><td>10:00</td><td>72</td><td>128/80</td><td>99</td><td>36</td><td>36.4</td><td>Fim cirurgia</td></tr>
+                    <!-- LINHAS VAZIAS PARA REGISTROS MANUAIS – LIMITADAS PARA CABER NA PÁGINA -->
+                    @for (int i = 0; i < 12; i++)
                     {
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
+                        <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
                     }
                 </tbody>
             </table>
@@ -723,8 +443,7 @@
     </div>
 
     <footer>
-        Documento confidencial • Gerado eletronicamente pelo sistema SIGA • HUAP - UFF • 27/05/2026
+        Documento confidencial • Gerado eletronicamente pelo sistema SIGA • HUAP - UFF • @DateTime.Now.ToString("dd/MM/yyyy HH:mm")
     </footer>
-
 </body>
 </html>

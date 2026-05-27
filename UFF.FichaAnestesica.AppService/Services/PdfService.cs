@@ -24,7 +24,7 @@ namespace UFF.FichaAnestesica.Infra.Services
         private readonly IServiceProvider _serviceProvider;
         private readonly IConfiguration _configuration;
 
-        public PdfService(ICompositeViewEngine viewEngine, ITempDataProvider tempDataProvider, IHttpContextAccessor httpContextAccessor, IServiceProvider serviceProvider, 
+        public PdfService(ICompositeViewEngine viewEngine, ITempDataProvider tempDataProvider, IHttpContextAccessor httpContextAccessor, IServiceProvider serviceProvider,
             IConfiguration configuration, IAnesthesiaRecordRepository anesthesiaRecordRepository)
         {
             _viewEngine = viewEngine;
@@ -35,7 +35,7 @@ namespace UFF.FichaAnestesica.Infra.Services
             _anesthesiaRecordRepository = anesthesiaRecordRepository;
         }
 
-        public async Task<(byte[], string)> GeneratePdfAsync(int id)
+        public async Task<(string, string)> GeneratePdfAsync(int id)
         {
             var model = await _anesthesiaRecordRepository.GetByIdAsync(id);
 
@@ -45,41 +45,15 @@ namespace UFF.FichaAnestesica.Infra.Services
             var layoutBase = _configuration["Pdf:ViewPath"];
             var html = await RenderViewToStringAsync(layoutBase, model);
 
-            await EnsureBrowserDownloaded();
-
-            var launchOptions = new LaunchOptions
-            {
-                Headless = true,
-                Args = new[] { "--no-sandbox", "--disable-setuid-sandbox" }
-            };
-
-            await using var browser = await Puppeteer.LaunchAsync(launchOptions);
-            await using var page = await browser.NewPageAsync();
-
-            await page.SetContentAsync(html);
-
-            var pdf = await page.PdfDataAsync(new PdfOptions
-            {
-                Format = PaperFormat.A4,
-                PrintBackground = true,
-                MarginOptions = new MarginOptions
-                {
-                    Top = "10mm",
-                    Bottom = "10mm",
-                    Left = "10mm",
-                    Right = "10mm"
-                }
-            });
-
-            return (pdf, model.ExternalPatientId);
+            return (html, model.ExternalPatientId);
         }
 
         private async Task<string> RenderViewToStringAsync(string viewPath, object model)
-        {          
+        {
             var httpContext = _httpContextAccessor.HttpContext ?? CreateEmptyHttpContext();
             var actionContext = new ActionContext(httpContext, new RouteData(), new ActionDescriptor());
-                        
-            var viewResult = _viewEngine.GetView(viewPath, viewPath, false);            
+
+            var viewResult = _viewEngine.GetView(viewPath, viewPath, false);
 
             await using var writer = new StringWriter();
 
@@ -106,7 +80,7 @@ namespace UFF.FichaAnestesica.Infra.Services
 
         private static async Task EnsureBrowserDownloaded()
         {
-            if (_browserDownloaded) 
+            if (_browserDownloaded)
                 return;
 
             var browserFetcher = new BrowserFetcher();

@@ -2,6 +2,6 @@
 {
     public interface IPdfService
     {
-        Task<(byte[], string)> GeneratePdfAsync(int id);
+        Task<(string, string)> GeneratePdfAsync(int id);
     }
 }

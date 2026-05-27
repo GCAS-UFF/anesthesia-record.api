@@ -3,6 +3,7 @@ using UFF.FichaAnestesica.Application.Interfaces;
 using UFF.FichaAnestesica.Domain.Commands;
 using UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord;
 using UFF.FichaAnestesica.Domain.Services;
+using UFF.FichaAnestesica.Infra.Services;
 
 namespace UFF.FichaAnestesica.Api.Controllers
 {
@@ -56,15 +57,12 @@ namespace UFF.FichaAnestesica.Api.Controllers
             return Ok(surgeries);
         }
 
-        [HttpGet("{id}/pdf")]
-        public async Task<IActionResult> GeneratePdf([FromRoute] int id)
-        {          
-            (byte[] pdf, string extenalPatientId) = await _pdfService.GeneratePdfAsync(id);
 
-            if (pdf == null)
-                throw new Exception("Não foi possível gerar o PDF");
-
-            return File(pdf, "application/pdf", $"ficha-anestesica-{extenalPatientId}.pdf");
-        }       
+        [HttpGet("{id}/print")]
+        public async Task<IActionResult> Print([FromRoute] int id)
+        {
+            (string html, string extenalPatientId) = await _pdfService.GeneratePdfAsync(id);
+            return Content(html, "text/html");
+        }
     }
 }
