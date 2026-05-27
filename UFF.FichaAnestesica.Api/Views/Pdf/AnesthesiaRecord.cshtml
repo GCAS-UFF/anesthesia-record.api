@@ -1,161 +1,205 @@
 ﻿@using UFF.FichaAnestesica.Domain.Entities
 @using System.Globalization
+
 @model AnesthesiaRecord
+
 @{
     string SimNao(bool? value) => value == true ? "Sim" : value == false ? "Não" : "-";
+
     string EnumFormatado(Enum? valor)
     {
         if (valor == null) return "-";
         return System.Text.RegularExpressions.Regex.Replace(valor.ToString()!, "([a-z])([A-Z])", "$1 $2");
     }
 
-    var hospitalLogoPath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "logo-huap.png");
-    var hospitalLogoBase64 = $"data:image/png;base64,{Convert.ToBase64String(System.IO.File.ReadAllBytes(hospitalLogoPath))}";
+    var hospitalLogoPath = System.IO.Path.Combine(
+        Directory.GetCurrentDirectory(),
+        "wwwroot",
+        "images",
+        "logo-huap.png"
+    );
+
+    var hospitalLogoBase64 =
+        $"data:image/png;base64,{Convert.ToBase64String(System.IO.File.ReadAllBytes(hospitalLogoPath))}";
 }
 
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="utf-8" />
+
     <style>
+        @@page {
+            size: A4;
+            margin: 5mm;
+        }
+
         body {
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 10.5px;
-            color: #1f2937;
-            margin: 12px 12px 45px 12px;
-            line-height: 1.35;
-        }
-
-        .header {
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-        }
-
-        .hospital-name {
-            font-size: 18px;
-            font-weight: bold;
-            color: #1f3c88;
-            line-height: 1.1;
-        }
-
-        .document-title {
-            font-size: 18px;
-            font-weight: bold;
-            margin-top: 2px;
-        }
-
-        .section {
-            border: 1px solid #d1d5db;
-            margin-top: 12px;
-            border-radius: 6px;
-            overflow: hidden;
-            page-break-inside: avoid;
-        }
-
-        .section-title {
-            background: #f3f4f6;
-            color: #1f3c88;
-            font-weight: bold;
-            padding: 7px 10px;
-            font-size: 12px;
-        }
-
-        .section-content {
-            padding: 10px;
+            font-size: 8px;
+            color: #111827;
+            margin: 0;
+            line-height: 1.15;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
+            table-layout: fixed;
         }
 
         td, th {
-            padding: 5px 7px;
+            border: 1px solid #cbd5e1;
+            padding: 4px 5px;
             vertical-align: top;
-            border: 1px solid #d1d5db;
+            word-wrap: break-word;
+            font-size: 8px;
         }
 
         .header table td,
-        .signature-table td,
-        .signature-table th {
+        .signature-table td {
             border: none !important;
         }
 
-        .label {
-            font-weight: bold;
-            color: #374151;
-            display: block;
-            margin-bottom: 2px;
-            font-size: 10px;
+        .header {
+            margin-bottom: 5px;
         }
 
-        .grid-table td {
+        .hospital-name {
+            font-size: 14px;
+            font-weight: bold;
+            color: #1e3a8a;
+            line-height: 1;
+        }
+
+        .document-title {
+            font-size: 13px;
+            font-weight: bold;
+            margin-top: 2px;
+        }
+
+        .section {
+            border: 1px solid #cbd5e1;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 5px;
+            page-break-inside: avoid;
+        }
+
+        .section-title {
+            background: #e5e7eb;
+            color: #1e3a8a;
+            font-weight: bold;
+            font-size: 8.5px;
+            padding: 4px 6px;
+            letter-spacing: .2px;
+        }
+
+        .section-content {
+            padding: 4px;
+        }
+
+        .label {
+            display: block;
+            font-size: 7px;
+            font-weight: bold;
+            color: #374151;
+            margin-bottom: 1px;
+            text-transform: uppercase;
+        }
+
+        .grid-table td,
+        .grid-table th {
             text-align: center;
-            font-size: 10px;
+        }
+
+        .grid-table th {
+            background: #f8fafc;
+            font-weight: bold;
         }
 
         .yes {
-            color: #15803d;
+            color: #166534;
             font-weight: bold;
         }
 
         .no {
-            color: #b91c1c;
+            color: #991b1b;
             font-weight: bold;
         }
 
         .small {
-            font-size: 9.5px;
+            font-size: 7px;
             color: #6b7280;
         }
 
+        .signature-area {
+            margin-top: 18px;
+        }
+
         .signature-line {
-            margin-top: 45px;
-            padding-top: 5px;
+            border-top: 1px solid #111827;
+            width: 82%;
+            margin: 22px auto 0 auto;
+            padding-top: 4px;
             text-align: center;
-            font-size: 11px;
-            border-top: 1px solid #333;
+            font-size: 8px;
         }
 
         footer {
             position: fixed;
-            bottom: 8px;
+            bottom: 1px;
             left: 0;
             right: 0;
-            font-size: 9px;
-            color: #6b7280;
             text-align: center;
-            border-top: 1px solid #d1d5db;
-            padding-top: 6px;
-            margin: 0 12px;
-            background: white;
-        }
-
-        @@media print {
-            footer {
-                position: fixed;
-                bottom: 8px;
-            }
+            font-size: 6.5px;
+            color: #6b7280;
         }
 
         .page-break {
             page-break-before: always;
         }
+
+        .monitor-table td,
+        .monitor-table th {
+            height: 18px;
+            font-size: 7.6px;
+        }
     </style>
 </head>
+
 <body>
+
     <!-- CABEÇALHO -->
     <div class="header">
         <table>
             <tr>
-                <td style="width:120px;"><img src="@hospitalLogoBase64" style="height:65px;" /></td>
-                <td style="text-align:center;">
-                    <div class="hospital-name">HOSPITAL UNIVERSITÁRIO ANTÔNIO PEDRO</div>
-                    <div class="document-title">FICHA ANESTÉSICA</div>
+                <td style="width:80px;">
+                    <img src="@hospitalLogoBase64" style="height:50px;" />
                 </td>
-                <td style="width:140px; text-align:right; font-size:11px;">
-                    <strong>Data:</strong> 27/05/2026<br>
-                    <strong>ASA:</strong> <span style="border:1px solid #6b7280; padding:2px 8px; border-radius:12px;">III</span>
+
+                <td style="text-align:center;">
+                    <div class="hospital-name">
+                        HOSPITAL UNIVERSITÁRIO ANTÔNIO PEDRO
+                    </div>
+
+                    <div class="document-title">
+                        FICHA ANESTÉSICA
+                    </div>
+                </td>
+
+                <td style="width:95px; text-align:right;">
+                    <strong>Data:</strong> 27/05/2026<br />
+                    <strong>ASA:</strong>
+
+                    <span style="
+                        border:1px solid #9ca3af;
+                        padding:1px 6px;
+                        border-radius:8px;
+                        display:inline-block;
+                        margin-top:2px;">
+                        III
+                    </span>
                 </td>
             </tr>
         </table>
@@ -163,43 +207,89 @@
 
     <!-- IDENTIFICAÇÃO -->
     <div class="section">
-        <div class="section-title">IDENTIFICAÇÃO DO PACIENTE</div>
+        <div class="section-title">
+            IDENTIFICAÇÃO
+        </div>
+
         <div class="section-content">
             <table>
                 <tr>
-                    <td><span class="label">Nome Completo</span> João Silva Santos</td>
-                    <td><span class="label">Registro</span> 456789</td>
-                    <td><span class="label">Data de Nascimento</span> 15/03/1968</td>
-                    <td><span class="label">Sexo</span> Masculino</td>
-                </tr>
-                <tr>
-                    <td><span class="label">Leito / Andar</span> 405 - 4º Andar</td>
-                    <td colspan="3"><span class="label">Convênio</span> SUS</td>
+                    <td style="width:34%">
+                        <span class="label">Paciente</span>
+                        João Silva Santos
+                    </td>
+
+                    <td style="width:16%">
+                        <span class="label">Registro</span>
+                        456789
+                    </td>
+
+                    <td style="width:18%">
+                        <span class="label">Nascimento</span>
+                        15/03/1968
+                    </td>
+
+                    <td style="width:12%">
+                        <span class="label">Sexo</span>
+                        Masculino
+                    </td>
+
+                    <td style="width:20%">
+                        <span class="label">Leito</span>
+                        405 - 4º Andar
+                    </td>
                 </tr>
             </table>
         </div>
     </div>
 
-    <!-- SEGURANÇA DO PACIENTE -->
+    <!-- SEGURANÇA -->
     <div class="section">
-        <div class="section-title">SEGURANÇA DO PACIENTE / PRÉ-INDUÇÃO</div>
+        <div class="section-title">
+            SEGURANÇA / PRÉ-INDUÇÃO
+        </div>
+
         <div class="section-content">
             <table>
                 <tr>
-                    <td>Paciente identificado: <span class="yes">Sim</span></td>
-                    <td>Consentimento assinado: <span class="yes">Sim</span></td>
-                    <td>Equipamentos checados: <span class="yes">Sim</span></td>
-                </tr>
-                <tr>
-                    <td>Antibiótico Profilático: <span class="yes">Sim</span> (Cefazolina 2g - 08:10)</td>
-                    <td colspan="2">
-                        Medicação Pré-Anestésica: <span class="yes">Sim</span>
-                        <span class="small">(Midazolam 3mg - 08:05 - IV)</span>
+                    <td>
+                        Paciente identificado:
+                        <span class="yes">Sim</span>
+                    </td>
+
+                    <td>
+                        Consentimento:
+                        <span class="yes">Sim</span>
+                    </td>
+
+                    <td>
+                        Equipamentos:
+                        <span class="yes">Sim</span>
+                    </td>
+
+                    <td>
+                        Repique:
+                        <span class="no">Não</span>
                     </td>
                 </tr>
+
                 <tr>
-                    <td>Repique: <span class="no">Não</span></td>
-                    <td colspan="2"><span class="label">Atenção:</span> Hipertenso controlado, sem alergias conhecidas.</td>
+                    <td colspan="2">
+                        <span class="label">ATB Profilático</span>
+                        Cefazolina 2g - 08:10
+                    </td>
+
+                    <td colspan="2">
+                        <span class="label">Pré-Anestésica</span>
+                        Midazolam 3mg IV - 08:05
+                    </td>
+                </tr>
+
+                <tr>
+                    <td colspan="4">
+                        <span class="label">Atenção</span>
+                        Hipertenso controlado, sem alergias conhecidas.
+                    </td>
                 </tr>
             </table>
         </div>
@@ -207,169 +297,330 @@
 
     <!-- DADOS VITAIS -->
     <div class="section">
-        <div class="section-title">DADOS VITAIS E ANTROPOMÉTRICOS (Antes da indução)</div>
+        <div class="section-title">
+            DADOS VITAIS
+        </div>
+
         <div class="section-content">
             <table class="grid-table">
                 <tr>
-                    <td><span class="label">Hora Entrada Sala</span><br>08:00</td>
-                    <td><span class="label">PA</span><br>138/82 mmHg</td>
-                    <td><span class="label">FR</span><br>16 irpm</td>
-                    <td><span class="label">T°C</span><br>36.7</td>
-                    <td><span class="label">SpO₂</span><br>97 %</td>
-                    <td><span class="label">Peso</span><br>78 kg</td>
-                    <td><span class="label">ASA</span><br>III</td>
-                </tr>
-            </table>
-        </div>
-    </div>
-
-    <!-- EQUIPE E PRÉ-PROCEDIMENTO -->
-    <div class="section">
-        <div class="section-title">EQUIPE CIRÚRGICA E PRÉ-PROCEDIMENTO</div>
-        <div class="section-content">
-            <table>
-                <tr>
-                    <td><span class="label">Cirurgião</span> Dr. Carlos Mendes</td>
-                    <td><span class="label">Auxiliar</span> Dra. Ana Beatriz</td>
-                    <td><span class="label">1º Anestesista</span> Dr. Rafael Costa</td>
-                    <td><span class="label">2º Anestesista</span> Dra. Juliana Mendes</td>
-                </tr>
-                <tr>
-                    <td><span class="label">Hora Início Anestesia</span> 08:15</td>
-                    <td><span class="label">Posição</span> Supina</td>
-                    <td><span class="label">Uso de Coxins</span> Sim (sacral e joelhos)</td>
-                    <td><span class="label">Dificuldade Punção</span> Não</td>
-                </tr>
-                <tr>
-                    <td colspan="2"><span class="label">Acesso Venoso</span> Periférico - Veia Cefálica MMSS Direito</td>
-                    <td colspan="2"><span class="label">Diagnóstico Pré-Operatório</span> Colelitíase sintomática</td>
-                </tr>
-            </table>
-        </div>
-    </div>
-
-    <!-- TÉCNICA ANESTÉSICA -->
-    <div class="section">
-        <div class="section-title">TÉCNICA ANESTÉSICA</div>
-        <div class="section-content">
-            <table>
-                <tr>
-                    <td><span class="label">Anestesia Geral</span> <span class="yes">Sim</span></td>
-                    <td colspan="3">
-                        <span class="label">Respiração</span><br>
-                        Assistida: <span class="no">Não</span>
-                        Controlada: <span class="yes">Sim</span> - Volume
+                    <td>
+                        <span class="label">Entrada</span>
+                        08:00
                     </td>
-                </tr>
-                <tr>
-                    <td><span class="label">Circuito</span><br>Absorvedor CO₂: <span class="yes">Sim</span></td>
-                    <td colspan="3">
-                        <span class="label">Via Aérea</span><br>
-                        Tubo Orotraqueal Nº 7.5 - Tipo: Simples - Fácil
+
+                    <td>
+                        <span class="label">PA</span>
+                        138/82
+                    </td>
+
+                    <td>
+                        <span class="label">FR</span>
+                        16
+                    </td>
+
+                    <td>
+                        <span class="label">T°C</span>
+                        36.7
+                    </td>
+
+                    <td>
+                        <span class="label">SpO₂</span>
+                        97%
+                    </td>
+
+                    <td>
+                        <span class="label">Peso</span>
+                        78kg
+                    </td>
+
+                    <td>
+                        <span class="label">ASA</span>
+                        III
                     </td>
                 </tr>
             </table>
-
-            <table style="margin-top:12px;">
-                <tr>
-                    <td>Raquianestesia: <span class="no">Não</span></td>
-                    <td>Sedação: <span class="no">Não</span></td>
-                    <td>Suplementação O₂: <span class="yes">Sim</span> (Máscara facial)</td>
-                </tr>
-                <tr>
-                    <td>Bloqueio Plexo: <span class="no">Não</span></td>
-                    <td>Neuroestimulador: <span class="yes">Sim</span> (Agulha Stimuplex) - Femoral</td>
-                    <td>Laringoscopia: <span class="yes">Sim</span></td>
-                </tr>
-                <tr>
-                    <td>Videolaringoscopia: <span class="no">Não</span></td>
-                    <td>Fibroscopia: <span class="no">Não</span></td>
-                    <td>Técnica Retrógrada: <span class="no">Não</span></td>
-                </tr>
-            </table>
         </div>
     </div>
 
-    <!-- PÓS-PROCEDIMENTO -->
+    <!-- EQUIPE -->
     <div class="section">
-        <div class="section-title">PÓS-PROCEDIMENTO</div>
+        <div class="section-title">
+            EQUIPE / PRÉ-PROCEDIMENTO
+        </div>
+
         <div class="section-content">
             <table>
                 <tr>
-                    <td><span class="label">Cirurgia Realizada</span> Colecistectomia videolaparoscópica</td>
-                    <td><span class="label">Hora Término Cirurgia</span> 09:55</td>
-                    <td><span class="label">Hora Término Anestesia</span> 10:05</td>
+                    <td>
+                        <span class="label">Cirurgião</span>
+                        Dr. Carlos Mendes
+                    </td>
+
+                    <td>
+                        <span class="label">Auxiliar</span>
+                        Dra. Ana Beatriz
+                    </td>
+
+                    <td>
+                        <span class="label">1º Anestesista</span>
+                        Dr. Rafael Costa
+                    </td>
+
+                    <td>
+                        <span class="label">2º Anestesista</span>
+                        Dra. Juliana Mendes
+                    </td>
                 </tr>
+
                 <tr>
-                    <td colspan="3"><span class="label">Diagnóstico Pós-Operatório</span> Colelitíase com colecistite crônica</td>
+                    <td>
+                        <span class="label">Início Anestesia</span>
+                        08:15
+                    </td>
+
+                    <td>
+                        <span class="label">Posição</span>
+                        Supina
+                    </td>
+
+                    <td>
+                        <span class="label">Coxins</span>
+                        Sim
+                    </td>
+
+                    <td>
+                        <span class="label">Punção Difícil</span>
+                        Não
+                    </td>
+                </tr>
+
+                <tr>
+                    <td colspan="2">
+                        <span class="label">Acesso Venoso</span>
+                        Periférico - Veia Cefálica MSD
+                    </td>
+
+                    <td colspan="2">
+                        <span class="label">Diagnóstico Pré-Op</span>
+                        Colelitíase sintomática
+                    </td>
                 </tr>
             </table>
         </div>
     </div>
 
-    <!-- ALDERETE E KROULIK -->
+    <!-- TÉCNICA -->
     <div class="section">
-        <div class="section-title">ÍNDICE DE ALDERETE E KROULIK</div>
+        <div class="section-title">
+            TÉCNICA ANESTÉSICA
+        </div>
+
+        <div class="section-content">
+            <table>
+                <tr>
+                    <td>
+                        AG:
+                        <span class="yes">Sim</span>
+                    </td>
+
+                    <td>
+                        Raqui:
+                        <span class="no">Não</span>
+                    </td>
+
+                    <td>
+                        Sedação:
+                        <span class="no">Não</span>
+                    </td>
+
+                    <td>
+                        O₂:
+                        <span class="yes">Máscara</span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        Assistida:
+                        <span class="no">Não</span>
+                    </td>
+
+                    <td>
+                        Controlada:
+                        <span class="yes">Volume</span>
+                    </td>
+
+                    <td>
+                        Absorvedor CO₂:
+                        <span class="yes">Sim</span>
+                    </td>
+
+                    <td>
+                        Laringoscopia:
+                        <span class="yes">Sim</span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td colspan="2">
+                        <span class="label">Via Aérea</span>
+                        TOT 7.5 - Fácil
+                    </td>
+
+                    <td>
+                        Fibroscopia:
+                        <span class="no">Não</span>
+                    </td>
+
+                    <td>
+                        Videolaringo:
+                        <span class="no">Não</span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        Plexo:
+                        <span class="no">Não</span>
+                    </td>
+
+                    <td colspan="3">
+                        <span class="label">Neuroestimulador</span>
+                        Femoral - Agulha Stimuplex
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- PÓS -->
+    <div class="section">
+        <div class="section-title">
+            PÓS-PROCEDIMENTO
+        </div>
+
+        <div class="section-content">
+            <table>
+                <tr>
+                    <td>
+                        <span class="label">Cirurgia</span>
+                        Colecistectomia videolaparoscópica
+                    </td>
+
+                    <td>
+                        <span class="label">Fim Cirurgia</span>
+                        09:55
+                    </td>
+
+                    <td>
+                        <span class="label">Fim Anestesia</span>
+                        10:05
+                    </td>
+                </tr>
+
+                <tr>
+                    <td colspan="3">
+                        <span class="label">Diagnóstico Pós-Op</span>
+                        Colelitíase com colecistite crônica
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- ALDERETE -->
+    <div class="section">
+        <div class="section-title">
+            ALDERETE E KROULIK
+        </div>
+
         <div class="section-content">
             <table class="grid-table">
-                <thead>
-                    <tr>
-                        <th>Consciência</th>
-                        <th>Atividade</th>
-                        <th>Circulação</th>
-                        <th>Respiração</th>
-                        <th>Saturação</th>
-                        <th><strong>TOTAL</strong></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>2 (Desperto quando chamado)</td>
-                        <td>2 (Mov. 4 extremidades)</td>
-                        <td>2 (PA ±20% pré)</td>
-                        <td>2 (Respira bem)</td>
-                        <td>2 (SpO₂ >92% ar)</td>
-                        <td><strong>10</strong></td>
-                    </tr>
-                </tbody>
-            </table>
-            <br>
-            <table>
                 <tr>
-                    <td><span class="label">Condição Clínica para Alta</span> Acordado</td>
-                    <td><span class="label">Destino</span> Quarto</td>
-                    <td><span class="label">Hora</span> 10:20</td>
+                    <th>Cons.</th>
+                    <th>Ativ.</th>
+                    <th>Circ.</th>
+                    <th>Resp.</th>
+                    <th>Sat.</th>
+                    <th>Total</th>
+                </tr>
+
+                <tr>
+                    <td>2</td>
+                    <td>2</td>
+                    <td>2</td>
+                    <td>2</td>
+                    <td>2</td>
+                    <td><strong>10</strong></td>
+                </tr>
+            </table>
+
+            <table style="margin-top:4px;">
+                <tr>
+                    <td>
+                        <span class="label">Alta</span>
+                        Acordado
+                    </td>
+
+                    <td>
+                        <span class="label">Destino</span>
+                        Quarto
+                    </td>
+
+                    <td>
+                        <span class="label">Hora</span>
+                        10:20
+                    </td>
                 </tr>
             </table>
         </div>
     </div>
 
-    <!-- CONDIÇÕES FINAIS -->
+    <!-- CONDIÇÕES -->
     <div class="section">
-        <div class="section-title">CONDIÇÕES FINAIS</div>
+        <div class="section-title">
+            CONDIÇÕES FINAIS
+        </div>
+
         <div class="section-content">
             <table>
                 <tr>
-                    <td>Dor: <span class="no">Não</span></td>
-                    <td colspan="2">ENV: - PAINAD: - BPS: - Conduta: -</td>
+                    <td style="width:20%">
+                        <span class="label">Dor</span>
+                        <span class="no">Não</span>
+                    </td>
+
+                    <td>
+                        <span class="label">Escalas / Conduta</span>
+                        ENV: - | PAINAD: - | BPS: - | Conduta: -
+                    </td>
                 </tr>
             </table>
         </div>
     </div>
 
     <!-- ASSINATURAS -->
-    <div style="margin-top:35px;">
-        <table class="signature-table" style="width:100%">
+    <div class="signature-area">
+        <table class="signature-table">
             <tr>
-                <td style="width:50%; text-align:center;">
-                    <div class="signature-line">Dr. Rafael Costa<br><span class="small">1º Anestesista</span></div>
+                <td style="width:50%">
+                    <div class="signature-line">
+                        Dr. Rafael Costa<br />
+                        <span class="small">1º Anestesista</span>
+                    </div>
                 </td>
-                <td style="width:50%; text-align:center;">
-                    <div class="signature-line">Dra. Juliana Mendes<br><span class="small">2º Anestesista</span></div>
+
+                <td style="width:50%">
+                    <div class="signature-line">
+                        Dra. Juliana Mendes<br />
+                        <span class="small">2º Anestesista</span>
+                    </div>
                 </td>
             </tr>
+
             <tr>
-                <td colspan="2" style="text-align:center; padding-top:25px; font-size:11px;">
+                <td colspan="2" style="text-align:center; padding-top:10px;">
                     <strong>Data:</strong> 27/05/2026
                 </td>
             </tr>
@@ -378,16 +629,19 @@
 
     <!-- MONITORIZAÇÃO -->
     <div class="page-break"></div>
+
     <div class="header">
         <div style="text-align:center;">
-            <strong>MONITORIZAÇÃO INTRAOPERATÓRIA</strong><br>
-            <small>Paciente: João Silva Santos | 27/05/2026</small>
+            <strong>MONITORIZAÇÃO INTRAOPERATÓRIA</strong><br />
+            <small>
+                Paciente: João Silva Santos | 27/05/2026
+            </small>
         </div>
     </div>
 
     <div class="section">
         <div class="section-content">
-            <table class="grid-table" style="font-size:9.8px;">
+            <table class="grid-table monitor-table">
                 <thead>
                     <tr>
                         <th>Horário</th>
@@ -399,24 +653,78 @@
                         <th>Observações</th>
                     </tr>
                 </thead>
+
                 <tbody>
-                    <tr><td>08:15</td><td>78</td><td>132/78</td><td>98</td><td>38</td><td>36.5</td><td>Indução</td></tr>
-                    <tr><td>08:30</td><td>82</td><td>118/72</td><td>99</td><td>36</td><td>36.4</td><td>Pneumoperitônio</td></tr>
-                    <tr><td>09:00</td><td>75</td><td>125/75</td><td>97</td><td>37</td><td>36.3</td><td></td></tr>
-                    <tr><td>09:30</td><td>80</td><td>110/68</td><td>98</td><td>35</td><td>36.2</td><td></td></tr>
-                    <tr><td>10:00</td><td>72</td><td>128/80</td><td>99</td><td>36</td><td>36.4</td><td>Fim cirurgia</td></tr>
-                    @for (int i = 0; i < 13; i++)
+                    <tr>
+                        <td>08:15</td>
+                        <td>78</td>
+                        <td>132/78</td>
+                        <td>98</td>
+                        <td>38</td>
+                        <td>36.5</td>
+                        <td>Indução</td>
+                    </tr>
+
+                    <tr>
+                        <td>08:30</td>
+                        <td>82</td>
+                        <td>118/72</td>
+                        <td>99</td>
+                        <td>36</td>
+                        <td>36.4</td>
+                        <td>Pneumoperitônio</td>
+                    </tr>
+
+                    <tr>
+                        <td>09:00</td>
+                        <td>75</td>
+                        <td>125/75</td>
+                        <td>97</td>
+                        <td>37</td>
+                        <td>36.3</td>
+                        <td></td>
+                    </tr>
+
+                    <tr>
+                        <td>09:30</td>
+                        <td>80</td>
+                        <td>110/68</td>
+                        <td>98</td>
+                        <td>35</td>
+                        <td>36.2</td>
+                        <td></td>
+                    </tr>
+
+                    <tr>
+                        <td>10:00</td>
+                        <td>72</td>
+                        <td>128/80</td>
+                        <td>99</td>
+                        <td>36</td>
+                        <td>36.4</td>
+                        <td>Fim cirurgia</td>
+                    </tr>
+
+                    @for (int i = 0; i < 15; i++)
                     {
-                        <tr style="height:26px;"><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
                     }
                 </tbody>
             </table>
         </div>
     </div>
 
-    <!-- RODAPÉ EM TODAS AS PÁGINAS -->
     <footer>
         Documento confidencial • Gerado eletronicamente pelo sistema SIGA • HUAP - UFF • 27/05/2026
     </footer>
+
 </body>
 </html>
