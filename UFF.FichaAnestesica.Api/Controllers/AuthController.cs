@@ -20,7 +20,7 @@ namespace UFF.FichaAnestesica.Api.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> LoginAsync([FromBody] LoginCommand request)
         {
-            var result = await _authService.AuthSync(request.Email, request.Password);
+            var result = await _authService.AuthSync(request.Login, request.Password);
 
             if (!result.Valid)
                 return Unauthorized(new { message = result.Data });

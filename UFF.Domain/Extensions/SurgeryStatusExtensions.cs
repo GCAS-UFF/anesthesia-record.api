@@ -9,7 +9,7 @@ namespace UFF.FichaAnestesica.Domain.Extensions
             return status?.ToLower() switch
             {
                 "agendada" => SurgeryStatusEnum.Scheduled,
-                "waiting" or "aguardando" => SurgeryStatusEnum.Waiting,
+                "waiting" or "aguardando" => SurgeryStatusEnum.Scheduled,
                 "em_andamento" or "in_progress" => SurgeryStatusEnum.InProgress,
                 "concluida" or "completed" => SurgeryStatusEnum.Completed,
                 "cancelada" or "cancelled" => SurgeryStatusEnum.Cancelled,
@@ -22,7 +22,6 @@ namespace UFF.FichaAnestesica.Domain.Extensions
             return status switch
             {
                 SurgeryStatusEnum.Scheduled => "agendada",
-                SurgeryStatusEnum.Waiting => "aguardando",
                 SurgeryStatusEnum.InProgress => "em_andamento",
                 SurgeryStatusEnum.Completed => "concluida",
                 SurgeryStatusEnum.Cancelled => "cancelada",

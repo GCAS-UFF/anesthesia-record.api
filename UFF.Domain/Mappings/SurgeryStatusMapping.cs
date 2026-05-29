@@ -9,8 +9,8 @@ namespace UFF.FichaAnestesica.Domain.Mappings
             {
                 { "agendada", SurgeryStatusEnum.Scheduled },
                 { "scheduled", SurgeryStatusEnum.Scheduled },
-                { "waiting", SurgeryStatusEnum.Waiting },
-                { "aguardando", SurgeryStatusEnum.Waiting },
+                { "waiting", SurgeryStatusEnum.Scheduled },
+                { "aguardando", SurgeryStatusEnum.Scheduled },
                 { "em_andamento", SurgeryStatusEnum.InProgress },
                 { "in_progress", SurgeryStatusEnum.InProgress },
                 { "concluida", SurgeryStatusEnum.Completed },
@@ -32,7 +32,6 @@ namespace UFF.FichaAnestesica.Domain.Mappings
             return status switch
             {
                 SurgeryStatusEnum.Scheduled => "agendada",
-                SurgeryStatusEnum.Waiting => "aguardando",
                 SurgeryStatusEnum.InProgress => "em_andamento",
                 SurgeryStatusEnum.Completed => "concluida",
                 SurgeryStatusEnum.Cancelled => "cancelada",

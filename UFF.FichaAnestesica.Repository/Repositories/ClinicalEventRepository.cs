@@ -6,9 +6,7 @@ using UFF.FichaAnestesica.Infra.Context;
 
 namespace UFF.FichaAnestesica.Infra.Repositories
 {
-    public class ClinicalEventRepository
-        : RepositoryBase<ClinicalEvent>,
-          IClinicalEventRepository
+    public class ClinicalEventRepository : RepositoryBase<ClinicalEvent>, IClinicalEventRepository
     {
         private readonly SigaDbCtx _context;
 

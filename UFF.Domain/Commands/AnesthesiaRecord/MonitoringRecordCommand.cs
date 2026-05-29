@@ -53,15 +53,14 @@ namespace UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord
         public ClinicalEventTypeEnum EventType { get; set; }
         public string Name { get; set; }
         public string? Observations { get; set; }
-        public string Description { get; internal set; }
+        public string Description { get; set; }
     }
 
     public class FluidBalanceCommand
     {
         public DateTime Timestamp { get; set; }
-        public string BalanceType { get; set; } 
-        public FluidCategoryEnum Category { get; set; } 
-        public string Name { get; set; } 
+        public FluidCategoryEnum Category { get; set; }
+        public string Description { get; set; } = string.Empty;
         public int VolumeMl { get; set; }
         public FluidBalanceTypeEnum Type { get; set; }
     }

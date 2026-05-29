@@ -1,9 +1,11 @@
 ﻿using UFF.FichaAnestesica.Domain.Dto;
+using UFF.FichaAnestesica.Domain.Entities;
 
 namespace UFF.FichaAnestesica.Domain.Repositories.ReadOnly
 {
     public interface IProfessionalRepository
     {
-        Task<UserListDto> GetProfessionalsForAnethesiaRecord(string name);
+        Task<List<User>> GetProfessionalsForAnethesiaRecord(string name);
+        Task<UserListDto> GetProfessionalsFromAGHU();
     }
 }

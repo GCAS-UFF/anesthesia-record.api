@@ -3,7 +3,6 @@ using UFF.FichaAnestesica.Application.Interfaces;
 using UFF.FichaAnestesica.Domain.Commands;
 using UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord;
 using UFF.FichaAnestesica.Domain.Services;
-using UFF.FichaAnestesica.Infra.Services;
 
 namespace UFF.FichaAnestesica.Api.Controllers
 {

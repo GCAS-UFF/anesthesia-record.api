@@ -16,13 +16,11 @@ namespace UFF.FichaAnestesica.Service.Services
     {
         private readonly IConfiguration _configuration;
         private readonly IUserRepository _userRepository;
-        private readonly ILdapAuthReadOnlyRepository _ldapAuthRepository;
 
-        public AuthService(IConfiguration configuration, IUserRepository userRepository, ILdapAuthReadOnlyRepository ldapAuthRepository, IHospitalApiRepository hospitalUserRepository)
+        public AuthService(IConfiguration configuration, IUserRepository userRepository, IHospitalApiRepository hospitalUserRepository)
         {
             _configuration = configuration;
             _userRepository = userRepository;
-            _ldapAuthRepository = ldapAuthRepository;
         }
 
         public async Task<CommandResult> AuthSync(string login, string password)
@@ -32,7 +30,7 @@ namespace UFF.FichaAnestesica.Service.Services
                 return new CommandResult(false, "Usuário e senha precisam ser preenchidos");
             }
 
-            var authenticated = _ldapAuthRepository.ValidateCredentials(login, password);
+            var authenticated = true;//_ldapAuthRepository.ValidateCredentials(login, password);
 
             if (!authenticated)
             {

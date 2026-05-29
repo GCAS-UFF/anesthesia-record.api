@@ -66,13 +66,13 @@ namespace UFF.FichaAnestesica.Infra.Repositories
             var input = await _context.FluidBalances
                 .Where(x =>
                     x.MonitoringRecordId == monitoringRecordId &&
-                    x.Type == FluidBalanceTypeEnum.Input)
+                    x.Type == FluidBalanceTypeEnum.Gain)
                 .SumAsync(x => x.VolumeMl);
 
             var output = await _context.FluidBalances
                 .Where(x =>
                     x.MonitoringRecordId == monitoringRecordId &&
-                    x.Type == FluidBalanceTypeEnum.Output)
+                    x.Type == FluidBalanceTypeEnum.Loss)
                 .SumAsync(x => x.VolumeMl);
 
             return input - output;

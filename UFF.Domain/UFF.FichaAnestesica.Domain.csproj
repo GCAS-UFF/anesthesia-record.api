@@ -40,6 +40,7 @@
     <None Remove="Repositories\IUserRepository.cs~RF7c5d333.TMP" />
     <None Remove="Repositories\IVitalSignRecordRepository.cs~RF7e2a47.TMP" />
     <None Remove="Repositories\ReadOnly\IHospitalApiRepository.cs~RF93d82fb.TMP" />
+    <None Remove="Repositories\ReadOnly\IProfessionalRepository.cs~RF1159789.TMP" />
     <None Remove="Response\PatientLocationResponse.cs~RFcabe48.TMP" />
     <None Remove="Response\PatientSurgeryResponse.cs~RF6a9299b.TMP" />
     <None Remove="Response\UnitResponse.cs~RFcc8992.TMP" />

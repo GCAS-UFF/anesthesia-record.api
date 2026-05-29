@@ -1,25 +1,24 @@
 ﻿using UFF.FichaAnestesica.Domain.Dto;
+using UFF.FichaAnestesica.Domain.Entities;
 
 namespace UFF.FichaAnestesica.Service.Mappers
 {
     public static class ProfessionalReponseMapper
     {
-        public static UserResponse Map(UserDto userDto)
+        public static List<UserResponse> Map(List<User> users)
         {
-            if (userDto == null)
+            if (users == null)
                 return null;
 
-            return new UserResponse
+            return users.Select(user => new UserResponse
             {
-                Email = userDto.Email,
-                Id = userDto.Id,
-                Login = userDto.Login,
-                Name = userDto.Name,
-                Registration = userDto.Registration
-            };
+                Email = user.Email,
+                Id = user.Id,
+                Login = user.Login,
+                Name = user.Name,
+                ExternalId = user.ExternalId,
+                Registration = user.Registration,
+            }).ToList();
         }
-
-        public static List<UserResponse> Map(UserListDto professionals)
-            => professionals.Professionals.Select(Map).ToList();
     }
 }

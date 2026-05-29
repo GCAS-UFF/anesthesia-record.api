@@ -6,7 +6,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
     {
         protected User() { }
 
-        public string ExternalId { get; protected set; }
+        public string ExternalId { get; protected set; }        
         public string Name { get; protected set; }
         public string Registration { get; protected set; }
         public string? Sector { get; protected set; }

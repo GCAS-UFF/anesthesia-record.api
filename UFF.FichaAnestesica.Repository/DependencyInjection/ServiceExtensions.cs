@@ -15,7 +15,7 @@ namespace UFF.FichaAnestesica.Infra.DependencyInjection
     {
         public static IServiceCollection RegisterServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddScoped<ILdapAuthReadOnlyRepository, LdapAuthReadOnlyRepository>();  
+           
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IAnesthesiaRecordRepository, AnesthesiaRecordRepository>();
             services.AddScoped<IProfessionalService, ProfessionalServices>();
@@ -24,6 +24,18 @@ namespace UFF.FichaAnestesica.Infra.DependencyInjection
             services.AddScoped<IAnesthesiaRecordService, AnesthesiaRecordService>();
             services.AddScoped<IPdfService, PdfService>();
             services.AddScoped<IRazorViewRenderer, RazorViewRenderer>();
+
+            services.AddScoped<IMonitoringRecordService, MonitoringRecordService>();
+            services.AddScoped<IMonitoringRecordRepository, MonitoringRecordRepository>();
+
+            services.AddScoped<IClinicalEventRepository, ClinicalEventRepository>();
+            services.AddScoped<ICustomFieldRepository, CustomFieldRepository>();
+            services.AddScoped<ICustomFieldRepository, CustomFieldRepository>();
+            services.AddScoped<IDrugRepository, DrugRepository>();
+            services.AddScoped<IFluidBalanceRepository, FluidBalanceRepository>();
+            services.AddScoped<IMonitoringRecordRepository, MonitoringRecordRepository>();
+            services.AddScoped<IVitalSignRecordRepository, VitalSignRecordRepository>();
+            services.AddScoped<IPreAnesthesiaRecordRepository, PreAnesthesiaRecordRepository>();
 
             services.AddHttpContextAccessor();
             services.AddScoped<IPdfService, PdfService>();

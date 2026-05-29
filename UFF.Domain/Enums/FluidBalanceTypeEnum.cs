@@ -2,7 +2,7 @@
 {
     public enum FluidBalanceTypeEnum
     {
-        Input,
-        Output
+        Gain,
+        Loss
     }
 }

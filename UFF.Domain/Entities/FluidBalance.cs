@@ -20,7 +20,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
                 Timestamp = command.Timestamp,
                 Type = command.Type,
                 Category = command.Category,
-                Name = command.Name,
+                Name = command.Description,
                 VolumeMl = command.VolumeMl,
                 CreatedAt = DateTime.UtcNow
             };
@@ -31,7 +31,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
             Timestamp = command.Timestamp;
             Type = command.Type;
             Category = command.Category;
-            Name = command.Name;
+            Name = command.Description;
             VolumeMl = command.VolumeMl;
 
             LastUpdate = DateTime.UtcNow;

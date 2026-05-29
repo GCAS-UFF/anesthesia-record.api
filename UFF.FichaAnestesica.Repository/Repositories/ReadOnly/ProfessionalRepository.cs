@@ -1,22 +1,34 @@
-﻿using System.Net.Http.Json;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Net.Http.Json;
 using UFF.FichaAnestesica.Domain.Dto;
+using UFF.FichaAnestesica.Domain.Entities;
 using UFF.FichaAnestesica.Domain.Repositories.ReadOnly;
+using UFF.FichaAnestesica.Infra.Context;
 
 namespace UFF.FichaAnestesica.Infra.Repositories.ReadOnly
 {
-    public class ProfessionalRepository : IProfessionalRepository
+    public class ProfessionalRepository : RepositoryBase<User>, IProfessionalRepository
     {
         private readonly HttpClient _httpClient;
+        private readonly SigaDbCtx _context;
 
-        public ProfessionalRepository(IHttpClientFactory factory)
+        public ProfessionalRepository(SigaDbCtx context, IHttpClientFactory factory)
+            : base(context)
         {
+            _context = context;
             _httpClient = factory.CreateClient("HospitalApi");
         }
 
-        public async Task<UserListDto> GetProfessionalsForAnethesiaRecord(string name)
+        public async Task<List<User>> GetProfessionalsForAnethesiaRecord(string name)
         {
-            //var url = $"profissionais?pesquisa={Uri.EscapeDataString(name)}";
+            return await _context.Users
+               .Where(x => x.Name.ToLower().Contains(name.ToLower()))
+               .OrderBy(x => x.Name)
+               .ToListAsync();
+        }
 
+        public async Task<UserListDto> GetProfessionalsFromAGHU()
+        {
             var url = $"profissionais";
 
             var response = await _httpClient.GetAsync(url);
