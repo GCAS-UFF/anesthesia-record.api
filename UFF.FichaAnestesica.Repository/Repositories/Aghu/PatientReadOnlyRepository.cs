@@ -6,11 +6,11 @@ using UFF.FichaAnestesica.Domain.Response;
 
 namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
 {
-    public class PatientApiReadOnlyRepository : IPatientApiReadOnlyRepository
+    public class PatientReadOnlyRepository : IPatientReadOnlyRepository
     {
         private readonly HttpClient _httpClient;
 
-        public PatientApiReadOnlyRepository(IHttpClientFactory factory)
+        public PatientReadOnlyRepository(IHttpClientFactory factory)
         {
             _httpClient = factory.CreateClient("HospitalApi");
         }      

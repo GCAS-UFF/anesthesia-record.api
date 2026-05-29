@@ -8,11 +8,14 @@
 
   <ItemGroup>
     <None Remove="Context\SigaDbCtx.cs~RF324b9c.TMP" />
+    <None Remove="DependencyInjection\ServiceExtensions.cs~RF395856f.TMP" />
+    <None Remove="DependencyInjection\ServiceExtensions.cs~RF3970fe8.TMP" />
     <None Remove="DependencyInjection\ServiceExtensions.cs~RFf2095d6.TMP" />
     <None Remove="DependencyInjection\ServiceExtensions.cs~RFf4120e4.TMP" />
     <None Remove="EntityConfig\CurrentLocationConfig.cs~RF5d9750f.TMP" />
     <None Remove="EntityConfig\SpecialtyConfig.cs~RF56243e0.TMP" />
     <None Remove="EntityConfig\UnitConfig.cs~RF7e8b72.TMP" />
+    <None Remove="Repositories\Aghu\HealthReadOnlyRepository.cs~RF3696bb4.TMP" />
     <None Remove="Repositories\Aghu\n1hncmhj.wlb~" />
     <None Remove="Repositories\AnesthesiaRecordRepository.cs~RFb622d3c.TMP" />
     <None Remove="Repositories\Aghu\HospitalApiRepository.cs~RF64ee7b5.TMP" />

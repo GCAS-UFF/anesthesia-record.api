@@ -4,7 +4,7 @@ using UFF.FichaAnestesica.Domain.Repositories.ReadOnly;
 
 namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
 {
-    public class MedicineReadOnlyRepository : IMedicineApiReadOnlyRepository
+    public class MedicineReadOnlyRepository : IMedicineReadOnlyRepository
     {
         private readonly HttpClient _httpClient;
 
@@ -15,7 +15,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
 
         public async Task<List<DrugDto>> GetDrugssFromAGHU()
         {
-            var url = $"medicamento";
+            var url = $"medicamentos";
 
             var response = await _httpClient.GetAsync(url);
 

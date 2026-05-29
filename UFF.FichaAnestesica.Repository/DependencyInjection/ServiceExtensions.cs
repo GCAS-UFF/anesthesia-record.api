@@ -8,6 +8,7 @@ using UFF.FichaAnestesica.Infra.Repositories;
 using UFF.FichaAnestesica.Infra.Repositories.Aghu;
 using UFF.FichaAnestesica.Infra.Services;
 using UFF.FichaAnestesica.Service.Services;
+using UFF.FichaAnestesica.Service.Services.Aghu;
 
 namespace UFF.FichaAnestesica.Infra.DependencyInjection
 {
@@ -15,16 +16,22 @@ namespace UFF.FichaAnestesica.Infra.DependencyInjection
     {
         public static IServiceCollection RegisterServices(this IServiceCollection services, IConfiguration configuration)
         {
-           
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IAnesthesiaRecordRepository, AnesthesiaRecordRepository>();
             services.AddScoped<IProfessionalService, ProfessionalServices>();
-            services.AddScoped<IProfessionalReadOnlyRepository, ProfessionalReadOnlyRepository>();     
+            services.AddScoped<IProfessionalReadOnlyRepository, ProfessionalReadOnlyRepository>();
             services.AddScoped<IAnesthesiaRecordService, AnesthesiaRecordService>();
             services.AddScoped<IPdfService, PdfService>();
             services.AddScoped<IRazorViewRenderer, RazorViewRenderer>();
             services.AddScoped<IMonitoringRecordService, MonitoringRecordService>();
             services.AddScoped<IMonitoringRecordRepository, MonitoringRecordRepository>();
+            services.AddScoped<IPatientReadOnlyRepository, PatientReadOnlyRepository>();
+
+            services.AddScoped<IProfessionalApiService, ProfessionalApiService>();
+            services.AddScoped<IMedicineApiService, MedicineApiService>();
+
+            services.AddScoped<IMedicineReadOnlyRepository, MedicineReadOnlyRepository>();
+            services.AddScoped<IHealthReadOnlyRepository, HealthReadOnlyRepository>();
 
             services.AddScoped<IClinicalEventRepository, ClinicalEventRepository>();
             services.AddScoped<ICustomFieldRepository, CustomFieldRepository>();
@@ -34,12 +41,11 @@ namespace UFF.FichaAnestesica.Infra.DependencyInjection
             services.AddScoped<IMonitoringRecordRepository, MonitoringRecordRepository>();
             services.AddScoped<IVitalSignRecordRepository, VitalSignRecordRepository>();
             services.AddScoped<IPreAnesthesiaRecordRepository, PreAnesthesiaRecordRepository>();
-
-            services.AddHttpContextAccessor();
             services.AddScoped<IPdfService, PdfService>();
-
             services.AddScoped<ISurgeryService, SurgeryService>();
             services.AddScoped<IAuthService, AuthService>();
+
+            services.AddHttpContextAccessor();         
 
             var hospitalApiUrl = configuration["HospitalApi:BaseUrl"];
 

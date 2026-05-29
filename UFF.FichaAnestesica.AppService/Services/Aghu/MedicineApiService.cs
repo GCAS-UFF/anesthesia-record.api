@@ -5,14 +5,14 @@ using UFF.FichaAnestesica.Domain.Repositories.ReadOnly;
 
 namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
 {
-    public class MedicineService : IMedicineApiService
+    public class MedicineApiService : IMedicineApiService
     {
-        private readonly IMedicineApiReadOnlyRepository _medicineApiReadOnlyRepository;
+        private readonly IMedicineReadOnlyRepository _medicineApiReadOnlyRepository;
 
 
         private readonly IDrugRepository _drugRepository;
 
-        public MedicineService(IMedicineApiReadOnlyRepository medicineApiReadOnlyRepository, IDrugRepository drugRepository)
+        public MedicineApiService(IMedicineReadOnlyRepository medicineApiReadOnlyRepository, IDrugRepository drugRepository)
         {
             _medicineApiReadOnlyRepository = medicineApiReadOnlyRepository;
             _drugRepository = drugRepository;

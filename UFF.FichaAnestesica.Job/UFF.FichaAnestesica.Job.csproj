@@ -7,14 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Program.cs~RF38d7039.TMP" />
+    <None Remove="Program.cs~RF3941805.TMP" />
     <None Remove="Services\AghuSyncJob.cs~RF2d466c7.TMP" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Hangfire" Version="1.8.23" />
-    <PackageReference Include="Hangfire.AspNetCore" Version="1.8.23" />
-    <PackageReference Include="Hangfire.PostgreSql" Version="1.21.1" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <PackageReference Include="Quartz" Version="3.18.1" />
+    <PackageReference Include="Quartz.Extensions.Hosting" Version="3.18.1" />
   </ItemGroup>
 
   <ItemGroup>

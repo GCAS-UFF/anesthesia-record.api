@@ -6,9 +6,9 @@ namespace UFF.FichaAnestesica.Service.Services
     public class SyncAghuService : ISyncAghuService
     {
         private readonly IProfessionalReadOnlyRepository _professionalReadOnlyRepository;
-        private readonly IMedicineApiReadOnlyRepository _medicineApiReadOnlyRepository;
+        private readonly IMedicineReadOnlyRepository _medicineApiReadOnlyRepository;
 
-        public SyncAghuService(IProfessionalReadOnlyRepository professionalReadOnlyRepository, IMedicineApiReadOnlyRepository medicineApiReadOnlyRepository)
+        public SyncAghuService(IProfessionalReadOnlyRepository professionalReadOnlyRepository, IMedicineReadOnlyRepository medicineApiReadOnlyRepository)
         {
             _professionalReadOnlyRepository = professionalReadOnlyRepository;
             _medicineApiReadOnlyRepository = medicineApiReadOnlyRepository;

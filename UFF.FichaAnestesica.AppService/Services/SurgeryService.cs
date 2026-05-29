@@ -10,9 +10,9 @@ namespace UFF.FichaAnestesica.Service.Services
     public class SurgeryService : ISurgeryService
     {
         private readonly IUserRepository _userRepository;
-        private readonly IPatientApiReadOnlyRepository _hospitalApiRepository;
+        private readonly IPatientReadOnlyRepository _hospitalApiRepository;
 
-        public SurgeryService(IUserRepository userRepository, IPatientApiReadOnlyRepository hospitalApiRepository)
+        public SurgeryService(IUserRepository userRepository, IPatientReadOnlyRepository hospitalApiRepository)
         {
             _userRepository = userRepository;
             _hospitalApiRepository = hospitalApiRepository;
