@@ -22,6 +22,7 @@
     <None Remove="Entities\jvjfzato.mov~" />
     <None Remove="Entities\l0iyuavp.pq5~" />
     <None Remove="Entities\MonitoringRecord.cs~RF10946241.TMP" />
+    <None Remove="Entities\MonitoringRecord.cs~RF930def.TMP" />
     <None Remove="Entities\Patient.cs~RF2dc167d.TMP" />
     <None Remove="Entities\User.cs~RF4027d567.TMP" />
     <None Remove="Entities\User.cs~RF402958ea.TMP" />
@@ -32,8 +33,12 @@
     <None Remove="Enums\ClinicalDischargeCondition.cs~RFd4d9ed.TMP" />
     <None Remove="Repositories\IAnesthesiaRecordRepository.cs~RF4815b56.TMP" />
     <None Remove="Repositories\IAnesthesiaRecordRepository.cs~RFe51439.TMP" />
+    <None Remove="Repositories\IClinicalEventRepository.cs~RF79d63f.TMP" />
+    <None Remove="Repositories\ICustomFieldRepository.cs~RF7ae4d0.TMP" />
+    <None Remove="Repositories\IMonitoringRecordRepository.cs~RF7fdcaa.TMP" />
     <None Remove="Repositories\IUserRepository.cs~RF4dacd3.TMP" />
     <None Remove="Repositories\IUserRepository.cs~RF7c5d333.TMP" />
+    <None Remove="Repositories\IVitalSignRecordRepository.cs~RF7e2a47.TMP" />
     <None Remove="Repositories\ReadOnly\IHospitalApiRepository.cs~RF93d82fb.TMP" />
     <None Remove="Response\PatientLocationResponse.cs~RFcabe48.TMP" />
     <None Remove="Response\PatientSurgeryResponse.cs~RF6a9299b.TMP" />

@@ -1,4 +1,6 @@
-﻿namespace UFF.FichaAnestesica.Domain.Entities
+﻿using UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord;
+
+namespace UFF.FichaAnestesica.Domain.Entities
 {
     public class VitalSignRecord : Base
     {
@@ -16,5 +18,62 @@
         public int MonitoringRecordId { get; private set; }
         public MonitoringRecord MonitoringRecord { get; private set; }
         public List<CustomField> CustomFields { get; private set; } = new();
+
+        public static VitalSignRecord Create(VitalSignRecordCommand command)
+
+        {
+            var vitalSignRecord = new VitalSignRecord
+            {
+                Timestamp = command.Timestamp,
+                SystolicBloodPressure = command.SystolicBloodPressure,
+                DiastolicBloodPressure = command.DiastolicBloodPressure,
+                MeanArterialPressure = command.MeanArterialPressure,
+                HeartRate = command.HeartRate,
+                Spo2 = command.Spo2,
+                Etco2 = command.Etco2,
+                Temperature = command.Temperature,
+                Bis = command.Bis,
+                Pvc = command.Pvc,
+                Pcap = command.Pcap,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            if (command.CustomFields != null &&
+                command.CustomFields.Any())
+            {
+                vitalSignRecord.CustomFields = command.CustomFields
+                    .Select(CustomField.Create)
+                    .ToList();
+            }
+
+            return vitalSignRecord;
+        }
+
+        public void Update(VitalSignRecordCommand command)
+        {
+            Timestamp = command.Timestamp;
+            SystolicBloodPressure = command.SystolicBloodPressure;
+            DiastolicBloodPressure = command.DiastolicBloodPressure;
+            MeanArterialPressure = command.MeanArterialPressure;
+            HeartRate = command.HeartRate;
+            Spo2 = command.Spo2;
+            Etco2 = command.Etco2;
+            Temperature = command.Temperature;
+            Bis = command.Bis;
+            Pvc = command.Pvc;
+            Pcap = command.Pcap;
+
+            CustomFields.Clear();
+
+            if (command.CustomFields != null)
+            {
+                foreach (var customField in command.CustomFields)
+                {
+                    CustomFields.Add(CustomField.Create(customField));
+                }
+            }
+
+            LastUpdate = DateTime.UtcNow;
+        }
     }  
 }

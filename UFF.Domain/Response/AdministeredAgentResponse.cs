@@ -1,0 +1,39 @@
+﻿using UFF.FichaAnestesica.Domain.Enums;
+
+namespace UFF.FichaAnestesica.Domain.Response
+{
+    public class AdministeredAgentResponse
+    {
+        public int Id { get; set; }
+
+        public DateTime Timestamp { get; set; }
+
+        public int DrugId { get; set; }
+
+        public string DrugName { get; set; } = string.Empty;
+
+        public decimal Dose { get; set; }
+
+        public UnitEnum Unit { get; set; }
+
+        public AdministrationRouteEnum Route { get; set; }
+
+        public string? Presentation { get; set; }
+
+        public static AdministeredAgentResponse ToResponse(
+            AdministeredAgent entity)
+        {
+            return new AdministeredAgentResponse
+            {
+                Id = entity.Id,
+                Timestamp = entity.Timestamp,
+                DrugId = entity.DrugId,
+                DrugName = entity.Drug?.Name ?? string.Empty,
+                Dose = entity.Dose,
+                Unit = entity.Unit,
+                Route = entity.Route,
+                Presentation = entity.Presentation
+            };
+        }
+    }
+}

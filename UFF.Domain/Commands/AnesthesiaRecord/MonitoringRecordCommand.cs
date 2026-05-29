@@ -1,4 +1,6 @@
-﻿namespace UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord
+﻿using UFF.FichaAnestesica.Domain.Enums;
+
+namespace UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord
 {
     public class MonitoringRecordCommand
     {
@@ -22,10 +24,10 @@
         public int? HeartRate { get; set; }
         public int? Spo2 { get; set; }
         public int? Etco2 { get; set; }
-        public double? Temperature { get; set; }
+        public decimal? Temperature { get; set; }
         public int? Bis { get; set; }
-        public double? Pvc { get; set; }
-        public double? Pcap { get; set; }
+        public decimal? Pvc { get; set; }
+        public decimal? Pcap { get; set; }
         public List<CustomFieldCommand> CustomFields { get; set; } = new();
     }
 
@@ -38,27 +40,29 @@
     public class AdministeredAgentCommand
     {
         public DateTime Timestamp { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public string Dose { get; set; } = string.Empty;
-        public string Unit { get; set; } = string.Empty;
-        public string Route { get; set; } = string.Empty;
+        public decimal Dose { get; set; }
+        public UnitEnum Unit { get; set; }
+        public AdministrationRouteEnum Route { get; set; }
         public string Presentation { get; set; } = string.Empty;
+        public int DrugId { get; internal set; }
     }
 
     public class ClinicalEventCommand
     {
         public DateTime Timestamp { get; set; }
-        public string EventType { get; set; } = string.Empty;
-        public string Name { get; set; } = string.Empty;
+        public ClinicalEventTypeEnum EventType { get; set; }
+        public string Name { get; set; }
         public string? Observations { get; set; }
+        public string Description { get; internal set; }
     }
 
     public class FluidBalanceCommand
     {
         public DateTime Timestamp { get; set; }
-        public string BalanceType { get; set; } = string.Empty;
-        public string Category { get; set; } = string.Empty;
-        public string Name { get; set; } = string.Empty;
+        public string BalanceType { get; set; } 
+        public FluidCategoryEnum Category { get; set; } 
+        public string Name { get; set; } 
         public int VolumeMl { get; set; }
+        public FluidBalanceTypeEnum Type { get; set; }
     }
 }
