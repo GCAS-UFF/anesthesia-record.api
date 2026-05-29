@@ -7,9 +7,9 @@ namespace UFF.FichaAnestesica.Service.Services
 {
     public class ProfessionalServices : IProfessionalService
     {
-        private readonly IProfessionalRepository _professionalRepository;
+        private readonly IProfessionalReadOnlyRepository _professionalRepository;
 
-        public ProfessionalServices(IProfessionalRepository professionalRepository)
+        public ProfessionalServices(IProfessionalReadOnlyRepository professionalRepository)
         {
             _professionalRepository = professionalRepository;
         }

@@ -8,6 +8,8 @@
 
   <ItemGroup>
     <None Remove="Responses\apo3bxms.snr~" />
+    <None Remove="Services\Aghu\MedicineApiService.cs~RF347b361.TMP" />
+    <None Remove="Services\Aghu\PatientApiService.cs~RF2b8572f.TMP" />
     <None Remove="Services\AuthService.cs~RF54ad576.TMP" />
     <None Remove="Services\AuthService.cs~RF740276a.TMP" />
     <None Remove="Services\AuthService.cs~RF7eae977.TMP" />

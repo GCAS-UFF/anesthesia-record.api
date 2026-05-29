@@ -17,12 +17,12 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .UseIdentityColumn()
                 .IsRequired();
 
-            builder.Property(x => x.Name)
-                .HasColumnName("name")
+            builder.Property(x => x.Description)
+                .HasColumnName("description")
                 .HasColumnType("varchar(150)")
                 .IsRequired();
 
-            builder.Property(x => x.DefaultPresentation)
+            builder.Property(x => x.Presentation)
                 .HasColumnName("default_presentation")
                 .HasColumnType("varchar(150)");
 
@@ -40,7 +40,7 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .HasColumnName("last_update")
                 .HasColumnType("timestamptz");
 
-            builder.HasIndex(x => x.Name)
+            builder.HasIndex(x => x.Description)
                 .IsUnique();
         }
     }

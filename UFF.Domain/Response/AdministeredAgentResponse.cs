@@ -28,7 +28,7 @@ namespace UFF.FichaAnestesica.Domain.Response
                 Id = entity.Id,
                 Timestamp = entity.Timestamp,
                 DrugId = entity.DrugId,
-                DrugName = entity.Drug?.Name ?? string.Empty,
+                DrugName = entity.Drug?.Description ?? string.Empty,
                 Dose = entity.Dose,
                 Unit = entity.Unit,
                 Route = entity.Route,

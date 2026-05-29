@@ -18,27 +18,27 @@ namespace UFF.FichaAnestesica.Infra.Repositories
         public async Task<Drug?> GetByNameAsync(string name)
         {
             return await _context.Drugs
-                .FirstOrDefaultAsync(x => x.Name == name);
+                .FirstOrDefaultAsync(x => x.Description == name);
         }
 
         public async Task<List<Drug>> SearchByNameAsync(string search)
         {
             return await _context.Drugs
-                .Where(x => x.Name.Contains(search))
-                .OrderBy(x => x.Name)
+                .Where(x => x.Description.Contains(search))
+                .OrderBy(x => x.Description)
                 .ToListAsync();
         }
 
         public async Task<bool> ExistsByNameAsync(string name)
         {
             return await _context.Drugs
-                .AnyAsync(x => x.Name == name);
+                .AnyAsync(x => x.Description == name);
         }
 
         public async Task<List<Drug>> GetActiveAsync()
         {
             return await _context.Drugs
-                .OrderBy(x => x.Name)
+                .OrderBy(x => x.Description)
                 .ToListAsync();
         }
     }

@@ -5,7 +5,7 @@ using UFF.FichaAnestesica.Domain.Repositories;
 using UFF.FichaAnestesica.Domain.Repositories.ReadOnly;
 using UFF.FichaAnestesica.Domain.Services;
 using UFF.FichaAnestesica.Infra.Repositories;
-using UFF.FichaAnestesica.Infra.Repositories.ReadOnly;
+using UFF.FichaAnestesica.Infra.Repositories.Aghu;
 using UFF.FichaAnestesica.Infra.Services;
 using UFF.FichaAnestesica.Service.Services;
 
@@ -19,12 +19,10 @@ namespace UFF.FichaAnestesica.Infra.DependencyInjection
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IAnesthesiaRecordRepository, AnesthesiaRecordRepository>();
             services.AddScoped<IProfessionalService, ProfessionalServices>();
-            services.AddScoped<IProfessionalRepository, ProfessionalRepository>();
-            services.AddScoped<IHospitalApiRepository, HospitalApiRepository>();
+            services.AddScoped<IProfessionalReadOnlyRepository, ProfessionalReadOnlyRepository>();     
             services.AddScoped<IAnesthesiaRecordService, AnesthesiaRecordService>();
             services.AddScoped<IPdfService, PdfService>();
             services.AddScoped<IRazorViewRenderer, RazorViewRenderer>();
-
             services.AddScoped<IMonitoringRecordService, MonitoringRecordService>();
             services.AddScoped<IMonitoringRecordRepository, MonitoringRecordRepository>();
 

@@ -1,0 +1,6 @@
+@UFF.FichaAnestesica.Job_HostAddress = http://localhost:5236
+
+GET {{UFF.FichaAnestesica.Job_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

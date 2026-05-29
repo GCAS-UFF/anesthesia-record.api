@@ -31,9 +31,21 @@ namespace UFF.FichaAnestesica.Domain.Entities
                 LastLoginAt = DateTime.UtcNow
             };
         }
-        public static User? Create(string name, object email, string login)
+
+        public void Update(string name, string email, string login, string registration)
         {
-            throw new NotImplementedException();
+            Name = string.IsNullOrWhiteSpace(name) ? Name : name;
+            Email = string.IsNullOrWhiteSpace(email) ? Email : email;
+            Login = string.IsNullOrWhiteSpace(login) ? Login : login;
+            Registration = string.IsNullOrWhiteSpace(registration) ? Registration : registration;
+            Status = UserStatusEnum.Enabled;
+            LastSyncAt = DateTime.UtcNow;
+        }
+
+        public void Disable()
+        {
+            Status = UserStatusEnum.Disabled;
+            LastSyncAt = DateTime.UtcNow;
         }
     }
 }

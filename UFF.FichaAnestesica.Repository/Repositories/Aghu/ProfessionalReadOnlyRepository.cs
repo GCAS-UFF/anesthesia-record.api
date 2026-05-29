@@ -5,14 +5,14 @@ using UFF.FichaAnestesica.Domain.Entities;
 using UFF.FichaAnestesica.Domain.Repositories.ReadOnly;
 using UFF.FichaAnestesica.Infra.Context;
 
-namespace UFF.FichaAnestesica.Infra.Repositories.ReadOnly
+namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
 {
-    public class ProfessionalRepository : RepositoryBase<User>, IProfessionalRepository
+    public class ProfessionalReadOnlyRepository : RepositoryBase<User>, IProfessionalReadOnlyRepository
     {
         private readonly HttpClient _httpClient;
         private readonly SigaDbCtx _context;
 
-        public ProfessionalRepository(SigaDbCtx context, IHttpClientFactory factory)
+        public ProfessionalReadOnlyRepository(SigaDbCtx context, IHttpClientFactory factory)
             : base(context)
         {
             _context = context;

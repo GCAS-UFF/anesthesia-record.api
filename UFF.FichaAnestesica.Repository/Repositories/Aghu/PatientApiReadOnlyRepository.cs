@@ -4,13 +4,13 @@ using UFF.FichaAnestesica.Domain.Enums;
 using UFF.FichaAnestesica.Domain.Repositories.ReadOnly;
 using UFF.FichaAnestesica.Domain.Response;
 
-namespace UFF.FichaAnestesica.Infra.Repositories.ReadOnly
+namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
 {
-    public class HospitalApiRepository : IHospitalApiRepository
+    public class PatientApiReadOnlyRepository : IPatientApiReadOnlyRepository
     {
         private readonly HttpClient _httpClient;
 
-        public HospitalApiRepository(IHttpClientFactory factory)
+        public PatientApiReadOnlyRepository(IHttpClientFactory factory)
         {
             _httpClient = factory.CreateClient("HospitalApi");
         }      

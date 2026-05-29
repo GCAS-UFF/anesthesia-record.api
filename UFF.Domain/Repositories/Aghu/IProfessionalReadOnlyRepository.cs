@@ -3,7 +3,7 @@ using UFF.FichaAnestesica.Domain.Entities;
 
 namespace UFF.FichaAnestesica.Domain.Repositories.ReadOnly
 {
-    public interface IProfessionalRepository
+    public interface IProfessionalReadOnlyRepository
     {
         Task<List<User>> GetProfessionalsForAnethesiaRecord(string name);
         Task<UserListDto> GetProfessionalsFromAGHU();

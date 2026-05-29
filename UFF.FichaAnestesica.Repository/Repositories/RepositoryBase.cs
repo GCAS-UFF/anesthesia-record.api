@@ -1,4 +1,5 @@
-﻿using UFF.FichaAnestesica.Domain.Repositories;
+﻿using Microsoft.EntityFrameworkCore;
+using UFF.FichaAnestesica.Domain.Repositories;
 using UFF.FichaAnestesica.Infra.Context;
 
 namespace UFF.FichaAnestesica.Infra.Repositories
@@ -15,6 +16,11 @@ namespace UFF.FichaAnestesica.Infra.Repositories
         public async Task AddAsync(T obj)
         {
             await Db.Set<T>().AddAsync(obj);
+        }
+
+        public async Task<List<T>> GetAllAsync()
+        {
+            return await Db.Set<T>().ToListAsync();
         }
 
         public async Task DisposeAsync()

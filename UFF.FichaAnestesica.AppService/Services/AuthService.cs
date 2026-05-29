@@ -17,7 +17,7 @@ namespace UFF.FichaAnestesica.Service.Services
         private readonly IConfiguration _configuration;
         private readonly IUserRepository _userRepository;
 
-        public AuthService(IConfiguration configuration, IUserRepository userRepository, IHospitalApiRepository hospitalUserRepository)
+        public AuthService(IConfiguration configuration, IUserRepository userRepository, IPatientApiReadOnlyRepository hospitalUserRepository)
         {
             _configuration = configuration;
             _userRepository = userRepository;
