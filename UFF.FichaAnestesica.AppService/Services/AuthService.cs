@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Configuration;
+Ôªøusing Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -7,7 +7,6 @@ using UFF.FichaAnestesica.Domain.Commands;
 using UFF.FichaAnestesica.Domain.Entities;
 using UFF.FichaAnestesica.Domain.Enums;
 using UFF.FichaAnestesica.Domain.Repositories;
-using UFF.FichaAnestesica.Domain.Repositories.ReadOnly;
 using UFF.FichaAnestesica.Domain.Services;
 
 namespace UFF.FichaAnestesica.Service.Services
@@ -16,51 +15,48 @@ namespace UFF.FichaAnestesica.Service.Services
     {
         private readonly IConfiguration _configuration;
         private readonly IUserRepository _userRepository;
+        private readonly IAuthRepository _authRepository;
 
-        public AuthService(IConfiguration configuration, IUserRepository userRepository, IPatientReadOnlyRepository hospitalUserRepository)
+        public AuthService(
+            IConfiguration configuration,
+            IUserRepository userRepository,
+            IAuthRepository authRepository)
         {
             _configuration = configuration;
             _userRepository = userRepository;
+            _authRepository = authRepository;
         }
 
-        public async Task<CommandResult> AuthSync(string login, string password)
+        public async Task<CommandResult> LoginAsync(string login, string password)
         {
             if (string.IsNullOrWhiteSpace(login) || string.IsNullOrWhiteSpace(password))
-            {
-                return new CommandResult(false, "Usu·rio e senha precisam ser preenchidos");
-            }
+                return new CommandResult(false, null, "Usu√°rio e senha precisam ser preenchidos");
 
-            var authenticated = true;//_ldapAuthRepository.ValidateCredentials(login, password);
+            var hospitalUser = await _authRepository.LoginAGHU(login, password);
 
-            if (!authenticated)
-            {
-                return new CommandResult(false, "Usu·rio ou senha inv·lidos");
-            }
+            if (hospitalUser is null)
+                return new CommandResult(false, null, "Usu√°rio ou senha inv√°lidos");
 
             var user = await _userRepository.GetUserByLoginAsync(login);
 
             if (user is null)
             {
-                var hospitalUser = await _userRepository.GetUserFromApiByLoginAsync(login);
-
-                if (hospitalUser is null)
-                {
-                    return new CommandResult(false, "Usu·rio n„o encontrado na base hospitalar");
-                }
-
-                user = User.Create(externalId: hospitalUser.Id, name: hospitalUser.Name, email: hospitalUser.Email, login: hospitalUser.Login, registration: hospitalUser.Registration);
+                user = User.Create(
+                    externalId: hospitalUser.Id,
+                    name: hospitalUser.Name,
+                    email: hospitalUser.Email,
+                    login: hospitalUser.Login,
+                    registration: hospitalUser.Registration
+                );
 
                 await _userRepository.AddAsync(user);
                 await _userRepository.SaveChangesAsync();
             }
 
             if (user.Status != UserStatusEnum.Enabled)
-            {
-                return new CommandResult(false, "Usu·rio sem permiss„o");
-            }
+                return new CommandResult(false, null, "Usu√°rio sem permiss√£o");
 
             var tokenHandler = new JwtSecurityTokenHandler();
-
             var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
 
             var claims = new[]
@@ -68,15 +64,13 @@ namespace UFF.FichaAnestesica.Service.Services
                 new Claim("user_id", user.Id.ToString()),
                 new Claim("login", user.Login),
                 new Claim("name", user.Name),
-                new Claim("email", user.Email)
+                new Claim("email", user.Email ?? "")
             };
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-
                 Expires = DateTime.UtcNow.AddHours(12),
-
                 SigningCredentials = new SigningCredentials(
                     new SymmetricSecurityKey(key),
                     SecurityAlgorithms.HmacSha256Signature

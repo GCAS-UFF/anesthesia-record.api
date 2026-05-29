@@ -4,6 +4,6 @@ namespace UFF.FichaAnestesica.Domain.Services
 {
     public interface IAuthService
     {
-        Task<CommandResult> AuthSync(string email, string password);
+        Task<CommandResult> LoginAsync(string login, string password);
     }
 }
