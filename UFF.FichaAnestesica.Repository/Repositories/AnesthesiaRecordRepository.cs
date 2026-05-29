@@ -17,7 +17,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories
 
         public async Task<AnesthesiaRecord> GetByIdAsync(int id)
         {
-            return await _context.AnesthesiaRecord
+            return await _context.AnesthesiaRecords
                             .AsNoTracking()
                             .Include(x => x.FirstAnesthesiologist)
                             .Include(x => x.SecondAnesthesiologist)

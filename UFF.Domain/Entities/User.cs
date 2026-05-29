@@ -14,6 +14,8 @@ namespace UFF.FichaAnestesica.Domain.Entities
         public string Email { get; protected set; }
         public bool CanLogIn { get; protected set; }
         public UserStatusEnum Status { get; protected set; }
+        public DateTime? LastLoginAt { get; protected set; }
+        public DateTime? LastSyncAt { get; protected set; }
 
         public static User Create(string externalId, string name, string email, string login, string registration)
         {

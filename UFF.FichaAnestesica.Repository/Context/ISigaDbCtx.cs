@@ -6,9 +6,17 @@ namespace UFF.FichaAnestesica.Infra.Context
 {
     public interface ISigaDbCtx
     {
-        public DbSet<AnesthesiaRecord> AnesthesiaRecord { get; }
-        public DbSet<PreAnesthesiaRecord> PreAnesthesiaRecord { get;}      
+        public DbSet<AnesthesiaRecord> AnesthesiaRecords { get; }
+        public DbSet<PreAnesthesiaRecord> PreAnesthesiaRecords { get; }
         public DbSet<User> Users { get; }
+        public DbSet<AdministeredAgent> AdministeredAgents { get; }
+        public DbSet<ClinicalEvent> ClinicalEvents { get; }
+        public DbSet<CustomField> CustomFields { get; }
+        public DbSet<Drug> Drugs { get; }
+        public DbSet<FluidBalance> FluidBalances { get; }
+        public DbSet<MonitoringRecord> MonitoringRecords { get; }
+        public DbSet<VitalSignRecord> VitalSignRecords { get; }
+
         EntityEntry Entry(object entity);
         int SaveChanges();
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

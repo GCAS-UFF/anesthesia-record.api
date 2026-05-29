@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Context\SigaDbCtx.cs~RF324b9c.TMP" />
     <None Remove="DependencyInjection\ServiceExtensions.cs~RFf2095d6.TMP" />
     <None Remove="DependencyInjection\ServiceExtensions.cs~RFf4120e4.TMP" />
     <None Remove="EntityConfig\CurrentLocationConfig.cs~RF5d9750f.TMP" />

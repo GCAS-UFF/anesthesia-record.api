@@ -17,6 +17,9 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .UseIdentityColumn()
                 .IsRequired();
 
+            builder.HasIndex(u => u.Registration)
+                 .IsUnique();
+
             builder.Property(u => u.Name)
                 .HasColumnName("name")
                 .HasColumnType("varchar(150)")
@@ -66,9 +69,6 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
             builder.Property(u => u.LastSyncAt)
                 .HasColumnName("last_sync_at")
                 .HasColumnType("timestamptz");
-
-            builder.HasIndex(u => u.Registration)
-                .IsUnique();
 
             builder.HasIndex(u => u.Email);
             builder.HasIndex(u => u.Status);

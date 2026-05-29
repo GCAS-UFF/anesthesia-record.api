@@ -11,9 +11,16 @@ namespace UFF.FichaAnestesica.Infra.Context
         {
         }
 
-        public DbSet<AnesthesiaRecord> AnesthesiaRecord { get; set; }
-        public DbSet<PreAnesthesiaRecord> PreAnesthesiaRecord { get; set; }
+        public DbSet<AnesthesiaRecord> AnesthesiaRecords { get; set; }
+        public DbSet<PreAnesthesiaRecord> PreAnesthesiaRecords { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<AdministeredAgent> AdministeredAgents { get; set; }
+        public DbSet<ClinicalEvent> ClinicalEvents { get; set; }
+        public DbSet<CustomField> CustomFields { get; set; }
+        public DbSet<Drug> Drugs { get; set; }
+        public DbSet<FluidBalance> FluidBalances { get; set; }
+        public DbSet<MonitoringRecord> MonitoringRecords { get; set; }
+        public DbSet<VitalSignRecord> VitalSignRecords { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

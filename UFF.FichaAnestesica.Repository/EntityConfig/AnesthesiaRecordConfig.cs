@@ -290,15 +290,7 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
 
             builder.Property(x => x.LastUpdate)
                 .HasColumnName("last_update")
-                .HasColumnType("timestamptz");
-
-            builder.Property(x => x.LastLoginAt)
-                .HasColumnName("last_login_at")
-                .HasColumnType("timestamptz");
-
-            builder.Property(x => x.LastSyncAt)
-                .HasColumnName("last_sync_at")
-                .HasColumnType("timestamptz");
+                .HasColumnType("timestamptz");         
         }
     }
 }
