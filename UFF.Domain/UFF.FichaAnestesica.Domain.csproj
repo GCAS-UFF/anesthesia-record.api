@@ -33,6 +33,8 @@
     <None Remove="Entities\User.cs~RF7e6f467.TMP" />
     <None Remove="Entities\User.cs~RF8205b0b.TMP" />
     <None Remove="Enums\ClinicalDischargeCondition.cs~RFd4d9ed.TMP" />
+    <None Remove="Enums\EventTypeEnum.cs~RF3eea914.TMP" />
+    <None Remove="Enums\PresentationEnum.cs~RF3ec052c.TMP" />
     <None Remove="Repositories\IAnesthesiaRecordRepository.cs~RF4815b56.TMP" />
     <None Remove="Repositories\IAnesthesiaRecordRepository.cs~RFe51439.TMP" />
     <None Remove="Repositories\IClinicalEventRepository.cs~RF79d63f.TMP" />

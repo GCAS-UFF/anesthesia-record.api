@@ -1,18 +1,17 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using UFF.FichaAnestesica.Domain.Dto;
 using UFF.FichaAnestesica.Domain.Entities;
 using UFF.FichaAnestesica.Domain.Repositories;
 using UFF.FichaAnestesica.Infra.Context;
 
-namespace UFF.FichaAnestesica.Infra.Repositories
+namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
 {
-    public class AuthRepository : RepositoryBase<User>, IAuthRepository
+    public class AuthReadOnlyRepository : RepositoryBase<User>, IAuthRepository
     {
         private readonly SigaDbCtx _context;
         private readonly HttpClient _httpClient;
 
-        public AuthRepository(SigaDbCtx context, IHttpClientFactory factory)
+        public AuthReadOnlyRepository(SigaDbCtx context, IHttpClientFactory factory)
             : base(context)
         {
             _httpClient = factory.CreateClient("HospitalApi");
