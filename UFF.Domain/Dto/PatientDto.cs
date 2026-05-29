@@ -37,11 +37,37 @@ namespace UFF.FichaAnestesica.Domain.Dto
         [JsonPropertyName("alergias")]
         public List<AllergyDto> Allergies { get; set; } = [];
 
+        [JsonPropertyName("equipe")]
+        public List<TeamDto> Team { get; set; } = [];
+
         [JsonPropertyName("cirurgias")]
         public List<SurgeryDto> Surgeries { get; set; } = [];
 
         [JsonPropertyName("anestesista_responsavel")]
         public UserDto? ResponsibleAnesthesiologist { get; set; }
+    }
+
+    public class TeamDto
+    {
+        [JsonPropertyName("funcao")]
+        public string Function { get; set; }
+
+        [JsonPropertyName("profissional")]
+        public ProfessionalDto Professional { get; set; }
+
+    }
+
+    public class ProfessionalDto
+    {
+        [JsonPropertyName("id")]
+        public string Function { get; set; }
+
+        [JsonPropertyName("nome")]
+        public string Name { get; set; }
+
+        [JsonPropertyName("especialidade")]
+        public string Especiality { get; set; }
+
     }
 
     public class CurrentLocationDto

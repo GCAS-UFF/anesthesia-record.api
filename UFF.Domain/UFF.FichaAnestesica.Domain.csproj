@@ -8,12 +8,15 @@
 
   <ItemGroup>
     <None Remove="Commands\AnesthesiaRecord\AnesthesiaRecordCommand.cs~RF46a311a.TMP" />
+    <None Remove="Commands\AnesthesiaRecord\MonitoringRecordCommand.cs~RF10973372.TMP" />
+    <None Remove="Dto\MonitoringRecordDto.cs~RF109620d9.TMP" />
     <None Remove="Dto\PatientDto.cs~RF6a792ed.TMP" />
     <None Remove="Dto\UserDto.cs~RF74b85f0.TMP" />
     <None Remove="Entities\AnesthesiaRecord.cs~RF4a0de5a.TMP" />
     <None Remove="Entities\AnesthesiaRecord.cs~RFc19c74.TMP" />
     <None Remove="Entities\jvjfzato.mov~" />
     <None Remove="Entities\l0iyuavp.pq5~" />
+    <None Remove="Entities\MonitoringRecord.cs~RF10946241.TMP" />
     <None Remove="Entities\Patient.cs~RF2dc167d.TMP" />
     <None Remove="Entities\User.cs~RF4027d567.TMP" />
     <None Remove="Entities\User.cs~RF402958ea.TMP" />
