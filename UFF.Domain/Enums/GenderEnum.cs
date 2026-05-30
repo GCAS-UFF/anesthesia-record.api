@@ -1,11 +1,8 @@
 ﻿namespace UFF.FichaAnestesica.Domain.Enums
 {
-    public enum UnitEnum
+    public enum GenderEnum
     {
-        Mg,
-        Mcg,
-        G,
-        Ml,
-        UI
+        Male = 1,
+        Female = 2
     }
 }

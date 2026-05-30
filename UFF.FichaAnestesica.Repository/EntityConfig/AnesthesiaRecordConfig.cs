@@ -88,15 +88,6 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .HasColumnType("time")
                 .IsRequired();
 
-            builder.Property(x => x.Surgeon)
-                .HasColumnName("surgeon")
-                .HasColumnType("varchar(150)")
-                .IsRequired();
-
-            builder.Property(x => x.Assistant)
-                .HasColumnName("assistant")
-                .HasColumnType("varchar(150)");
-
             builder.Property(x => x.PreOperativeDiagnosis)
                 .HasColumnName("pre_operative_diagnosis")
                 .HasColumnType("text")
@@ -169,6 +160,10 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
             builder.Property(x => x.OtherAirwayTypeDescription)
                 .HasColumnName("other_airway_type_description")
                 .HasColumnType("varchar(200)");
+
+            builder.Property(x => x.SurgeryId)
+              .HasColumnName("surgery_id")
+               .IsRequired();
 
             builder.Property(x => x.Laryngoscopy)
                 .HasColumnName("laryngoscopy")
@@ -263,12 +258,32 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .HasColumnType("varchar(100)")
                 .IsRequired();
 
+            builder.HasOne(x => x.MonitoringRecord)
+                .WithOne(x => x.AnesthesiaRecord)
+                .HasForeignKey<MonitoringRecord>(x => x.AnesthesiaRecordId);
+
             builder.Property(x => x.FirstAnesthesiologistId)
                 .HasColumnName("first_anesthesiologist_id");
 
             builder.HasOne(x => x.FirstAnesthesiologist)
                 .WithMany()
                 .HasForeignKey(x => x.FirstAnesthesiologistId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Property(x => x.SurgeonId)
+              .HasColumnName("surgeon_id");
+
+            builder.HasOne(x => x.Surgeon)
+                .WithMany()
+                .HasForeignKey(x => x.SurgeonId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Property(x => x.AssistantId)
+            .HasColumnName("assistant_id");
+
+            builder.HasOne(x => x.Assistant)
+                .WithMany()
+                .HasForeignKey(x => x.AssistantId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.Property(x => x.SecondAnesthesiologistId)
@@ -290,7 +305,7 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
 
             builder.Property(x => x.LastUpdate)
                 .HasColumnName("last_update")
-                .HasColumnType("timestamptz");         
+                .HasColumnType("timestamptz");
         }
     }
 }

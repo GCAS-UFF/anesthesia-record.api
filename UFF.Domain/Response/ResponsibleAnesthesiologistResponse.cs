@@ -1,8 +1,8 @@
 ﻿namespace UFF.FichaAnestesica.Domain.Response
 {
-    public class ResponsibleAnesthesiologistResponse
+    public class ResponsibleResponse
     {
-        public string Id { get; set; }
+        public int  Id { get; set; }
         public string FullName { get; set; }
         public string Registration { get; set; }
     }

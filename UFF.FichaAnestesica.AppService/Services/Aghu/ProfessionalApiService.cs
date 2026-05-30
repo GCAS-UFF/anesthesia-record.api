@@ -1,5 +1,6 @@
 ﻿using UFF.FichaAnestesica.Domain.Entities;
 using UFF.FichaAnestesica.Domain.Enums;
+using UFF.FichaAnestesica.Domain.Extensions;
 using UFF.FichaAnestesica.Domain.Repositories;
 using UFF.FichaAnestesica.Domain.Repositories.ReadOnly;
 using UFF.FichaAnestesica.Service.Services.Aghu;
@@ -26,30 +27,41 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
 
             var professionalsFromApi = aghuResponse.Professionals;
             var usersDatabase = await _userRepository.GetAllAsync();
-            var usersByExternalId = usersDatabase.Where(x => !string.IsNullOrWhiteSpace(x.ExternalId)).ToDictionary(x => x.ExternalId);
-            var externalIdsFromApi = new HashSet<string>();
+
+            var usersByExternalId = usersDatabase
+                .Where(x => x.ExternalId > 0)
+                .ToDictionary(x => x.ExternalId);
+
+            var externalIdsFromApi = new HashSet<int>();
 
             foreach (var professional in professionalsFromApi)
             {
-                if (string.IsNullOrWhiteSpace(professional.Id))
+                if (professional.Id <= 0)
                     continue;
 
                 externalIdsFromApi.Add(professional.Id);
 
+                var specialty = MedicalSpecialtyExtensions.ParseToEnum(professional.MedicalSpecialty);
+                var sector = SectorExtensions.ParseToEnum(professional.Sector);
+
                 if (usersByExternalId.TryGetValue(professional.Id, out var existingUser))
                 {
-                    existingUser.Update(professional.Name, professional.Email, professional.Login, professional.Registration);
+                    existingUser.Update(professional.Name, professional.Email, professional.Login, professional.Registration, specialty, sector);
                     _userRepository.Update(existingUser);
                 }
                 else
                 {
-                    var newUser = User.Create(professional.Id, professional.Name, professional.Email, professional.Login, professional.Registration);
+                    var newUser = User.Create(professional.Id, professional.Name, professional.Email, professional.Login, professional.Registration, specialty, sector);
                     await _userRepository.AddAsync(newUser);
                 }
             }
 
             var usersToDisable = usersDatabase
-                .Where(x => !string.IsNullOrWhiteSpace(x.ExternalId) && !externalIdsFromApi.Contains(x.ExternalId) && x.Status != UserStatusEnum.Disabled).ToList();
+                .Where(x =>
+                    x.ExternalId > 0 &&
+                    !externalIdsFromApi.Contains(x.ExternalId) &&
+                    x.Status != UserStatusEnum.Disabled)
+                .ToList();
 
             foreach (var user in usersToDisable)
             {

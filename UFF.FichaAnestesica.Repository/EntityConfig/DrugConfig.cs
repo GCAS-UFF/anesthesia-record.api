@@ -20,16 +20,12 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
             builder.Property(x => x.Description)
                 .HasColumnName("description")
                 .HasColumnType("varchar(150)")
-                .IsRequired();
-
-            builder.Property(x => x.Presentation)
-                .HasColumnName("default_presentation")
-                .HasColumnType("varchar(150)");
+                .IsRequired();          
 
             builder.Property(x => x.DefaultUnit)
                 .HasColumnName("default_unit")
-                .HasConversion<int>()
-                .IsRequired();
+                .HasColumnType("varchar(150)")
+                .IsRequired();         
 
             builder.Property(x => x.CreatedAt)
                 .HasColumnName("created_at")

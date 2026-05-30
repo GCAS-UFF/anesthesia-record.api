@@ -13,7 +13,7 @@ namespace UFF.FichaAnestesica.Domain.Dto
     public class UserDto
     {
         [JsonPropertyName("id")]
-        public string Id { get; set; }
+        public int Id { get; set; }
 
         [JsonPropertyName("nome")]
         public string Name { get; set; }
@@ -26,5 +26,11 @@ namespace UFF.FichaAnestesica.Domain.Dto
 
         [JsonPropertyName("matricula")]
         public string Registration { get; set; }
+
+        [JsonPropertyName("especialidade")]
+        public string MedicalSpecialty { get; set; }
+
+        [JsonPropertyName("setor")]
+        public string Sector { get; set; }
     }
 }

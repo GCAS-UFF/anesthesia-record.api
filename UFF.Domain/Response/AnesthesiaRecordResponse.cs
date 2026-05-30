@@ -22,8 +22,6 @@ namespace UFF.FichaAnestesica.Domain.Response
         public TimeOnly AnesthesiaStartTime { get; set; }
         public TimeOnly SurgeryEndTime { get; set; }
         public TimeOnly AnesthesiaEndTime { get; set; }
-        public string Surgeon { get; set; } = default!;
-        public string Assistant { get; set; } = default!;
         public string PreOperativeDiagnosis { get; set; } = default!;
         public SurgicalPositionEnum SurgicalPosition { get; set; }
         public bool UsesCushions { get; set; }
@@ -68,6 +66,12 @@ namespace UFF.FichaAnestesica.Domain.Response
         public string? SecondAnesthesiologistName { get; set; }
         public DateOnly RecordDate { get; set; }
         public DateTime CreatedAt { get; set; }
+        public int SurgeryId { get; set; }
+        public string ExternalPatientId { get; set; } = default!;
+        public int? SurgeonId { get; set; }
+        public string? SurgeonName { get; set; }
+        public int? AssistantId { get; set; }
+        public string? AssistantName { get; set; }
         public DateTime? LastUpdate { get; set; }
 
         public static AnesthesiaRecordResponse ToResponse(AnesthesiaRecord anesthesiaRecord)
@@ -75,7 +79,6 @@ namespace UFF.FichaAnestesica.Domain.Response
             return new AnesthesiaRecordResponse
             {
                 Id = anesthesiaRecord.Id,
-
                 PatientIdentifiedBeforeInduction = anesthesiaRecord.PatientIdentifiedBeforeInduction,
                 AnestheticConsentSigned = anesthesiaRecord.AnestheticConsentSigned,
                 AnesthesiaEquipmentChecked = anesthesiaRecord.AnesthesiaEquipmentChecked,
@@ -92,8 +95,6 @@ namespace UFF.FichaAnestesica.Domain.Response
                 AnesthesiaStartTime = anesthesiaRecord.AnesthesiaStartTime,
                 SurgeryEndTime = anesthesiaRecord.SurgeryEndTime,
                 AnesthesiaEndTime = anesthesiaRecord.AnesthesiaEndTime,
-                Surgeon = anesthesiaRecord.Surgeon,
-                Assistant = anesthesiaRecord.Assistant,
                 PreOperativeDiagnosis = anesthesiaRecord.PreOperativeDiagnosis,
                 SurgicalPosition = anesthesiaRecord.SurgicalPosition,
                 UsesCushions = anesthesiaRecord.UsesCushions,
@@ -132,22 +133,17 @@ namespace UFF.FichaAnestesica.Domain.Response
                 ClinicalDischargeCondition = anesthesiaRecord.ClinicalDischargeCondition,
                 Destination = anesthesiaRecord.Destination,
                 HasPain = anesthesiaRecord.HasPain,
-
-                FirstAnesthesiologistId = anesthesiaRecord.FirstAnesthesiologistId != null
-                    ? anesthesiaRecord.FirstAnesthesiologist.Id
-                    : null,
-                FirstAnesthesiologistName = anesthesiaRecord.FirstAnesthesiologistId != null
-                    ? anesthesiaRecord.FirstAnesthesiologist.Name
-                    : null,
-                SecondAnesthesiologistId = anesthesiaRecord.SecondAnesthesiologist != null
-                    ? anesthesiaRecord.SecondAnesthesiologist.Id
-                    : null,
-                SecondAnesthesiologistName = anesthesiaRecord.SecondAnesthesiologist != null
-                    ? anesthesiaRecord.SecondAnesthesiologist.Name
-                    : null,
+                FirstAnesthesiologistId = anesthesiaRecord.FirstAnesthesiologistId,
+                FirstAnesthesiologistName = anesthesiaRecord.FirstAnesthesiologist?.Name,
+                SecondAnesthesiologistId = anesthesiaRecord.SecondAnesthesiologistId,
+                SecondAnesthesiologistName = anesthesiaRecord.SecondAnesthesiologist?.Name,
+                SurgeonId = anesthesiaRecord.SurgeonId,
+                SurgeonName = anesthesiaRecord.Surgeon?.Name,
+                AssistantId = anesthesiaRecord.AssistantId,
+                AssistantName = anesthesiaRecord.Assistant?.Name,
                 RecordDate = anesthesiaRecord.RecordDate,
                 CreatedAt = anesthesiaRecord.CreatedAt,
-                LastUpdate = anesthesiaRecord.LastUpdate
+                LastUpdate = anesthesiaRecord.LastUpdate               
             };
         }
     }

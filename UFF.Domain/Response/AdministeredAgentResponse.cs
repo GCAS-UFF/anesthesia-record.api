@@ -14,14 +14,11 @@ namespace UFF.FichaAnestesica.Domain.Response
 
         public decimal Dose { get; set; }
 
-        public UnitEnum Unit { get; set; }
+        public string Unit { get; set; }
 
         public AdministrationRouteEnum Route { get; set; }
 
-        public string? Presentation { get; set; }
-
-        public static AdministeredAgentResponse ToResponse(
-            AdministeredAgent entity)
+        public static AdministeredAgentResponse ToResponse(AdministeredAgent entity)
         {
             return new AdministeredAgentResponse
             {
@@ -31,8 +28,7 @@ namespace UFF.FichaAnestesica.Domain.Response
                 DrugName = entity.Drug?.Description ?? string.Empty,
                 Dose = entity.Dose,
                 Unit = entity.Unit,
-                Route = entity.Route,
-                Presentation = entity.Presentation
+                Route = entity.Route
             };
         }
     }

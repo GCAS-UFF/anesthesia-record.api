@@ -10,7 +10,10 @@ namespace UFF.FichaAnestesica.Domain.Dto
 
     public class PatientDto
     {
-        [JsonPropertyName("id")]
+        [JsonPropertyName("cirurgia_id")]
+        public int SurgeryId { get; set; }
+
+        [JsonPropertyName("paciente_id")]
         public string PatientId { get; set; }
 
         [JsonPropertyName("numero_prontuario")]

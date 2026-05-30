@@ -10,32 +10,31 @@ namespace UFF.FichaAnestesica.Domain.Entities
 
         public string Description { get; private set; }
 
-        public MedicationPresentationEnum Presentation { get; private set; }
+        public string DefaultUnit { get; private set; }
 
-        public UnitEnum DefaultUnit { get; private set; }
 
         public bool Active { get; private set; }
 
         public DateTime? LastSyncAt { get; private set; }
 
-        public static Drug Create(string externalId, string description, MedicationPresentationEnum presentation)
+        public static Drug Create(string externalId, string description, string unit)
         {
             return new Drug
             {
                 ExternalId = externalId,
                 Description = description,
-                Presentation = presentation,
                 Active = true,
+                DefaultUnit = unit,
                 CreatedAt = DateTime.UtcNow,
                 LastSyncAt = DateTime.UtcNow
             };
         }
 
-        public void Update(string description, MedicationPresentationEnum presentation)
+        public void Update(string description, string unity)
         {
-            Description = string.IsNullOrWhiteSpace(description) ? Description : description;
-            Presentation = presentation;
+            Description = string.IsNullOrWhiteSpace(description) ? Description : description;                     
             Active = true;
+            DefaultUnit = unity;
             LastSyncAt = DateTime.UtcNow;
         }
 

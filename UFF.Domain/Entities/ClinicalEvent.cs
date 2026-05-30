@@ -10,8 +10,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
         public string Description { get; private set; }
         public string? Observations { get; private set; }
         public int MonitoringRecordId { get; private set; }
-
-        public MonitoringRecord MonitoringRecord { get; private set; }
+        public MonitoringRecord MonitoringRecord { get; private set; }         
 
         public static ClinicalEvent Create(ClinicalEventCommand command)
         {

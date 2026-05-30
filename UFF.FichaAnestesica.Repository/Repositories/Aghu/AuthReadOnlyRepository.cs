@@ -24,9 +24,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
             if (string.IsNullOrWhiteSpace(login))
                 return null;
 
-            //var response = await _httpClient.GetAsync($"/usuarios?login={login}");
-
-            var response = await _httpClient.GetAsync($"/usuarios");
+            var response = await _httpClient.PostAsJsonAsync($"/auth", new { login = login, password = password });
 
             if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                 return null;

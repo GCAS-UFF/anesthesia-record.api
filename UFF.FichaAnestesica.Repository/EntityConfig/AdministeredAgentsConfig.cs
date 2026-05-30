@@ -35,11 +35,7 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
             builder.Property(x => x.Route)
                 .HasColumnName("route")
                 .HasConversion<int>()
-                .IsRequired();
-
-            builder.Property(x => x.Presentation)
-                .HasColumnName("presentation")
-                .HasColumnType("varchar(150)");
+                .IsRequired();          
 
             builder.Property(x => x.DrugId)
                 .HasColumnName("drug_id")

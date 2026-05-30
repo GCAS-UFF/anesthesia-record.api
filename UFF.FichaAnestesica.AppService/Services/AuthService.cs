@@ -6,6 +6,7 @@ using System.Text;
 using UFF.FichaAnestesica.Domain.Commands;
 using UFF.FichaAnestesica.Domain.Entities;
 using UFF.FichaAnestesica.Domain.Enums;
+using UFF.FichaAnestesica.Domain.Extensions;
 using UFF.FichaAnestesica.Domain.Repositories;
 using UFF.FichaAnestesica.Domain.Services;
 
@@ -46,7 +47,9 @@ namespace UFF.FichaAnestesica.Service.Services
                     name: hospitalUser.Name,
                     email: hospitalUser.Email,
                     login: hospitalUser.Login,
-                    registration: hospitalUser.Registration
+                    registration: hospitalUser.Registration,
+                    medicalSpecialty: MedicalSpecialtyExtensions.ParseToEnum(hospitalUser.MedicalSpecialty),
+                    sector: SectorExtensions.ParseToEnum(hospitalUser.Sector)
                 );
 
                 await _userRepository.AddAsync(user);

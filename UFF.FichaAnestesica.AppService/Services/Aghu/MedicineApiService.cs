@@ -20,32 +20,30 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
 
         public async Task SyncMedicines()
         {
-            var drugs = await _medicineApiReadOnlyRepository.GetDrugssFromAGHU();
+            var response = await _medicineApiReadOnlyRepository.GetDrugssFromAGHU();
 
-            if (drugs == null || !drugs.Any())
+            if (response != null && response.Drugs == null || !response.Drugs.Any())
                 return;
 
             var dbDrugs = await _drugRepository.GetAllAsync();
             var drugsByExternalId = dbDrugs.Where(x => !string.IsNullOrWhiteSpace(x.ExternalId)).ToDictionary(x => x.ExternalId);
             var externalIds = new HashSet<string>();
 
-            foreach (var medicine in drugs)
+            foreach (var medicine in response.Drugs)
             {
                 if (string.IsNullOrWhiteSpace(medicine.Id))
                     continue;
 
                 externalIds.Add(medicine.Id);
 
-                var presentation = ParsePresentationsExtensions.ParseToEnum(medicine.Presentation);
-
                 if (drugsByExternalId.TryGetValue(medicine.Id, out var existingDrug))
                 {
-                    existingDrug.Update(medicine.Description, presentation);
+                    existingDrug.Update(medicine.Description, medicine.Unity);
                     _drugRepository.Update(existingDrug);
                 }
                 else
                 {
-                    var newDrug = Drug.Create(medicine.Id, medicine.Description, presentation);
+                    var newDrug = Drug.Create(medicine.Id, medicine.Description, medicine.Unity);
                     await _drugRepository.AddAsync(newDrug);
                 }
             }

@@ -4,6 +4,6 @@ namespace UFF.FichaAnestesica.Domain.Repositories.ReadOnly
 {
     public interface IMedicineReadOnlyRepository
     {
-        Task<List<DrugDto>> GetDrugssFromAGHU();      
+        Task<DrugListDto> GetDrugssFromAGHU();      
     }
 }

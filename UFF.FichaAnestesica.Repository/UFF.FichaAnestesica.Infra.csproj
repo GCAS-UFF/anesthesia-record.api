@@ -12,7 +12,9 @@
     <None Remove="DependencyInjection\ServiceExtensions.cs~RF3970fe8.TMP" />
     <None Remove="DependencyInjection\ServiceExtensions.cs~RFf2095d6.TMP" />
     <None Remove="DependencyInjection\ServiceExtensions.cs~RFf4120e4.TMP" />
+    <None Remove="EntityConfig\bp0hxrxy.rjq~" />
     <None Remove="EntityConfig\CurrentLocationConfig.cs~RF5d9750f.TMP" />
+    <None Remove="EntityConfig\DrugConfig.cs~RF58a8e06.TMP" />
     <None Remove="EntityConfig\SpecialtyConfig.cs~RF56243e0.TMP" />
     <None Remove="EntityConfig\UnitConfig.cs~RF7e8b72.TMP" />
     <None Remove="Repositories\Aghu\HealthReadOnlyRepository.cs~RF3696bb4.TMP" />

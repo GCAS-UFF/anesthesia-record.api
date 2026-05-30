@@ -6,19 +6,19 @@ namespace UFF.FichaAnestesica.Domain.Enums
     {
         [Description("Procedimento")]
         Procedure,
-        [Description("Complicação")]
-        Complication,
-        [Description("Medicação")]
-        Medication,
         [Description("Intercorrência")]
         Intercurrence,
-        [Description("Alerta")]
-        Alert,
-        [Description("Alteração hemodinâmica")]
-        HemodynamicChange,
-        [Description("Evento de via aérea")]
-        AirwayEvent,
-        [Description("Entubação")]
-        Intubation
+        [Description("Eventos cardiovasculares")]
+        CardiovascularEvent,
+        [Description("Evento respiratório")]
+        RespiratoryEvent,
+        [Description("Eventos neurológicos e de consciência")]
+        NeurologicalAndConsciousnessEvent,
+        [Description("Eventos associados à anestesia regional")]
+        RegionalAnesthesiaEvent,
+        [Description("Reações alérgicas")]
+        AllergicReaction,
+        [Description("Outros")]
+        Other
     }
 }

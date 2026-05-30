@@ -22,6 +22,16 @@ namespace UFF.FichaAnestesica.Infra.Repositories
                             .Include(x => x.FirstAnesthesiologist)
                             .Include(x => x.SecondAnesthesiologist)
                             .FirstOrDefaultAsync(x => x.Id == id);
-        }      
+        }
+
+        public async Task<List<AnesthesiaRecord>> GetByIdsAsync(IEnumerable<string> ids)
+        {
+            return await _context.AnesthesiaRecords
+                .AsNoTracking()
+                .Include(x => x.FirstAnesthesiologist)
+                .Include(x => x.SecondAnesthesiologist)
+                .Where(x => ids.Contains(x.ExternalPatientId))
+                .ToListAsync();
+        }
     }
 }

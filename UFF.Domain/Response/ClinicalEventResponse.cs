@@ -1,6 +1,5 @@
 ﻿using UFF.FichaAnestesica.Domain.Entities;
 using UFF.FichaAnestesica.Domain.Enums;
-using UFF.FichaAnestesica.Domain.Response;
 
 namespace UFF.FichaAnestesica.Domain.Response
 {

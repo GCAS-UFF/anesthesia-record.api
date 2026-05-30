@@ -11,13 +11,14 @@ namespace UFF.FichaAnestesica.Service.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly IPatientReadOnlyRepository _hospitalApiRepository;
+        private readonly IAnesthesiaRecordRepository _anesthesiaRecordRepository;
 
-        public SurgeryService(IUserRepository userRepository, IPatientReadOnlyRepository hospitalApiRepository)
+        public SurgeryService(IUserRepository userRepository, IPatientReadOnlyRepository hospitalApiRepository, IAnesthesiaRecordRepository anesthesiaRecordRepository)
         {
             _userRepository = userRepository;
             _hospitalApiRepository = hospitalApiRepository;
+            _anesthesiaRecordRepository = anesthesiaRecordRepository;
         }
-
         public async Task<PagedResponse<PatientSurgeryResponse>> GetPatientsWithSurgeriesAsync(DateTime? date, SurgeryStatusEnum? status, int page = 1, int size = 10)
         {
             if (date.HasValue)
@@ -36,9 +37,62 @@ namespace UFF.FichaAnestesica.Service.Services
                 };
             }
 
+            var responseData = PatientResponseMapper.Map(hospitalData.Data);
+            var patientIds = responseData.Select(x => x.PatientId).Distinct().ToArray();
+            var anesthesiaRecords = await _anesthesiaRecordRepository.GetByIdsAsync(patientIds);
+            var recordsByPatientId = anesthesiaRecords.GroupBy(x => x.ExternalPatientId).ToDictionary(x => x.Key, x => x.First());
+
+            foreach (var patient in responseData)
+            {
+                if (!recordsByPatientId.TryGetValue(patient.PatientId, out var record))
+                    continue;
+
+                if (record.Surgeon != null)
+                {
+                    patient.Surgeon = new ResponsibleResponse
+                    {
+                        Id = record.Surgeon.Id,
+                        FullName = record.Surgeon.Name,
+                        Registration = record.Surgeon.Registration
+                    };
+                }
+
+                if (record.Assistant != null)
+                {
+                    patient.Assistant = new ResponsibleResponse
+                    {
+                        Id = record.Assistant.Id,
+                        FullName = record.Assistant.Name,
+                        Registration = record.Assistant.Registration
+                    };
+                }
+
+                if (record.FirstAnesthesiologist != null)
+                {
+                    patient.FirstAnesthesiologist = new ResponsibleResponse
+                    {
+                        Id = record.FirstAnesthesiologist.Id,
+                        FullName = record.FirstAnesthesiologist.Name,
+                        Registration = record.FirstAnesthesiologist.Registration
+                    };
+                }
+
+                if (record.SecondAnesthesiologist != null)
+                {
+                    patient.SecondAnesthesiologist = new ResponsibleResponse
+                    {
+                        Id = record.SecondAnesthesiologist.Id,
+                        FullName = record.SecondAnesthesiologist.Name,
+                        Registration = record.SecondAnesthesiologist.Registration
+                    };
+                }
+
+                patient.FirstAnesthesiologist = patient.FirstAnesthesiologist;
+            }
+
             return new PagedResponse<PatientSurgeryResponse>
             {
-                Data = PatientResponseMapper.Map(hospitalData.Data),
+                Data = responseData,
                 Page = hospitalData.Page,
                 PageSize = hospitalData.PageSize,
                 TotalItems = hospitalData.TotalItems
@@ -62,6 +116,9 @@ namespace UFF.FichaAnestesica.Service.Services
 
             if (patient == null)
                 throw new Exception("Paciente não encontrado");
+
+            //var anesthesiaRecord = _anesthesiaRecordRepository.GetByIdAsync()
+
 
             var responsibleAnesthesiologist = await _userRepository.GetUserByIdAsync(responsibleAnesthesiologistId);
 

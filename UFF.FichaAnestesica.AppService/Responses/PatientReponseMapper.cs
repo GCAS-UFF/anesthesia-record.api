@@ -13,6 +13,7 @@ namespace UFF.FichaAnestesica.Service.Mappers
 
             return new PatientSurgeryResponse
             {
+                SurgeryId = patient.SurgeryId,
                 PatientId = patient.PatientId,
                 MedicalRecordNumber = patient.MedicalRecordNumber,
                 FullName = patient.FullName,
@@ -28,7 +29,7 @@ namespace UFF.FichaAnestesica.Service.Mappers
                     .Select(MapSurgery)
                     .ToList() ?? new List<SurgeryResponse>(),
 
-                ResponsibleAnesthesiologist = MapResponsible(
+                FirstAnesthesiologist = MapResponsible(
                     patient.ResponsibleAnesthesiologist
                 ),
                 Allergies = patient.Allergies?
@@ -56,12 +57,12 @@ namespace UFF.FichaAnestesica.Service.Mappers
             return age;
         }
 
-        private static ResponsibleAnesthesiologistResponse? MapResponsible(UserDto? responsible)
+        private static ResponsibleResponse? MapResponsible(UserDto? responsible)
         {
             if (responsible == null)
                 return null;
 
-            return new ResponsibleAnesthesiologistResponse
+            return new ResponsibleResponse
             {
                 Id = responsible.Id,
                 FullName = responsible.Name,

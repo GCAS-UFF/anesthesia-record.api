@@ -2,6 +2,7 @@
 {
     public class PatientSurgeryResponse
     {
+        public int SurgeryId { get; set; }
         public string PatientId { get; set; }
         public int Id { get; set; }
         public string MedicalRecordNumber { get; set; }
@@ -14,6 +15,12 @@
         public PatientLocationResponse CurrentLocation { get; set; }
         public List<SurgeryResponse> Surgeries { get; set; }
         public List<AllergyResponse> Allergies { get; set; }
-        public ResponsibleAnesthesiologistResponse ResponsibleAnesthesiologist { get; set; }
+        public ResponsibleResponse? Surgeon { get; set; }
+
+        public ResponsibleResponse? Assistant { get; set; }
+
+        public ResponsibleResponse? FirstAnesthesiologist { get; set; }
+
+        public ResponsibleResponse? SecondAnesthesiologist { get; set; }
     }
 }

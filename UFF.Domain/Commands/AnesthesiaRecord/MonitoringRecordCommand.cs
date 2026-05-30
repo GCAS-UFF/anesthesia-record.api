@@ -41,7 +41,7 @@ namespace UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord
     {
         public DateTime Timestamp { get; set; }
         public decimal Dose { get; set; }
-        public UnitEnum Unit { get; set; }
+        public string Unit { get; set; }
         public AdministrationRouteEnum Route { get; set; }
         public string Presentation { get; set; } = string.Empty;
         public int DrugId { get; internal set; }

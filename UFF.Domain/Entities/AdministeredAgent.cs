@@ -8,11 +8,12 @@ public class AdministeredAgent : Base
     public int DrugId { get; private set; }
     public Drug Drug { get; private set; } = null!;
     public decimal Dose { get; private set; }
-    public UnitEnum Unit { get; private set; }
+    public string Unit { get; private set; }
     public AdministrationRouteEnum Route { get; private set; }
-    public string? Presentation { get; private set; }
     public int MonitoringRecordId { get; private set; }
     public MonitoringRecord MonitoringRecord { get; private set; }
+    public int AnesthesiaRecordId { get; set; }
+    public AnesthesiaRecord AnesthesiaRecord { get; set; }
 
     public static AdministeredAgent Create(AdministeredAgentCommand command) => new AdministeredAgent
     {
@@ -21,7 +22,6 @@ public class AdministeredAgent : Base
         Dose = command.Dose,
         Unit = command.Unit,
         Route = command.Route,
-        Presentation = command.Presentation,
         CreatedAt = DateTime.UtcNow
     };
 
@@ -32,7 +32,6 @@ public class AdministeredAgent : Base
         Dose = command.Dose;
         Unit = command.Unit;
         Route = command.Route;
-        Presentation = command.Presentation;
 
         LastUpdate = DateTime.UtcNow;
     }

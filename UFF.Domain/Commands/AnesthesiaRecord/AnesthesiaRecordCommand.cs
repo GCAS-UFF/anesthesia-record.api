@@ -4,6 +4,7 @@ namespace UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord
 {
     public class AnesthesiaRecordCommand
     {
+        public int SurgeryId { get; set; }
         public bool PatientIdentifiedBeforeInduction { get; set; }
         public bool AnestheticConsentSigned { get; set; }
         public bool AnesthesiaEquipmentChecked { get; set; }
@@ -27,8 +28,6 @@ namespace UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord
         public TimeOnly AnesthesiaEndTime { get; set; }
 
 
-        public string Surgeon { get; set; } = default!;
-        public string Assistant { get; set; } = default!;
         public string PreOperativeDiagnosis { get; set; } = default!;
 
         public SurgicalPositionEnum SurgicalPosition { get; set; }
@@ -85,6 +84,8 @@ namespace UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord
         public PatientDestinationEnum Destination { get; set; }
 
         public bool HasPain { get; set; }
+        public int SurgeonId { get; set; } = default!;
+        public int AssistantId { get; set; } = default!;
         public int? FirstAnesthesiologistId { get; set; }
         public int? SecondAnesthesiologistId { get; set; }
 

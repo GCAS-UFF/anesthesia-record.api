@@ -30,9 +30,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
 
             var queryString = string.Join("&", queryParams);
 
-          //  var response = await _httpClient.GetAsync($"/cirurgias?{queryString}");
-
-            var response = await _httpClient.GetAsync($"/cirurgias");
+            var response = await _httpClient.GetAsync($"/cirurgias?{queryString}");          
 
             response.EnsureSuccessStatusCode();
 

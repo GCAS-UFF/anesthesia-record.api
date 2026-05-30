@@ -16,7 +16,7 @@ namespace UFF.FichaAnestesica.Domain.Dto
         [JsonPropertyName("descricao")]
         public string Description { get; set; }
 
-        [JsonPropertyName("apresentacao")]
-        public string Presentation { get; set; }
+        [JsonPropertyName("unidade")]
+        public string Unity { get; set; }
     }
 }

@@ -23,6 +23,6 @@ namespace UFF.FichaAnestesica.Infra.Repositories
             => await _context.Users.FirstOrDefaultAsync(p => p.Id == id);
 
         public async Task<User> GetUserByLoginAsync(string login)
-            => await _context.Users.FirstOrDefaultAsync(p => p.Login == login);       
+            => await _context.Users.FirstOrDefaultAsync(p => p.Login.ToLower() == login.ToLower());       
     }
 }

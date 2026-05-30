@@ -21,9 +21,10 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .HasColumnName("anesthesia_record_id")
                 .IsRequired();
 
-            builder.Property(x => x.SurgeryId)
-                .HasColumnName("surgery_id")
-                .IsRequired();
+            builder.HasOne(x => x.AnesthesiaRecord)
+                .WithOne(x => x.MonitoringRecord)
+                .HasForeignKey<MonitoringRecord>(x => x.AnesthesiaRecordId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Property(x => x.RecordedByProfessionalId)
                 .HasColumnName("recorded_by_professional_id")

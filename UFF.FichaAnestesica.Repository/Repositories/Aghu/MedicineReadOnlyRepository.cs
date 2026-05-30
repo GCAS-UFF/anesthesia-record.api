@@ -13,7 +13,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
             _httpClient = factory.CreateClient("HospitalApi");
         }
 
-        public async Task<List<DrugDto>> GetDrugssFromAGHU()
+        public async Task<DrugListDto> GetDrugssFromAGHU()
         {
             var url = $"medicamentos";
 
@@ -21,7 +21,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
 
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadFromJsonAsync<List<DrugDto>>();
+            return await response.Content.ReadFromJsonAsync<DrugListDto>();
         }
     }
 }

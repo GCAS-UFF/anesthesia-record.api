@@ -12,8 +12,8 @@ using UFF.FichaAnestesica.Infra.Context;
 namespace UFF.FichaAnestesica.Infra.Migrations
 {
     [DbContext(typeof(SigaDbCtx))]
-    [Migration("20260529162737_hangfire")]
-    partial class hangfire
+    [Migration("20260530045009_estrutura inicial")]
+    partial class estruturainicial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -54,10 +54,6 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                     b.Property<int>("MonitoringRecordId")
                         .HasColumnType("integer")
                         .HasColumnName("monitoring_record_id");
-
-                    b.Property<string>("Presentation")
-                        .HasColumnType("varchar(150)")
-                        .HasColumnName("presentation");
 
                     b.Property<int>("Route")
                         .HasColumnType("integer")
@@ -136,10 +132,9 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("asa_classification");
 
-                    b.Property<string>("Assistant")
-                        .IsRequired()
-                        .HasColumnType("varchar(150)")
-                        .HasColumnName("assistant");
+                    b.Property<int?>("AssistantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("assistant_id");
 
                     b.Property<string>("BloodPressure")
                         .IsRequired()
@@ -305,10 +300,9 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("spinal_block_performed");
 
-                    b.Property<string>("Surgeon")
-                        .IsRequired()
-                        .HasColumnType("varchar(150)")
-                        .HasColumnName("surgeon");
+                    b.Property<int?>("SurgeonId")
+                        .HasColumnType("integer")
+                        .HasColumnName("surgeon_id");
 
                     b.Property<TimeOnly>("SurgeryEndTime")
                         .HasColumnType("time")
@@ -358,9 +352,13 @@ namespace UFF.FichaAnestesica.Infra.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AssistantId");
+
                     b.HasIndex("FirstAnesthesiologistId");
 
                     b.HasIndex("SecondAnesthesiologistId");
+
+                    b.HasIndex("SurgeonId");
 
                     b.ToTable("anesthesia_records", "siga_db");
                 });
@@ -473,12 +471,17 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("active");
 
+                    b.Property<int>("Category")
+                        .HasColumnType("integer")
+                        .HasColumnName("category");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamptz")
                         .HasColumnName("created_at");
 
-                    b.Property<int>("DefaultUnit")
-                        .HasColumnType("integer")
+                    b.Property<string>("DefaultUnit")
+                        .IsRequired()
+                        .HasColumnType("varchar(150)")
                         .HasColumnName("default_unit");
 
                     b.Property<string>("Description")
@@ -955,6 +958,10 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .HasColumnType("text")
                         .HasColumnName("login");
 
+                    b.Property<int>("MedicalSpecialty")
+                        .HasColumnType("integer")
+                        .HasColumnName("medical_specialty");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("varchar(150)")
@@ -1097,6 +1104,12 @@ namespace UFF.FichaAnestesica.Infra.Migrations
 
             modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.AnesthesiaRecord", b =>
                 {
+                    b.HasOne("UFF.FichaAnestesica.Domain.Entities.User", "Assistant")
+                        .WithMany()
+                        .HasForeignKey("AssistantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("f_k_anesthesia_records__users_assistant_id");
+
                     b.HasOne("UFF.FichaAnestesica.Domain.Entities.User", "FirstAnesthesiologist")
                         .WithMany()
                         .HasForeignKey("FirstAnesthesiologistId")
@@ -1109,9 +1122,19 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("f_k_anesthesia_records__users_second_anesthesiologist_id");
 
+                    b.HasOne("UFF.FichaAnestesica.Domain.Entities.User", "Surgeon")
+                        .WithMany()
+                        .HasForeignKey("SurgeonId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("f_k_anesthesia_records__users_surgeon_id");
+
+                    b.Navigation("Assistant");
+
                     b.Navigation("FirstAnesthesiologist");
 
                     b.Navigation("SecondAnesthesiologist");
+
+                    b.Navigation("Surgeon");
                 });
 
             modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.ClinicalEvent", b =>
