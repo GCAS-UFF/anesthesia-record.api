@@ -10,13 +10,13 @@ using UFF.FichaAnestesica.Application.Interfaces;
 
 namespace UFF.FichaAnestesica.Infra.Services
 {
-    public class RazorViewRenderer : IRazorViewRenderer
+    public class RazorViewRendererService : IRazorViewRenderer
     {
         private readonly IRazorViewEngine _viewEngine;
         private readonly ITempDataProvider _tempDataProvider;
         private readonly IServiceProvider _serviceProvider;
 
-        public RazorViewRenderer(
+        public RazorViewRendererService(
             IRazorViewEngine viewEngine,
             ITempDataProvider tempDataProvider,
             IServiceProvider serviceProvider)
@@ -26,9 +26,7 @@ namespace UFF.FichaAnestesica.Infra.Services
             _serviceProvider = serviceProvider;
         }
 
-        public async Task<string> RenderAsync<T>(
-    string viewPath,
-    T model)
+        public async Task<string> RenderAsync<T>(string viewPath, T model)
         {
             var actionContext = new ActionContext(
                 new DefaultHttpContext
@@ -71,19 +69,6 @@ namespace UFF.FichaAnestesica.Infra.Services
             await view.RenderAsync(viewContext);
 
             return output.ToString();
-        }
-
-        private ActionContext GetActionContext()
-        {
-            var httpContext = new DefaultHttpContext
-            {
-                RequestServices = _serviceProvider
-            };
-
-            return new ActionContext(
-                httpContext,
-                new RouteData(),
-                new ActionDescriptor());
-        }
+        }       
     }
 }

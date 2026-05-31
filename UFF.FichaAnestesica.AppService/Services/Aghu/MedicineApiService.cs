@@ -1,5 +1,4 @@
 ﻿using UFF.FichaAnestesica.Domain.Entities;
-using UFF.FichaAnestesica.Domain.Extensions;
 using UFF.FichaAnestesica.Domain.Repositories;
 using UFF.FichaAnestesica.Domain.Repositories.ReadOnly;
 
@@ -8,8 +7,6 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
     public class MedicineApiService : IMedicineApiService
     {
         private readonly IMedicineReadOnlyRepository _medicineApiReadOnlyRepository;
-
-
         private readonly IDrugRepository _drugRepository;
 
         public MedicineApiService(IMedicineReadOnlyRepository medicineApiReadOnlyRepository, IDrugRepository drugRepository)

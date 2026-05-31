@@ -7,7 +7,7 @@
 //using UFF.FichaAnestesica.Domain.Response;
 //using UFF.FichaAnestesica.Service.Services;
 
-//public class SurgeryServiceTest
+//public class ProfessionalServicesTest
 //{
 //    private readonly Mock<IUserRepository> _userRepoMock;
 //    private readonly Mock<IPatientReadOnlyRepository> _hospitalRepoMock;
@@ -16,7 +16,7 @@
 //    private const SurgeryStatusEnum STATUS_PENDING = SurgeryStatusEnum.InProgress;
 //    private const SurgeryStatusEnum STATUS_DONE = SurgeryStatusEnum.Completed;
 
-//    public SurgeryServiceTest()
+//    public ProfessionalServicesTest()
 //    {
 //        _userRepoMock = new Mock<IUserRepository>();
 //        _hospitalRepoMock = new Mock<IPatientReadOnlyRepository>();
