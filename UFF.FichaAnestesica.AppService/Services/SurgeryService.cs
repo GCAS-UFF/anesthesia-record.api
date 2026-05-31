@@ -15,12 +15,14 @@ namespace UFF.FichaAnestesica.Service.Services
         private readonly IUserRepository _userRepository;
         private readonly IPatientReadOnlyRepository _hospitalApiRepository;
         private readonly IAnesthesiaRecordRepository _anesthesiaRecordRepository;
+        private readonly IMonitoringRecordRepository _monitoringRecordRepository;
 
-        public SurgeryService(IUserRepository userRepository, IPatientReadOnlyRepository hospitalApiRepository, IAnesthesiaRecordRepository anesthesiaRecordRepository)
+        public SurgeryService(IUserRepository userRepository, IPatientReadOnlyRepository hospitalApiRepository, IAnesthesiaRecordRepository anesthesiaRecordRepository, IMonitoringRecordRepository monitoringRecordRepository)
         {
             _userRepository = userRepository;
             _hospitalApiRepository = hospitalApiRepository;
             _anesthesiaRecordRepository = anesthesiaRecordRepository;
+            _monitoringRecordRepository = monitoringRecordRepository;
         }
 
         public async Task<CommandResult> GetPatientsWithSurgeriesAsync(DateTime? date, SurgeryStatusEnum? status, int page = 1, int size = 10)
@@ -114,7 +116,7 @@ namespace UFF.FichaAnestesica.Service.Services
 
         public async Task<CommandResult> GetPatientAnesthesiaRecordByIdAsync(string patientId, int surgeryId)
         {
-            var patient = await _hospitalApiRepository.GetPatientFromHospitalByIdAsync(patientId);
+            var patient = await _hospitalApiRepository.GetFromHospitalByPatientIdAndSurgeryIdAsync(patientId, surgeryId);
 
             if (patient == null)
                 return null;
@@ -168,6 +170,12 @@ namespace UFF.FichaAnestesica.Service.Services
 
                     _anesthesiaRecordRepository.Update(anesthesiaRecord);                  
                 }
+
+                var monitoring = MonitoringRecord.Create(new MonitoringRecordCommand(anesthesiaRecord.Id));             
+
+                monitoring.SetAnesthesiaRecord(anesthesiaRecord);
+
+                await _monitoringRecordRepository.AddAsync(monitoring);
 
                 await _anesthesiaRecordRepository.SaveChangesAsync();
 

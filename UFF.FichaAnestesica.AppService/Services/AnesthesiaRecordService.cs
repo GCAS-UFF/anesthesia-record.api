@@ -8,10 +8,12 @@ using UFF.FichaAnestesica.Domain.Services;
 public class AnesthesiaRecordService : IAnesthesiaRecordService
 {
     private readonly IAnesthesiaRecordRepository _anesthesiaRecordRepository;
+    private readonly IMonitoringRecordRepository _monitoringRecordRepository;
 
-    public AnesthesiaRecordService(IAnesthesiaRecordRepository anesthesiaRecordRepository)
+    public AnesthesiaRecordService(IAnesthesiaRecordRepository anesthesiaRecordRepository, IMonitoringRecordRepository monitoringRecordRepository)
     {
         _anesthesiaRecordRepository = anesthesiaRecordRepository;
+        _monitoringRecordRepository = monitoringRecordRepository;
     }
 
     public async Task<CommandResult> GetByIdAsync(int id)
@@ -31,6 +33,10 @@ public class AnesthesiaRecordService : IAnesthesiaRecordService
         try
         {
             await _anesthesiaRecordRepository.AddAsync(anesthesiaRecord);
+            var monitoring = MonitoringRecord.Create(new MonitoringRecordCommand(anesthesiaRecord.Id));
+
+            await _monitoringRecordRepository.AddAsync(monitoring);
+
             await _anesthesiaRecordRepository.SaveChangesAsync();
         }
         catch (Exception ex)
@@ -48,6 +54,9 @@ public class AnesthesiaRecordService : IAnesthesiaRecordService
         if (anesthesiaRecord == null)
             throw new Exception("Ficha anestésica não encontrada");
 
+        //if (anesthesiaRecord.AnesthesiaRecordStatus == UFF.FichaAnestesica.Domain.Enums.AnesthesiaRecordStatus.Completed)
+        //    throw new Exception("Não é possível alterar uma ficha salva previamente");
+
         try
         {
             anesthesiaRecord.Update(command);
@@ -60,6 +69,6 @@ public class AnesthesiaRecordService : IAnesthesiaRecordService
             return new CommandResult(false, ex.Message);
         }
       
-        return new CommandResult(true, AnesthesiaRecordResponse.ToResponse(anesthesiaRecord));
+        return CommandResult.Success(AnesthesiaRecordResponse.ToResponse(anesthesiaRecord));
     }   
 }

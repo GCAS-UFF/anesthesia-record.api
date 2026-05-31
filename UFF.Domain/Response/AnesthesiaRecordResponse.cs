@@ -5,8 +5,7 @@ namespace UFF.FichaAnestesica.Domain.Response
 {
     public class AnesthesiaRecordResponse
     {
-        public int Id { get; set; }
-
+        public int SurgeryId { get; set; }
         public bool? PatientIdentifiedBeforeInduction { get; set; }
         public bool? AnestheticConsentSigned { get; set; }
         public bool? AnesthesiaEquipmentChecked { get; set; }
@@ -105,7 +104,6 @@ namespace UFF.FichaAnestesica.Domain.Response
         public int? AssistantId { get; set; }
         public string? AssistantName { get; set; }
 
-        public int SurgeryId { get; set; }
 
         public string ExternalPatientId { get; set; } = string.Empty;
 
@@ -122,7 +120,8 @@ namespace UFF.FichaAnestesica.Domain.Response
         {
             return new AnesthesiaRecordResponse
             {
-                SurgeryId = anesthesiaRecord.SurgeryId,
+                SurgeryId = anesthesiaRecord.Id,
+                ExternalPatientId = anesthesiaRecord.ExternalPatientId,
                 PatientIdentifiedBeforeInduction = anesthesiaRecord.PatientIdentifiedBeforeInduction,
                 AnestheticConsentSigned = anesthesiaRecord.AnestheticConsentSigned,
                 AnesthesiaEquipmentChecked = anesthesiaRecord.AnesthesiaEquipmentChecked,

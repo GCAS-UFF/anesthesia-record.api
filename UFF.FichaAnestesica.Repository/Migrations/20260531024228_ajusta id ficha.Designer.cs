@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using UFF.FichaAnestesica.Infra.Context;
@@ -11,9 +12,11 @@ using UFF.FichaAnestesica.Infra.Context;
 namespace UFF.FichaAnestesica.Infra.Migrations
 {
     [DbContext(typeof(SigaDbCtx))]
-    partial class SigaDbCtxModelSnapshot : ModelSnapshot
+    [Migration("20260531024228_ajusta id ficha")]
+    partial class ajustaidficha
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -609,6 +612,10 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("status");
 
+                    b.Property<int>("SurgeryId")
+                        .HasColumnType("integer")
+                        .HasColumnName("surgery_id");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AnesthesiaRecordId")
@@ -617,6 +624,8 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                     b.HasIndex("RecordedByProfessionalId");
 
                     b.HasIndex("StartedAt");
+
+                    b.HasIndex("SurgeryId");
 
                     b.ToTable("monitoring_records", "siga_db");
                 });

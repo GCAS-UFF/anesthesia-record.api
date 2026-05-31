@@ -10,10 +10,10 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
         {
             builder.ToTable("anesthesia_records");
 
-            builder.HasKey(x => x.SurgeryId);
+            builder.HasKey(x => x.Id);
 
-            builder.Property(x => x.SurgeryId)
-                .HasColumnName("surgery_id")
+            builder.Property(x => x.Id)
+                .HasColumnName("id")
                 .IsRequired();
 
             builder.Property(x => x.PatientIdentifiedBeforeInduction)

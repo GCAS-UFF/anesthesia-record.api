@@ -4,6 +4,12 @@ namespace UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord
 {
     public class MonitoringRecordCommand
     {
+
+        public MonitoringRecordCommand(int surgeryId)
+        {
+           SurgeryId = surgeryId;
+        }
+
         public int AnesthesiaRecordId { get; set; }
         public int SurgeryId { get; set; }
         public int RecordedByProfessionalId { get; set; }

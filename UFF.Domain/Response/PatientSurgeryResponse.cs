@@ -24,7 +24,7 @@ namespace UFF.FichaAnestesica.Domain.Response
         public ResponsibleResponse? FirstAnesthesiologist { get; set; }
 
         public ResponsibleResponse? SecondAnesthesiologist { get; set; }
-        public SurgeryStatusEnum SurgeryStatus { get; set; }
+        //public SurgeryStatusEnum SurgeryStatus { get; set; }
         public DateTime? ExpectedAt { get; set; }
         public string Room { get; set; }
         public List<ProcedureResponse> Procedures { get; set; }

@@ -30,8 +30,7 @@ namespace UFF.FichaAnestesica.Domain.Response
             return new MonitoringRecordResponse
             {
                 Id = entity.Id,
-                AnesthesiaRecordId = entity.AnesthesiaRecordId,
-                SurgeryId = entity.SurgeryId,
+                AnesthesiaRecordId = entity.AnesthesiaRecordId,                
                 RecordedByProfessionalId = entity.RecordedByProfessionalId,
                 StartedAt = entity.StartedAt,
                 EndedAt = entity.EndedAt,

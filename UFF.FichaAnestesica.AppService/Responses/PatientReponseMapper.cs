@@ -20,7 +20,7 @@ namespace UFF.FichaAnestesica.Service.Mappers
                 FullName = patient.FullName,
                 BirthDate = patient.BirthDate,
                 Age = CalculateAge(patient.BirthDate),
-                SurgeryStatus = ParseStatus(patient.SurgeryStatus),
+                //SurgeryStatus = ParseStatus(patient.SurgeryStatus),
                 ExpectedAt = patient.ExpectedAt,
                 Room = patient.Room,
                 Status = user != null ? AnesthesiaRecordStatus.InProgress : AnesthesiaRecordStatus.Scheduled,
@@ -56,7 +56,7 @@ namespace UFF.FichaAnestesica.Service.Mappers
                     FullName = patient.FullName,                    
                     BirthDate = patient.BirthDate,
                     Age = CalculateAge(patient.BirthDate),
-                    SurgeryStatus = ParseStatus(patient.SurgeryStatus),
+                    //SurgeryStatus = ParseStatus(patient.SurgeryStatus),
                     ExpectedAt = patient.ExpectedAt,
                     Room = patient.Room,                    
                     Procedures = patient.Procedures?

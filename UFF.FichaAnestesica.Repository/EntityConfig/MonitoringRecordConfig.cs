@@ -74,7 +74,6 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasIndex(x => x.AnesthesiaRecordId);
-            builder.HasIndex(x => x.SurgeryId);
             builder.HasIndex(x => x.RecordedByProfessionalId);
             builder.HasIndex(x => x.StartedAt);
         }

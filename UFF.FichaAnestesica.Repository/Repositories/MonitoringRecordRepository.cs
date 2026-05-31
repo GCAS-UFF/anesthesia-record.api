@@ -37,11 +37,10 @@ namespace UFF.FichaAnestesica.Infra.Repositories
                     x.AnesthesiaRecordId == anesthesiaRecordId);
         }
 
-        public async Task<List<MonitoringRecord>> GetBySurgeryIdAsync(
-            int surgeryId)
+        public async Task<List<MonitoringRecord>> GetBySurgeryIdAsync(int surgeryId)
         {
             return await _context.MonitoringRecords
-                .Where(x => x.SurgeryId == surgeryId)
+                .Where(x => x.AnesthesiaRecordId == surgeryId)
                 .OrderByDescending(x => x.StartedAt)
                 .ToListAsync();
         }
@@ -72,7 +71,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories
         {
             return await _context.MonitoringRecords
                 .FirstOrDefaultAsync(x =>
-                    x.SurgeryId == surgeryId &&
+                    x.AnesthesiaRecordId == surgeryId &&
                     x.EndedAt == null);
         }
     }

@@ -7,7 +7,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
     {
         private AnesthesiaRecord() { }
 
-        public int SurgeryId { get; private set; }
+        public int Id { get; private set; }
 
         public bool? PatientIdentifiedBeforeInduction { get; private set; }
         public bool? AnestheticConsentSigned { get; private set; }
@@ -137,6 +137,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
         public void Update(AnesthesiaRecordCommand command)
         {
             SetValues(command);
+            AnesthesiaRecordStatus = AnesthesiaRecordStatus.Completed;
             LastUpdate = DateTime.UtcNow;
         }
 
