@@ -43,17 +43,18 @@ namespace UFF.FichaAnestesica.Service.Services
                 });
             }
 
-            var responseData = PatientResponseMapper.Map(hospitalData.Data);
-            var patientIds = responseData.Select(x => x.PatientId).Distinct().ToArray();
+            var patientIds = hospitalData.Data.Select(x => x.PatientId).ToArray();
             var anesthesiaRecords = await _anesthesiaRecordRepository.GetByIdsAsync(patientIds);
-            var recordsByPatientId = anesthesiaRecords.GroupBy(x => x.ExternalPatientId).ToDictionary(x => x.Key, x => x.First());
+            var recordsBySurgeryId = anesthesiaRecords.GroupBy(x => x.Id).ToDictionary(x => x.Key, x => x.First());
+            SetSurgeryStatus(hospitalData, recordsBySurgeryId);
+
+            var responseData = PatientResponseMapper.Map(hospitalData.Data);
+            var recordsByPatientId = anesthesiaRecords.GroupBy(x => x.Id).ToDictionary(x => x.Key, x => x.First());
 
             foreach (var patient in responseData)
             {
-                if (!recordsByPatientId.TryGetValue(patient.PatientId, out var record))
+                if (!recordsByPatientId.TryGetValue(patient.SurgeryId, out var record))
                 {
-                    patient.Status = SurgeryStatusEnum.Scheduled;
-
                     patient.FirstAnesthesiologist = null;
                     patient.SecondAnesthesiologist = null;
                     patient.Surgeon = null;
@@ -61,8 +62,6 @@ namespace UFF.FichaAnestesica.Service.Services
 
                     continue;
                 }
-
-                patient.Status = record.AnesthesiaRecordStatus;
 
                 if (record.FirstAnesthesiologist != null)
                 {
@@ -114,6 +113,17 @@ namespace UFF.FichaAnestesica.Service.Services
             });
         }
 
+        private static void SetSurgeryStatus(PagedResponse<Domain.Dto.PatientListDto> hospitalData, Dictionary<int, AnesthesiaRecord> recordsBySurgeryId)
+        {
+            foreach (var patient in hospitalData.Data)
+            {
+                if (recordsBySurgeryId.TryGetValue(patient.SurgeryId, out var record))
+                {
+                    patient.HaveFirstAnesthesist = record.FirstAnesthesiologist != null;
+                }
+            }
+        }
+
         public async Task<CommandResult> GetPatientAnesthesiaRecordByIdAsync(string patientId, int surgeryId)
         {
             var patient = await _hospitalApiRepository.GetFromHospitalByPatientIdAndSurgeryIdAsync(patientId, surgeryId);
@@ -122,8 +132,6 @@ namespace UFF.FichaAnestesica.Service.Services
                 return null;
 
             var anesthesiaRecord = await _anesthesiaRecordRepository.GetByIdAsync(surgeryId);
-
-            var status = anesthesiaRecord?.AnesthesiaRecordStatus ?? SurgeryStatusEnum.Scheduled;
 
             return CommandResult.Success(PatientResponseMapper.MapDetail(patient, anesthesiaRecord?.FirstAnesthesiologist, anesthesiaRecord?.SecondAnesthesiologist, anesthesiaRecord?.Surgeon, anesthesiaRecord?.Assistant));
         }

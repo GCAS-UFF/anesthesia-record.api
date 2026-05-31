@@ -34,7 +34,7 @@ namespace UFF.FichaAnestesica.Domain.Dto
 
         [JsonPropertyName("status")]
         public string Status { get; set; }
-
+    
         [JsonPropertyName("sexo")]
         public string Gender { get; set; }
 
@@ -55,6 +55,9 @@ namespace UFF.FichaAnestesica.Domain.Dto
 
         [JsonPropertyName("alergias")]
         public List<AllergyDto> Allergies { get; set; } = new();
+
+        [JsonIgnore]
+        public bool HaveFirstAnesthesist { get; set; }
     }
 
     public class ProcedureSummaryDto
