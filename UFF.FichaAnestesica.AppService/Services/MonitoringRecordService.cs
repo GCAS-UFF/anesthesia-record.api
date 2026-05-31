@@ -77,7 +77,7 @@ public class MonitoringRecordService : IMonitoringRecordService
             if (anesthesiaRecord == null)
                 throw new Exception("Ficha anestésica não encontrada");
 
-            anesthesiaRecord.SetStatus(AnesthesiaRecordStatus.Completed);
+            anesthesiaRecord.SetStatus(SurgeryStatusEnum.Completed);
 
             if (anesthesiaRecord.MonitoringRecord != null)
                 anesthesiaRecord.MonitoringRecord.SetStatus(SurgeryStatusEnum.Completed);

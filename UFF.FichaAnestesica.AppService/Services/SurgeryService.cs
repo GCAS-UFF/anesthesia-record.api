@@ -52,7 +52,7 @@ namespace UFF.FichaAnestesica.Service.Services
             {
                 if (!recordsByPatientId.TryGetValue(patient.PatientId, out var record))
                 {
-                    patient.Status = AnesthesiaRecordStatus.Scheduled;
+                    patient.Status = SurgeryStatusEnum.Scheduled;
 
                     patient.FirstAnesthesiologist = null;
                     patient.SecondAnesthesiologist = null;
@@ -123,16 +123,9 @@ namespace UFF.FichaAnestesica.Service.Services
 
             var anesthesiaRecord = await _anesthesiaRecordRepository.GetByIdAsync(surgeryId);
 
-            var status = anesthesiaRecord?.AnesthesiaRecordStatus ?? AnesthesiaRecordStatus.Scheduled;
+            var status = anesthesiaRecord?.AnesthesiaRecordStatus ?? SurgeryStatusEnum.Scheduled;
 
-            return CommandResult.Success(PatientResponseMapper.MapDetail(
-                patient,
-                anesthesiaRecord?.FirstAnesthesiologist,
-                anesthesiaRecord?.SecondAnesthesiologist,
-                anesthesiaRecord?.Surgeon,
-                anesthesiaRecord?.Assistant,
-                status
-            ));
+            return CommandResult.Success(PatientResponseMapper.MapDetail(patient, anesthesiaRecord?.FirstAnesthesiologist, anesthesiaRecord?.SecondAnesthesiologist, anesthesiaRecord?.Surgeon, anesthesiaRecord?.Assistant));
         }
 
         public async Task<CommandResult> AssumePatientAsync(string patientId, int surgeryId, int responsibleAnesthesiologistId)
@@ -155,7 +148,7 @@ namespace UFF.FichaAnestesica.Service.Services
                 {
                     anesthesiaRecord = AnesthesiaRecord.Create(new AnesthesiaRecordCommand
                     {
-                        Status = AnesthesiaRecordStatus.InProgress,
+                        Status = SurgeryStatusEnum.InProgress,
                         ExternalPatientId = patientId,
                         FirstAnesthesiologistId = responsibleAnesthesiologistId,
                         RecordDate = DateOnly.FromDateTime(DateTime.Today)
@@ -166,12 +159,12 @@ namespace UFF.FichaAnestesica.Service.Services
                 else
                 {
                     anesthesiaRecord.AssignFirstAnesthesiologistId(responsibleAnesthesiologistId);
-                    anesthesiaRecord.SetStatus(AnesthesiaRecordStatus.InProgress);
+                    anesthesiaRecord.SetStatus(SurgeryStatusEnum.InProgress);
 
-                    _anesthesiaRecordRepository.Update(anesthesiaRecord);                  
+                    _anesthesiaRecordRepository.Update(anesthesiaRecord);
                 }
 
-                var monitoring = MonitoringRecord.Create(new MonitoringRecordCommand(anesthesiaRecord.Id));             
+                var monitoring = MonitoringRecord.Create(new MonitoringRecordCommand(anesthesiaRecord.Id));
 
                 monitoring.SetAnesthesiaRecord(anesthesiaRecord);
 
@@ -179,7 +172,7 @@ namespace UFF.FichaAnestesica.Service.Services
 
                 await _anesthesiaRecordRepository.SaveChangesAsync();
 
-                return CommandResult.Success(PatientResponseMapper.MapDetail(patient, responsibleAnesthesiologist, null, null, null, AnesthesiaRecordStatus.InProgress));
+                return CommandResult.Success(PatientResponseMapper.MapDetail(patient, responsibleAnesthesiologist, null, null, null));
             }
             catch (Exception ex)
             {

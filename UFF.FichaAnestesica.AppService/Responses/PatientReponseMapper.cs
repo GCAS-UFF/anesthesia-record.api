@@ -1,4 +1,5 @@
-﻿using UFF.FichaAnestesica.Domain.Dto;
+﻿using UFF.FichaAnestesica.CrossCutting.Mappings;
+using UFF.FichaAnestesica.Domain.Dto;
 using UFF.FichaAnestesica.Domain.Entities;
 using UFF.FichaAnestesica.Domain.Enums;
 using UFF.FichaAnestesica.Domain.Response;
@@ -19,11 +20,10 @@ namespace UFF.FichaAnestesica.Service.Mappers
                 MedicalRecordNumber = patient.MedicalRecordNumber,
                 FullName = patient.FullName,
                 BirthDate = patient.BirthDate,
-                Age = CalculateAge(patient.BirthDate),
-                //SurgeryStatus = ParseStatus(patient.SurgeryStatus),
+                Age = CalculateAge(patient.BirthDate),                
                 ExpectedAt = patient.ExpectedAt,
-                Room = patient.Room,
-                Status = user != null ? AnesthesiaRecordStatus.InProgress : AnesthesiaRecordStatus.Scheduled,
+                Room = patient.Room,                
+                Status = user != null && SurgeryStatusEnumMapping.Parse(patient.Status) != SurgeryStatusEnum.Completed ? SurgeryStatusEnum.InProgress : SurgeryStatusEnumMapping.Parse(patient.Status),
                 Procedures = patient.Procedures?
                     .Select(p => new ProcedureResponse
                     {
@@ -58,8 +58,7 @@ namespace UFF.FichaAnestesica.Service.Mappers
                     Gender = patient.Gender, 
                     WeightKg = patient.WeightKg, 
                     HeightCm = patient.HeightCm,
-                    Age = CalculateAge(patient.BirthDate),
-                    
+                    Age = CalculateAge(patient.BirthDate),                    
                     ExpectedAt = patient.ExpectedAt,
                     Room = patient.Room,                    
                     Procedures = patient.Procedures?
@@ -80,7 +79,7 @@ namespace UFF.FichaAnestesica.Service.Mappers
             return patientsList;
         }
 
-        public static PatientSurgeryResponse MapDetail(PatientDto patient, User? firstAnesthesiologist, User? secondAnesthesiologist, User? surgeon, User? assistant, AnesthesiaRecordStatus status)
+        public static PatientSurgeryResponse MapDetail(PatientDto patient, User? firstAnesthesiologist, User? secondAnesthesiologist, User? surgeon, User? assistant)
         {
             if (patient == null)
                 return null;
@@ -88,28 +87,22 @@ namespace UFF.FichaAnestesica.Service.Mappers
             return new PatientSurgeryResponse
             {
                 SurgeryId = patient.Id,
-                Status = status,
-
                 PatientId = patient.PatientId,
                 MedicalRecordNumber = patient.MedicalRecordNumber,
                 FullName = patient.FullName,
                 BirthDate = patient.BirthDate,
                 Age = CalculateAge(patient.BirthDate),
                 Gender = patient.Gender,
-
+                Status = firstAnesthesiologist != null && SurgeryStatusEnumMapping.Parse(patient.Status) != SurgeryStatusEnum.Completed ? SurgeryStatusEnum.InProgress : SurgeryStatusEnumMapping.Parse(patient.Status),
                 WeightKg = patient.WeightKg,
                 HeightCm = patient.HeightCm,
-
                 CurrentLocation = MapLocation(patient.CurrentLocation),
-
                 Allergies = patient.Allergies?
                     .Select(MapAllergy)
                     .ToList() ?? new List<AllergyResponse>(),
-
                 Surgeries = patient.Surgeries?
                     .Select(MapSurgery)
                     .ToList() ?? new List<SurgeryResponse>(),
-
                 FirstAnesthesiologist = MapResponsible(firstAnesthesiologist),
                 SecondAnesthesiologist = MapResponsible(secondAnesthesiologist),
                 Surgeon = MapResponsible(surgeon),

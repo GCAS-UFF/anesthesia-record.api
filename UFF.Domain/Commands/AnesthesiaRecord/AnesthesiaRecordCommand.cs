@@ -26,7 +26,7 @@ namespace UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord
         public TimeOnly AnesthesiaStartTime { get; set; }
         public TimeOnly SurgeryEndTime { get; set; }
         public TimeOnly AnesthesiaEndTime { get; set; }
-        public AnesthesiaRecordStatus Status { get; set; }
+        public SurgeryStatusEnum Status { get; set; }
 
         public string PreOperativeDiagnosis { get; set; } = default!;
 

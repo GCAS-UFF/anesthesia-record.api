@@ -17,14 +17,13 @@ namespace UFF.FichaAnestesica.Domain.Response
         public List<SurgeryResponse> Surgeries { get; set; }
         public List<AllergyResponse> Allergies { get; set; }
         public ResponsibleResponse? Surgeon { get; set; }
-        public AnesthesiaRecordStatus Status { get; set; }
+        public SurgeryStatusEnum Status { get; set; }
 
         public ResponsibleResponse? Assistant { get; set; }
 
         public ResponsibleResponse? FirstAnesthesiologist { get; set; }
 
-        public ResponsibleResponse? SecondAnesthesiologist { get; set; }
-        //public SurgeryStatusEnum SurgeryStatus { get; set; }
+        public ResponsibleResponse? SecondAnesthesiologist { get; set; }        
         public DateTime? ExpectedAt { get; set; }
         public string Room { get; set; }
         public List<ProcedureResponse> Procedures { get; set; }

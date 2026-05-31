@@ -105,7 +105,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
 
         public DateOnly RecordDate { get; private set; }
 
-        public AnesthesiaRecordStatus AnesthesiaRecordStatus { get; private set; }
+        public SurgeryStatusEnum AnesthesiaRecordStatus { get; private set; }
 
         public DateTime CreatedAt { get; protected set; }
         public DateTime LastUpdate { get; protected set; }
@@ -117,7 +117,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
             entity.SetValues(command);
             entity.CreatedAt = DateTime.UtcNow;
             entity.LastUpdate = DateTime.UtcNow;
-            entity.AnesthesiaRecordStatus = AnesthesiaRecordStatus.Scheduled;
+            entity.AnesthesiaRecordStatus = SurgeryStatusEnum.Scheduled;
 
             return entity;
         }
@@ -128,7 +128,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
             LastUpdate = DateTime.UtcNow;
         }
 
-        public void SetStatus(AnesthesiaRecordStatus status)
+        public void SetStatus(SurgeryStatusEnum status)
         {
             AnesthesiaRecordStatus = status;
             LastUpdate = DateTime.UtcNow;
@@ -137,7 +137,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
         public void Update(AnesthesiaRecordCommand command)
         {
             SetValues(command);
-            AnesthesiaRecordStatus = AnesthesiaRecordStatus.Completed;
+            AnesthesiaRecordStatus = SurgeryStatusEnum.Completed;
             LastUpdate = DateTime.UtcNow;
         }
 

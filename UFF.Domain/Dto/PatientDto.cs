@@ -32,11 +32,9 @@ namespace UFF.FichaAnestesica.Domain.Dto
         [JsonPropertyName("numero_prontuario")]
         public string MedicalRecordNumber { get; set; }
 
-        [JsonPropertyName("status_cirurgia")]
-        public string SurgeryStatus { get; set; }
-
         [JsonPropertyName("status")]
         public string Status { get; set; }
+
         [JsonPropertyName("sexo")]
         public string Gender { get; set; }
 
@@ -96,6 +94,10 @@ namespace UFF.FichaAnestesica.Domain.Dto
 
         [JsonPropertyName("nome_completo")]
         public string FullName { get; set; }
+
+        [JsonPropertyName("status")]
+        public string Status { get; set; }
+
 
         [JsonPropertyName("data_nascimento")]
         public DateTime BirthDate { get; set; }

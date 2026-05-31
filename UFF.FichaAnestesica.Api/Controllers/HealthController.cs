@@ -5,7 +5,7 @@ using UFF.FichaAnestesica.Domain.Repositories.ReadOnly;
 namespace UFF.FichaAnestesica.Api.Controllers
 {
     [ApiController]
-    [Route("health")]
+    [Route("api/[controller]")]
     public class HealthController : ControllerBase
     {
         private readonly IHealthReadOnlyRepository _repo;
@@ -21,9 +21,9 @@ namespace UFF.FichaAnestesica.Api.Controllers
             var result = await _repo.CheckHealth();
 
             return Ok(new CommandResult(true, new
-            {
-                database = result.bd ? "online" : "offline",
-                aghu = result.aghu ? "online" : "offline",
+            {                
+                database = result.bd,
+                aghu = result.aghu,
                 timestamp = DateTime.UtcNow
             }));
         }

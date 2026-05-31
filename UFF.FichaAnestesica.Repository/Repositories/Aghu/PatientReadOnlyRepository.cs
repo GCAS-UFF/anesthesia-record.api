@@ -1,4 +1,5 @@
 ﻿using System.Net.Http.Json;
+using UFF.FichaAnestesica.CrossCutting.Extensions;
 using UFF.FichaAnestesica.Domain.Dto;
 using UFF.FichaAnestesica.Domain.Enums;
 using UFF.FichaAnestesica.Domain.Repositories.ReadOnly;
@@ -23,7 +24,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
                 queryParams.Add($"date={date.Value:yyyy-MM-dd}");
 
             if (status.HasValue)
-                queryParams.Add($"status={status}");
+                queryParams.Add($"status={EnumExtensions.GetDescription((SurgeryStatusEnum)status)}");
 
             queryParams.Add($"page={page}");
             queryParams.Add($"pageSize={pageSize}");
@@ -43,22 +44,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
                 PageSize = pageSize,
                 TotalItems = data?.Patients.Count ?? 0
             };
-        }
-
-        public async Task<PatientDto> GetPatientFromHospitalByIdAsync(string id)
-        {
-            if (string.IsNullOrWhiteSpace(id))
-                return null;
-
-            var response = await _httpClient.GetAsync($"/cirurgia/{id}");
-
-            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
-                return null;
-
-            response.EnsureSuccessStatusCode();
-
-            return await response.Content.ReadFromJsonAsync<PatientDto>();
-        }
+        }   
 
         public async Task<PatientDto> GetFromHospitalByPatientIdAndSurgeryIdAsync(string patientId, int surgeryId)
         {
@@ -73,7 +59,6 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
             response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadFromJsonAsync<PatientDto>();
-        }
-      
+        }      
     }
 }

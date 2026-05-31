@@ -19,8 +19,15 @@ public class IntegrationController : ControllerBase
     [HttpPost("sync/professionals")]
     public async Task<IActionResult> SyncProfessionals()
     {
-        await _professionalApiService.SyncProfessionals();
-        return Ok(CommandResult.Success(true));     
+        try
+        {
+            await _professionalApiService.SyncProfessionals();
+            return Ok(CommandResult.Success(true));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(CommandResult.Fail(ex.Message));
+        }
     }
 
     [HttpPost("sync/medicines")]

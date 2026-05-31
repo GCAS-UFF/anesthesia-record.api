@@ -41,6 +41,8 @@
     <None Remove="Enums\EventTypeEnum.cs~RF3eea914.TMP" />
     <None Remove="Enums\PresentationEnum.cs~RF3ec052c.TMP" />
     <None Remove="Enums\SectorEnum.cs~RF5bda3a9.TMP" />
+    <None Remove="Enums\SurgeryStatusEnum.cs~RF4f6d0ac.TMP" />
+    <None Remove="Enums\SurgeryStatusEnum.cs~RF4fdf0a6.TMP" />
     <None Remove="Repositories\Aghu\IPatientReadOnlyRepository.cs~RF28182af.TMP" />
     <None Remove="Repositories\IAnesthesiaRecordRepository.cs~RF4815b56.TMP" />
     <None Remove="Repositories\IAnesthesiaRecordRepository.cs~RFe51439.TMP" />

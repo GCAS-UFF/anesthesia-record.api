@@ -113,7 +113,7 @@ namespace UFF.FichaAnestesica.Domain.Response
 
         public DateTime? LastUpdate { get; set; }
 
-        public AnesthesiaRecordStatus AnesthesiaRecordStatus { get; set; }
+        public SurgeryStatusEnum AnesthesiaRecordStatus { get; set; }
 
 
         public static AnesthesiaRecordResponse ToResponse(AnesthesiaRecord anesthesiaRecord)

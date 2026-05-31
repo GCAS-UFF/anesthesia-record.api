@@ -15,4 +15,8 @@
     <None Remove="Utils\**" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\UFF.Domain\UFF.FichaAnestesica.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
