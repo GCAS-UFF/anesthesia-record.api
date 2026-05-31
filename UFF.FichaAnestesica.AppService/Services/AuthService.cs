@@ -31,12 +31,12 @@ namespace UFF.FichaAnestesica.Service.Services
         public async Task<CommandResult> LoginAsync(string login, string password)
         {
             if (string.IsNullOrWhiteSpace(login) || string.IsNullOrWhiteSpace(password))
-                return new CommandResult(false, null, "Usuário e senha precisam ser preenchidos");
+                return CommandResult.Fail("Usuário e senha precisam ser preenchidos");
 
             var hospitalUser = await _authRepository.LoginAGHU(login, password);
 
             if (hospitalUser is null)
-                return new CommandResult(false, null, "Usuário ou senha inválidos");
+                return CommandResult.Fail("Usuário ou senha inválidos");
 
             var user = await _userRepository.GetUserByLoginAsync(login);
 
@@ -57,7 +57,7 @@ namespace UFF.FichaAnestesica.Service.Services
             }
 
             if (user.Status != UserStatusEnum.Enabled)
-                return new CommandResult(false, null, "Usuário sem permissão");
+                return CommandResult.Fail("Usuário sem permissão");
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
@@ -83,7 +83,7 @@ namespace UFF.FichaAnestesica.Service.Services
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var accessToken = tokenHandler.WriteToken(token);
 
-            return new CommandResult(true, new
+            return CommandResult.Success(new
             {
                 token = accessToken,
                 usuario = new

@@ -16,16 +16,12 @@ namespace UFF.FichaAnestesica.Infra.Services
         private readonly ITempDataProvider _tempDataProvider;
         private readonly IServiceProvider _serviceProvider;
 
-        public RazorViewRendererService(
-            IRazorViewEngine viewEngine,
-            ITempDataProvider tempDataProvider,
-            IServiceProvider serviceProvider)
+        public RazorViewRendererService(IRazorViewEngine viewEngine, ITempDataProvider tempDataProvider, IServiceProvider serviceProvider)
         {
             _viewEngine = viewEngine;
             _tempDataProvider = tempDataProvider;
             _serviceProvider = serviceProvider;
         }
-
         public async Task<string> RenderAsync<T>(string viewPath, T model)
         {
             var actionContext = new ActionContext(

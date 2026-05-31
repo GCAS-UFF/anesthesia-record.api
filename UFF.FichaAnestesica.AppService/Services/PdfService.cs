@@ -76,16 +76,6 @@ namespace UFF.FichaAnestesica.Infra.Services
                 RequestServices = _serviceProvider
             };
             return context;
-        }
-
-        private static async Task EnsureBrowserDownloaded()
-        {
-            if (_browserDownloaded)
-                return;
-
-            var browserFetcher = new BrowserFetcher();
-            await browserFetcher.DownloadAsync();
-            _browserDownloaded = true;
-        }
+        }      
     }
 }

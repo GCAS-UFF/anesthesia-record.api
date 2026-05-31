@@ -24,7 +24,7 @@ public class MonitoringRecordService : IMonitoringRecordService
         if (monitoring == null)
             return new CommandResult(false, "Monitorização não encontrada");
 
-        return new CommandResult(true, MonitoringRecordResponse.ToResponse(monitoring));
+        return CommandResult.Success(MonitoringRecordResponse.ToResponse(monitoring));
     }
 
     public async Task<CommandResult> Create(MonitoringRecordCommand command)
@@ -36,11 +36,11 @@ public class MonitoringRecordService : IMonitoringRecordService
             await _monitoringRepository.AddAsync(monitoring);
             await _monitoringRepository.SaveChangesAsync();
 
-            return new CommandResult(true, MonitoringRecordResponse.ToResponse(monitoring));
+            return CommandResult.Success(MonitoringRecordResponse.ToResponse(monitoring));
         }
         catch (Exception ex)
         {
-            return new CommandResult(false, ex.Message);
+            return CommandResult.Fail(ex.Message);
         }
     }
 
@@ -48,9 +48,8 @@ public class MonitoringRecordService : IMonitoringRecordService
     {
         var monitoring = await _monitoringRepository.GetCompleteByIdAsync(id);
 
-
         if (monitoring == null)
-            return new CommandResult(false, "Monitorização não encontrada");
+            return CommandResult.Fail("Monitorização não encontrada");
 
         try
         {
@@ -59,11 +58,11 @@ public class MonitoringRecordService : IMonitoringRecordService
 
             await _monitoringRepository.SaveChangesAsync();
 
-            return new CommandResult(true, MonitoringRecordResponse.ToResponse(monitoring));
+            return CommandResult.Success(MonitoringRecordResponse.ToResponse(monitoring));
         }
         catch (Exception ex)
         {
-            return new CommandResult(false, ex.Message);
+            return CommandResult.Fail(ex.Message);
         }
     }
 
@@ -74,7 +73,7 @@ public class MonitoringRecordService : IMonitoringRecordService
             var monitoringRecord = await _monitoringRepository.GetByIdAsync(anesthesiaRecordId);
 
             if (monitoringRecord == null)
-                throw new Exception("Ficha anestésica não encontrada");
+                return CommandResult.Fail("Ficha anestésica não encontrada");
 
             monitoringRecord.SetStatus(SurgeryStatusEnum.Completed);
 
