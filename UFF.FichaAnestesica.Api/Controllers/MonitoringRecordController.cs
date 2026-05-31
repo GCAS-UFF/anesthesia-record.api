@@ -69,5 +69,23 @@ namespace UFF.FichaAnestesica.Api.Controllers
 
             return Ok(result);
         }
+
+        // <summary>
+        /// Finaliza o monitoramento de uma cirurgia em andamento
+        /// </summary>
+        /// <param name="id">ID do registro a ser finalizado</param>
+        /// <param name="command">Dados atualizados</param>
+        /// <returns>Registro atualizado</returns>
+        [HttpPatch("{id}")]
+        // [Authorize]
+        public async Task<IActionResult> FinalizePatientAsync([FromRoute] int id)
+        {
+            var result = await _monitoringRecordService.FinalizePatientAsync(id);
+
+            if (!result.Valid)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
     }
 }

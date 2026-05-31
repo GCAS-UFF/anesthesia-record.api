@@ -31,19 +31,19 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
 
             foreach (var medicine in response.Drugs)
             {
-                if (string.IsNullOrWhiteSpace(medicine.Id))
+                if (string.IsNullOrWhiteSpace(medicine.Codigo))
                     continue;
 
-                externalIds.Add(medicine.Id);
+                externalIds.Add(medicine.Codigo);
 
-                if (drugsByExternalId.TryGetValue(medicine.Id, out var existingDrug))
+                if (drugsByExternalId.TryGetValue(medicine.Codigo, out var existingDrug))
                 {
                     existingDrug.Update(medicine.Description, medicine.Unity);
                     _drugRepository.Update(existingDrug);
                 }
                 else
                 {
-                    var newDrug = Drug.Create(medicine.Id, medicine.Description, medicine.Unity);
+                    var newDrug = Drug.Create(medicine.Codigo, medicine.Description, medicine.Unity);
                     await _drugRepository.AddAsync(newDrug);
                 }
             }

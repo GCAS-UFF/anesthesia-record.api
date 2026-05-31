@@ -17,11 +17,13 @@
     <None Remove="Entities\AdministeredAgent.cs~RF20a31a.TMP" />
     <None Remove="Entities\AnesthesiaRecord.cs~RF4a0de5a.TMP" />
     <None Remove="Entities\AnesthesiaRecord.cs~RFc19c74.TMP" />
+    <None Remove="Entities\Drug.cs~RF813a85.TMP" />
     <None Remove="Entities\FluidBalance.cs~RF290373.TMP" />
     <None Remove="Entities\FluidBalance.cs~RF2a29f2.TMP" />
     <None Remove="Entities\FluidBalance.cs~RF511718.TMP" />
     <None Remove="Entities\FluidBalance.cs~RF549726.TMP" />
     <None Remove="Entities\FluidBalance.cs~RF739451.TMP" />
+    <None Remove="Entities\jmozhsws.qz4~" />
     <None Remove="Entities\jvjfzato.mov~" />
     <None Remove="Entities\l0iyuavp.pq5~" />
     <None Remove="Entities\MonitoringRecord.cs~RF10946241.TMP" />
@@ -33,11 +35,13 @@
     <None Remove="Entities\User.cs~RF7ddc786.TMP" />
     <None Remove="Entities\User.cs~RF7e6f467.TMP" />
     <None Remove="Entities\User.cs~RF8205b0b.TMP" />
+    <None Remove="Enums\AnesthesiaRecordStatusEnum.cs~RFc62ba0.TMP" />
     <None Remove="Enums\ClinicalDischargeCondition.cs~RFd4d9ed.TMP" />
     <None Remove="Enums\EventTypeEnum.cs~RF210b79.TMP" />
     <None Remove="Enums\EventTypeEnum.cs~RF3eea914.TMP" />
     <None Remove="Enums\PresentationEnum.cs~RF3ec052c.TMP" />
     <None Remove="Enums\SectorEnum.cs~RF5bda3a9.TMP" />
+    <None Remove="Repositories\Aghu\IPatientReadOnlyRepository.cs~RF28182af.TMP" />
     <None Remove="Repositories\IAnesthesiaRecordRepository.cs~RF4815b56.TMP" />
     <None Remove="Repositories\IAnesthesiaRecordRepository.cs~RFe51439.TMP" />
     <None Remove="Repositories\IClinicalEventRepository.cs~RF79d63f.TMP" />

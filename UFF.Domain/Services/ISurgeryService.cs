@@ -1,12 +1,12 @@
-﻿using UFF.FichaAnestesica.Domain.Enums;
-using UFF.FichaAnestesica.Domain.Response;
+﻿using UFF.FichaAnestesica.Domain.Commands;
+using UFF.FichaAnestesica.Domain.Enums;
 
 namespace UFF.FichaAnestesica.Domain.Services
 {
     public interface ISurgeryService
     {
-        Task<PagedResponse<PatientSurgeryResponse>> GetPatientsWithSurgeriesAsync(DateTime? date, SurgeryStatusEnum? status, int page = 1, int size = 10);
-        Task<PatientSurgeryResponse> GetPatientByIdAsync(string id);
-        Task<PatientSurgeryResponse> AssumePatientAsync(string patientId, int responsibleAnesthesiologistId);
+        Task<CommandResult> GetPatientsWithSurgeriesAsync(DateTime? date, SurgeryStatusEnum? status, int page = 1, int size = 10);
+        Task<CommandResult> GetPatientAnesthesiaRecordByIdAsync(string patientId, int surgeryId);
+        Task<CommandResult> AssumePatientAsync(string patientId, int surgeryId, int responsibleAnesthesiologistId);
     }
 }

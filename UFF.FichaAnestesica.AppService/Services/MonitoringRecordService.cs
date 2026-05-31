@@ -1,6 +1,7 @@
 using UFF.FichaAnestesica.Domain.Commands;
 using UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord;
 using UFF.FichaAnestesica.Domain.Entities;
+using UFF.FichaAnestesica.Domain.Enums;
 using UFF.FichaAnestesica.Domain.Repositories;
 using UFF.FichaAnestesica.Domain.Response;
 using UFF.FichaAnestesica.Domain.Services;
@@ -8,10 +9,12 @@ using UFF.FichaAnestesica.Domain.Services;
 public class MonitoringRecordService : IMonitoringRecordService
 {
     private readonly IMonitoringRecordRepository _repository;
+    private readonly IAnesthesiaRecordRepository _anesthesiaRecordRepository;
 
-    public MonitoringRecordService(IMonitoringRecordRepository repository)
+    public MonitoringRecordService(IMonitoringRecordRepository repository, IAnesthesiaRecordRepository anesthesiaRecordRepository)
     {
         _repository = repository;
+        _anesthesiaRecordRepository = anesthesiaRecordRepository;
     }
 
     public async Task<CommandResult> GetByIdAsync(int id)
@@ -61,6 +64,32 @@ public class MonitoringRecordService : IMonitoringRecordService
         catch (Exception ex)
         {
             return new CommandResult(false, ex.Message);
+        }
+    }
+
+    public async Task<CommandResult> FinalizePatientAsync(int anesthesiaRecordId)
+    {
+        try
+        {
+
+            var anesthesiaRecord = await _anesthesiaRecordRepository.GetByIdAsync(anesthesiaRecordId);
+
+            if (anesthesiaRecord == null)
+                throw new Exception("Ficha anestésica não encontrada");
+
+            anesthesiaRecord.SetStatus(AnesthesiaRecordStatus.Completed);
+
+            if (anesthesiaRecord.MonitoringRecord != null)
+                anesthesiaRecord.MonitoringRecord.SetStatus(SurgeryStatusEnum.Completed);
+
+            await _anesthesiaRecordRepository.SaveChangesAsync();
+
+            return CommandResult.Success("Finalizado");
+
+        }
+        catch (Exception ex)
+        {
+            return CommandResult.Fail(ex.Message);
         }
     }
 }

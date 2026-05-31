@@ -18,20 +18,27 @@ namespace UFF.FichaAnestesica.Infra.Repositories
         public async Task<AnesthesiaRecord> GetByIdAsync(int id)
         {
             return await _context.AnesthesiaRecords
-                            .AsNoTracking()
                             .Include(x => x.FirstAnesthesiologist)
                             .Include(x => x.SecondAnesthesiologist)
-                            .FirstOrDefaultAsync(x => x.Id == id);
+                            .Include(x => x.MonitoringRecord)
+                            .FirstOrDefaultAsync(x => x.SurgeryId == id);
         }
 
         public async Task<List<AnesthesiaRecord>> GetByIdsAsync(IEnumerable<string> ids)
         {
             return await _context.AnesthesiaRecords
-                .AsNoTracking()
                 .Include(x => x.FirstAnesthesiologist)
                 .Include(x => x.SecondAnesthesiologist)
                 .Where(x => ids.Contains(x.ExternalPatientId))
                 .ToListAsync();
+        }
+
+        public async Task<AnesthesiaRecord> GetByExternalPatientIdAsync(string id)
+        {
+            return await _context.AnesthesiaRecords
+                .Include(x => x.FirstAnesthesiologist)
+                .Include(x => x.SecondAnesthesiologist)
+                .FirstOrDefaultAsync(x => x.ExternalPatientId.ToLower() == id.ToLower());
         }
     }
 }

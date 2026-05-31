@@ -24,19 +24,19 @@ namespace UFF.FichaAnestesica.Api.Controllers
             return Ok(surgeries);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{surgeryId}/{patientId}")]
         //    [Authorize]
-        public async Task<IActionResult> GetPatientById([FromRoute] string id)
+        public async Task<IActionResult> GetPatientBySurgeryId([FromRoute] int surgeryId, string patientId)
         {
-            var surgerie = await _surgeriesService.GetPatientByIdAsync(id);
+            var surgerie = await _surgeriesService.GetPatientAnesthesiaRecordByIdAsync(patientId, surgeryId);
             return Ok(surgerie);
         }
 
         [HttpPatch("{patientId}/{responsableId}")]
         //    [Authorize]
-        public async Task<IActionResult> AssumePatient([FromRoute] string patientId, int responsableId)
+        public async Task<IActionResult> AssumePatient([FromRoute] string patientId, int surgeryId, int responsableId)
         {
-            var mappedList = await _surgeriesService.AssumePatientAsync(patientId, responsableId);
+            var mappedList = await _surgeriesService.AssumePatientAsync(patientId, surgeryId, responsableId);
             return Ok(mappedList);
         }
     }

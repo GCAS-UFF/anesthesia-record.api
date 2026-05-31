@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using UFF.FichaAnestesica.Infra.Context;
@@ -11,9 +12,11 @@ using UFF.FichaAnestesica.Infra.Context;
 namespace UFF.FichaAnestesica.Infra.Migrations
 {
     [DbContext(typeof(SigaDbCtx))]
-    partial class SigaDbCtxModelSnapshot : ModelSnapshot
+    [Migration("20260531013848_ajusta chave da tabela de ficha anestésica")]
+    partial class ajustachavedatabeladefichaanestésica
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -99,7 +102,7 @@ namespace UFF.FichaAnestesica.Infra.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("SurgeryId"));
 
-                    b.Property<int?>("ActivityScore")
+                    b.Property<int>("ActivityScore")
                         .HasColumnType("integer")
                         .HasColumnName("activity_score");
 
@@ -115,11 +118,11 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("airway_type");
 
-                    b.Property<TimeOnly?>("AnesthesiaEndTime")
+                    b.Property<TimeOnly>("AnesthesiaEndTime")
                         .HasColumnType("time")
                         .HasColumnName("anesthesia_end_time");
 
-                    b.Property<bool?>("AnesthesiaEquipmentChecked")
+                    b.Property<bool>("AnesthesiaEquipmentChecked")
                         .HasColumnType("boolean")
                         .HasColumnName("anesthesia_equipment_checked");
 
@@ -127,15 +130,15 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("status");
 
-                    b.Property<TimeOnly?>("AnesthesiaStartTime")
+                    b.Property<TimeOnly>("AnesthesiaStartTime")
                         .HasColumnType("time")
                         .HasColumnName("anesthesia_start_time");
 
-                    b.Property<bool?>("AnestheticConsentSigned")
+                    b.Property<bool>("AnestheticConsentSigned")
                         .HasColumnType("boolean")
                         .HasColumnName("anesthetic_consent_signed");
 
-                    b.Property<int?>("AsaClassification")
+                    b.Property<int>("AsaClassification")
                         .HasColumnType("integer")
                         .HasColumnName("asa_classification");
 
@@ -144,26 +147,27 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .HasColumnName("assistant_id");
 
                     b.Property<string>("BloodPressure")
+                        .IsRequired()
                         .HasColumnType("varchar(20)")
                         .HasColumnName("blood_pressure");
 
-                    b.Property<bool?>("Bronchofibroscopy")
+                    b.Property<bool>("Bronchofibroscopy")
                         .HasColumnType("boolean")
                         .HasColumnName("bronchofibroscopy");
 
-                    b.Property<int?>("CirculationScore")
+                    b.Property<int>("CirculationScore")
                         .HasColumnType("integer")
                         .HasColumnName("circulation_score");
 
-                    b.Property<int?>("ClinicalDischargeCondition")
+                    b.Property<int>("ClinicalDischargeCondition")
                         .HasColumnType("integer")
                         .HasColumnName("clinical_discharge_condition");
 
-                    b.Property<bool?>("Co2AbsorberCircuit")
+                    b.Property<bool>("Co2AbsorberCircuit")
                         .HasColumnType("boolean")
                         .HasColumnName("co2_absorber_circuit");
 
-                    b.Property<int?>("ConsciousnessScore")
+                    b.Property<int>("ConsciousnessScore")
                         .HasColumnType("integer")
                         .HasColumnName("consciousness_score");
 
@@ -175,11 +179,11 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .HasColumnType("timestamptz")
                         .HasColumnName("created_at");
 
-                    b.Property<int?>("Destination")
+                    b.Property<int>("Destination")
                         .HasColumnType("integer")
                         .HasColumnName("destination");
 
-                    b.Property<bool?>("DifficultVenousPuncture")
+                    b.Property<bool>("DifficultVenousPuncture")
                         .HasColumnType("boolean")
                         .HasColumnName("difficult_venous_puncture");
 
@@ -192,11 +196,11 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("first_anesthesiologist_id");
 
-                    b.Property<bool?>("GeneralAnesthesia")
+                    b.Property<bool>("GeneralAnesthesia")
                         .HasColumnType("boolean")
                         .HasColumnName("general_anesthesia");
 
-                    b.Property<bool?>("HasPain")
+                    b.Property<bool>("HasPain")
                         .HasColumnType("boolean")
                         .HasColumnName("has_pain");
 
@@ -204,7 +208,7 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("intubation_difficulty");
 
-                    b.Property<bool?>("Laryngoscopy")
+                    b.Property<bool>("Laryngoscopy")
                         .HasColumnType("boolean")
                         .HasColumnName("laryngoscopy");
 
@@ -212,11 +216,11 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .HasColumnType("timestamptz")
                         .HasColumnName("last_update");
 
-                    b.Property<bool?>("NasalTube")
+                    b.Property<bool>("NasalTube")
                         .HasColumnType("boolean")
                         .HasColumnName("nasal_tube");
 
-                    b.Property<bool?>("OralTube")
+                    b.Property<bool>("OralTube")
                         .HasColumnType("boolean")
                         .HasColumnName("oral_tube");
 
@@ -228,39 +232,41 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .HasColumnType("varchar(200)")
                         .HasColumnName("other_airway_type_description");
 
-                    b.Property<int?>("OxygenSaturation")
+                    b.Property<int>("OxygenSaturation")
                         .HasColumnType("integer")
                         .HasColumnName("oxygen_saturation");
 
-                    b.Property<int?>("OxygenSaturationScore")
+                    b.Property<int>("OxygenSaturationScore")
                         .HasColumnType("integer")
                         .HasColumnName("oxygen_saturation_score");
 
-                    b.Property<bool?>("OxygenSupplementation")
+                    b.Property<bool>("OxygenSupplementation")
                         .HasColumnType("boolean")
                         .HasColumnName("oxygen_supplementation");
 
-                    b.Property<bool?>("PatientIdentifiedBeforeInduction")
+                    b.Property<bool>("PatientIdentifiedBeforeInduction")
                         .HasColumnType("boolean")
                         .HasColumnName("patient_identified_before_induction");
 
-                    b.Property<bool?>("PlexusBlockPerformed")
+                    b.Property<bool>("PlexusBlockPerformed")
                         .HasColumnType("boolean")
                         .HasColumnName("plexus_block_performed");
 
                     b.Property<string>("PostOperativeDiagnosis")
+                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("post_operative_diagnosis");
 
-                    b.Property<bool?>("PreAnestheticMedication")
+                    b.Property<bool>("PreAnestheticMedication")
                         .HasColumnType("boolean")
                         .HasColumnName("pre_anesthetic_medication");
 
                     b.Property<string>("PreOperativeDiagnosis")
+                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("pre_operative_diagnosis");
 
-                    b.Property<bool?>("ProphylacticAntibioticUsed")
+                    b.Property<bool>("ProphylacticAntibioticUsed")
                         .HasColumnType("boolean")
                         .HasColumnName("prophylactic_antibiotic_used");
 
@@ -268,23 +274,23 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .HasColumnType("date")
                         .HasColumnName("record_date");
 
-                    b.Property<int?>("RespirationMode")
+                    b.Property<int>("RespirationMode")
                         .HasColumnType("integer")
                         .HasColumnName("respiration_mode");
 
-                    b.Property<int?>("RespirationScore")
+                    b.Property<int>("RespirationScore")
                         .HasColumnType("integer")
                         .HasColumnName("respiration_score");
 
-                    b.Property<int?>("RespiratoryRate")
+                    b.Property<int>("RespiratoryRate")
                         .HasColumnType("integer")
                         .HasColumnName("respiratory_rate");
 
-                    b.Property<bool?>("RetrogradeTechnique")
+                    b.Property<bool>("RetrogradeTechnique")
                         .HasColumnType("boolean")
                         .HasColumnName("retrograde_technique");
 
-                    b.Property<TimeOnly?>("RoomEntryTime")
+                    b.Property<TimeOnly>("RoomEntryTime")
                         .HasColumnType("time")
                         .HasColumnName("room_entry_time");
 
@@ -296,11 +302,11 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("second_anesthesiologist_id");
 
-                    b.Property<bool?>("SedationPerformed")
+                    b.Property<bool>("SedationPerformed")
                         .HasColumnType("boolean")
                         .HasColumnName("sedation_performed");
 
-                    b.Property<bool?>("SpinalBlockPerformed")
+                    b.Property<bool>("SpinalBlockPerformed")
                         .HasColumnType("boolean")
                         .HasColumnName("spinal_block_performed");
 
@@ -308,47 +314,49 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("surgeon_id");
 
-                    b.Property<TimeOnly?>("SurgeryEndTime")
+                    b.Property<TimeOnly>("SurgeryEndTime")
                         .HasColumnType("time")
                         .HasColumnName("surgery_end_time");
 
                     b.Property<string>("SurgeryPerformed")
+                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("surgery_performed");
 
-                    b.Property<int?>("SurgicalPosition")
+                    b.Property<int>("SurgicalPosition")
                         .HasColumnType("integer")
                         .HasColumnName("surgical_position");
 
-                    b.Property<decimal?>("Temperature")
+                    b.Property<decimal>("Temperature")
                         .HasColumnType("numeric(5,2)")
                         .HasColumnName("temperature");
 
-                    b.Property<int?>("TotalAldreteKroulikScore")
+                    b.Property<int>("TotalAldreteKroulikScore")
                         .HasColumnType("integer")
                         .HasColumnName("total_aldrete_kroulik_score");
 
-                    b.Property<bool?>("Tracheostomy")
+                    b.Property<bool>("Tracheostomy")
                         .HasColumnType("boolean")
                         .HasColumnName("tracheostomy");
 
-                    b.Property<bool?>("UsesCushions")
+                    b.Property<bool>("UsesCushions")
                         .HasColumnType("boolean")
                         .HasColumnName("uses_cushions");
 
                     b.Property<string>("VenousAccessLocation")
+                        .IsRequired()
                         .HasColumnType("varchar(100)")
                         .HasColumnName("venous_access_location");
 
-                    b.Property<int?>("VenousAccessType")
+                    b.Property<int>("VenousAccessType")
                         .HasColumnType("integer")
                         .HasColumnName("venous_access_type");
 
-                    b.Property<bool?>("VideoLaryngoscopy")
+                    b.Property<bool>("VideoLaryngoscopy")
                         .HasColumnType("boolean")
                         .HasColumnName("video_laryngoscopy");
 
-                    b.Property<decimal?>("WeightKg")
+                    b.Property<decimal>("WeightKg")
                         .HasColumnType("numeric(6,2)")
                         .HasColumnName("weight_kg");
 
@@ -1236,7 +1244,8 @@ namespace UFF.FichaAnestesica.Infra.Migrations
 
             modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.AnesthesiaRecord", b =>
                 {
-                    b.Navigation("MonitoringRecord");
+                    b.Navigation("MonitoringRecord")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.MonitoringRecord", b =>

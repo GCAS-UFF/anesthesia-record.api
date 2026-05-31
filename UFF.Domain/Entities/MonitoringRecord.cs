@@ -1,10 +1,10 @@
 ﻿using UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord;
+using UFF.FichaAnestesica.Domain.Enums;
 
 namespace UFF.FichaAnestesica.Domain.Entities
 {
     public class MonitoringRecord : Base
-    {
-   
+    {   
         public int SurgeryId { get; private set; }
         public int RecordedByProfessionalId { get; private set; }
         public DateTime StartedAt { get; private set; }
@@ -15,6 +15,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
         public List<FluidBalance> FluidBalances { get; private set; } = new();
         public int AnesthesiaRecordId { get; private set; }
         public AnesthesiaRecord AnesthesiaRecord { get; private set; }
+        public SurgeryStatusEnum Status { get; private set; }
 
         public static MonitoringRecord Create(MonitoringRecordCommand command)
         {
@@ -23,8 +24,9 @@ namespace UFF.FichaAnestesica.Domain.Entities
                 AnesthesiaRecordId = command.AnesthesiaRecordId,
                 SurgeryId = command.SurgeryId,
                 RecordedByProfessionalId = command.RecordedByProfessionalId,
-                StartedAt = command.StartedAt,
+                StartedAt = command.StartedAt,                
                 EndedAt = command.EndedAt,
+                Status = SurgeryStatusEnum.InProgress,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -64,6 +66,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
             AnesthesiaRecordId = command.AnesthesiaRecordId;
             SurgeryId = command.SurgeryId;
             RecordedByProfessionalId = command.RecordedByProfessionalId;
+            Status = command.Status;
             StartedAt = command.StartedAt;
             EndedAt = command.EndedAt;
 
@@ -98,5 +101,8 @@ namespace UFF.FichaAnestesica.Domain.Entities
 
             LastUpdate = DateTime.UtcNow;
         }
+
+        public void SetStatus(SurgeryStatusEnum status)
+            => Status = status;
     }
 }

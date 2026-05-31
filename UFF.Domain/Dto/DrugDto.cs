@@ -11,7 +11,10 @@ namespace UFF.FichaAnestesica.Domain.Dto
     public class DrugDto
     {
         [JsonPropertyName("id")]
-        public string Id { get; set; }
+        public int Id { get; set; }
+
+        [JsonPropertyName("codigo")]
+        public string Codigo { get; set; }
 
         [JsonPropertyName("descricao")]
         public string Description { get; set; }

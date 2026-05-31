@@ -35,6 +35,11 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .HasColumnType("timestamptz")
                 .IsRequired();
 
+            builder.Property(x => x.Status)
+                .HasColumnName("status")
+                .HasConversion<int>()
+                .IsRequired();
+
             builder.Property(x => x.EndedAt)
                 .HasColumnName("ended_at")
                 .HasColumnType("timestamptz");

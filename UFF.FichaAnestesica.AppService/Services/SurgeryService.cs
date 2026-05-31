@@ -1,3 +1,6 @@
+using UFF.FichaAnestesica.Domain.Commands;
+using UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord;
+using UFF.FichaAnestesica.Domain.Entities;
 using UFF.FichaAnestesica.Domain.Enums;
 using UFF.FichaAnestesica.Domain.Repositories;
 using UFF.FichaAnestesica.Domain.Repositories.ReadOnly;
@@ -19,7 +22,8 @@ namespace UFF.FichaAnestesica.Service.Services
             _hospitalApiRepository = hospitalApiRepository;
             _anesthesiaRecordRepository = anesthesiaRecordRepository;
         }
-        public async Task<PagedResponse<PatientSurgeryResponse>> GetPatientsWithSurgeriesAsync(DateTime? date, SurgeryStatusEnum? status, int page = 1, int size = 10)
+
+        public async Task<CommandResult> GetPatientsWithSurgeriesAsync(DateTime? date, SurgeryStatusEnum? status, int page = 1, int size = 10)
         {
             if (date.HasValue)
                 date = DateTime.SpecifyKind(date.Value, DateTimeKind.Utc);
@@ -28,13 +32,13 @@ namespace UFF.FichaAnestesica.Service.Services
 
             if (hospitalData.Data == null || !hospitalData.Data.Any())
             {
-                return new PagedResponse<PatientSurgeryResponse>
+                return CommandResult.Success(new PagedResponse<PatientSurgeryResponse>
                 {
                     Data = [],
                     Page = hospitalData.Page,
                     PageSize = hospitalData.PageSize,
                     TotalItems = hospitalData.TotalItems
-                };
+                });
             }
 
             var responseData = PatientResponseMapper.Map(hospitalData.Data);
@@ -45,27 +49,18 @@ namespace UFF.FichaAnestesica.Service.Services
             foreach (var patient in responseData)
             {
                 if (!recordsByPatientId.TryGetValue(patient.PatientId, out var record))
+                {
+                    patient.Status = AnesthesiaRecordStatus.Scheduled;
+
+                    patient.FirstAnesthesiologist = null;
+                    patient.SecondAnesthesiologist = null;
+                    patient.Surgeon = null;
+                    patient.Assistant = null;
+
                     continue;
-
-                if (record.Surgeon != null)
-                {
-                    patient.Surgeon = new ResponsibleResponse
-                    {
-                        Id = record.Surgeon.Id,
-                        FullName = record.Surgeon.Name,
-                        Registration = record.Surgeon.Registration
-                    };
                 }
 
-                if (record.Assistant != null)
-                {
-                    patient.Assistant = new ResponsibleResponse
-                    {
-                        Id = record.Assistant.Id,
-                        FullName = record.Assistant.Name,
-                        Registration = record.Assistant.Registration
-                    };
-                }
+                patient.Status = record.AnesthesiaRecordStatus;
 
                 if (record.FirstAnesthesiologist != null)
                 {
@@ -87,52 +82,101 @@ namespace UFF.FichaAnestesica.Service.Services
                     };
                 }
 
-                patient.FirstAnesthesiologist = patient.FirstAnesthesiologist;
+                if (record.Surgeon != null)
+                {
+                    patient.Surgeon = new ResponsibleResponse
+                    {
+                        Id = record.Surgeon.Id,
+                        FullName = record.Surgeon.Name,
+                        Registration = record.Surgeon.Registration
+                    };
+                }
+
+                if (record.Assistant != null)
+                {
+                    patient.Assistant = new ResponsibleResponse
+                    {
+                        Id = record.Assistant.Id,
+                        FullName = record.Assistant.Name,
+                        Registration = record.Assistant.Registration
+                    };
+                }
             }
 
-            return new PagedResponse<PatientSurgeryResponse>
+            return CommandResult.Success(new PagedResponse<PatientSurgeryResponse>
             {
                 Data = responseData,
                 Page = hospitalData.Page,
                 PageSize = hospitalData.PageSize,
                 TotalItems = hospitalData.TotalItems
-            };
+            });
         }
 
-        public async Task<PatientSurgeryResponse?> GetPatientByIdAsync(string id)
+        public async Task<CommandResult> GetPatientAnesthesiaRecordByIdAsync(string patientId, int surgeryId)
         {
-            var surgery = await _hospitalApiRepository.GetPatientFromHospitalByIdAsync(id);
+            var patient = await _hospitalApiRepository.GetPatientFromHospitalByIdAsync(patientId);
 
-            if (surgery == null)
+            if (patient == null)
                 return null;
 
-            return PatientResponseMapper.Map(surgery);
+            var anesthesiaRecord = await _anesthesiaRecordRepository.GetByIdAsync(surgeryId);
+
+            var status = anesthesiaRecord?.AnesthesiaRecordStatus ?? AnesthesiaRecordStatus.Scheduled;
+
+            return CommandResult.Success(PatientResponseMapper.MapDetail(
+                patient,
+                anesthesiaRecord?.FirstAnesthesiologist,
+                anesthesiaRecord?.SecondAnesthesiologist,
+                anesthesiaRecord?.Surgeon,
+                anesthesiaRecord?.Assistant,
+                status
+            ));
         }
 
-        public async Task<PatientSurgeryResponse> AssumePatientAsync(string patientId, int responsibleAnesthesiologistId)
+        public async Task<CommandResult> AssumePatientAsync(string patientId, int surgeryId, int responsibleAnesthesiologistId)
         {
-            var hospitalData = await _hospitalApiRepository.GetPatientsFromHospitalAsync(null, null, 1, int.MaxValue);
-            var patient = hospitalData.Data.FirstOrDefault(x => x.PatientId == patientId);
+            var patient = await _hospitalApiRepository.GetFromHospitalByPatientIdAndSurgeryIdAsync(patientId, surgeryId);
 
             if (patient == null)
                 throw new Exception("Paciente não encontrado");
-
-            //var anesthesiaRecord = _anesthesiaRecordRepository.GetByIdAsync()
-
 
             var responsibleAnesthesiologist = await _userRepository.GetUserByIdAsync(responsibleAnesthesiologistId);
 
             if (responsibleAnesthesiologist == null)
                 throw new Exception("Médico não encontrado");
 
-            patient.ResponsibleAnesthesiologist = new Domain.Dto.UserDto
-            {
-                Id = responsibleAnesthesiologist.ExternalId,
-                Name = responsibleAnesthesiologist.Name,
-                Registration = responsibleAnesthesiologist.Registration
-            };
+            var anesthesiaRecord = await _anesthesiaRecordRepository.GetByIdAsync(surgeryId);
 
-            return PatientResponseMapper.Map(patient);
+            try
+            {
+                if (anesthesiaRecord == null)
+                {
+                    anesthesiaRecord = AnesthesiaRecord.Create(new AnesthesiaRecordCommand
+                    {
+                        Status = AnesthesiaRecordStatus.InProgress,
+                        ExternalPatientId = patientId,
+                        FirstAnesthesiologistId = responsibleAnesthesiologistId,
+                        RecordDate = DateOnly.FromDateTime(DateTime.Today)
+                    });
+
+                    await _anesthesiaRecordRepository.AddAsync(anesthesiaRecord);
+                }
+                else
+                {
+                    anesthesiaRecord.AssignFirstAnesthesiologistId(responsibleAnesthesiologistId);
+                    anesthesiaRecord.SetStatus(AnesthesiaRecordStatus.InProgress);
+
+                    _anesthesiaRecordRepository.Update(anesthesiaRecord);                  
+                }
+
+                await _anesthesiaRecordRepository.SaveChangesAsync();
+
+                return CommandResult.Success(PatientResponseMapper.MapDetail(patient, responsibleAnesthesiologist, null, null, null, AnesthesiaRecordStatus.InProgress));
+            }
+            catch (Exception ex)
+            {
+                return CommandResult.Fail(ex.Message);
+            }
         }
     }
 }

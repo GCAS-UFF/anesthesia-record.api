@@ -15,7 +15,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
             _httpClient = factory.CreateClient("HospitalApi");
         }      
 
-        public async Task<PagedResponse<PatientDto>> GetPatientsFromHospitalAsync(DateTime? date, SurgeryStatusEnum? status, int page = 1, int pageSize = 10)
+        public async Task<PagedResponse<PatientListDto>> GetPatientsFromHospitalAsync(DateTime? date, SurgeryStatusEnum? status, int page = 1, int pageSize = 10)
         {
             var queryParams = new List<string>();
 
@@ -34,9 +34,9 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
 
             response.EnsureSuccessStatusCode();
 
-            var data = await response.Content.ReadFromJsonAsync<HospitalApiResponseDto>();
+            var data = await response.Content.ReadFromJsonAsync<HospitalApiListResponseDto>();
 
-            return new PagedResponse<PatientDto>
+            return new PagedResponse<PatientListDto>
             {
                 Data = data?.Patients ?? [],
                 Page = page,
@@ -50,7 +50,22 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
             if (string.IsNullOrWhiteSpace(id))
                 return null;
 
-            var response = await _httpClient.GetAsync($"/cirurgias/{id}");
+            var response = await _httpClient.GetAsync($"/cirurgia/{id}");
+
+            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                return null;
+
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadFromJsonAsync<PatientDto>();
+        }
+
+        public async Task<PatientDto?> GetFromHospitalByPatientIdAndSurgeryIdAsync(string patientId, int surgeryId)
+        {
+            if (string.IsNullOrWhiteSpace(patientId) || surgeryId == default)
+                return null;
+
+            var response = await _httpClient.GetAsync($"/cirurgia/{patientId}/{surgeryId}");
 
             if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                 return null;
