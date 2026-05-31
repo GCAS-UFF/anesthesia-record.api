@@ -1,4 +1,6 @@
-﻿using UFF.FichaAnestesica.Domain.Repositories.ReadOnly;
+﻿using System.Text.Json;
+using UFF.FichaAnestesica.Domain.Dto;
+using UFF.FichaAnestesica.Domain.Repositories.ReadOnly;
 using UFF.FichaAnestesica.Infra.Context;
 
 namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
@@ -41,7 +43,15 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
             try
             {
                 var response = await _httpClient.GetAsync("saude");
-                return response.IsSuccessStatusCode;
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    var healthResponse = JsonSerializer.Deserialize<HealthDto>(content);
+                    return healthResponse?.Online ?? false;
+                }
+
+                return false;
             }
             catch
             {
