@@ -3,10 +3,16 @@
 namespace UFF.FichaAnestesica.Domain.Dto
 {
 
-    public class HospitalApiListResponseDto
+    public class PatientsApiListDto
     {
         [JsonPropertyName("pacientes")]
         public List<PatientListDto> Patients { get; set; } = [];
+    }
+
+    public class PatientApiDto
+    {
+        [JsonPropertyName("paciente")]
+        public PatientListDto Patient { get; set; }
     }
 
     public class PatientListDto
@@ -31,6 +37,14 @@ namespace UFF.FichaAnestesica.Domain.Dto
 
         [JsonPropertyName("status")]
         public string Status { get; set; }
+        [JsonPropertyName("sexo")]
+        public string Gender { get; set; }
+
+        [JsonPropertyName("peso_kg")]
+        public double WeightKg { get; set; }
+
+        [JsonPropertyName("altura_cm")]
+        public int HeightCm { get; set; }
 
         [JsonPropertyName("previsao_atendimento")]
         public DateTime? ExpectedAt { get; set; }
@@ -47,8 +61,6 @@ namespace UFF.FichaAnestesica.Domain.Dto
 
     public class ProcedureSummaryDto
     {
-        [JsonPropertyName("id")]
-        public int Id { get; set; }
         [JsonPropertyName("codigo")]
         public string Code { get; set; }
 
@@ -74,11 +86,10 @@ namespace UFF.FichaAnestesica.Domain.Dto
 
     public class PatientDto
     {
-        [JsonPropertyName("id")]
+        [JsonPropertyName("cirurgia_id")]
         public int Id { get; set; }
-
-        [JsonPropertyName("codigo")]
-        public string PatientCode { get; set; }
+        [JsonPropertyName("paciente_id")]
+        public string PatientId { get; set; }
 
         [JsonPropertyName("numero_prontuario")]
         public string MedicalRecordNumber { get; set; }
@@ -177,10 +188,7 @@ namespace UFF.FichaAnestesica.Domain.Dto
     public class SurgeryDto
     {
         [JsonPropertyName("id")]
-        public int Id { get; set; }
-
-        [JsonPropertyName("codigo")]
-        public string Code { get; set; }
+        public string Id { get; set; }
 
         [JsonPropertyName("data_cirurgia")]
         public DateTime SurgeryDate { get; set; }
@@ -200,9 +208,6 @@ namespace UFF.FichaAnestesica.Domain.Dto
 
     public class SpecialtyDto
     {
-        [JsonPropertyName("id")]
-        public int Id { get; set; }
-
         [JsonPropertyName("codigo")]
         public string Code { get; set; }
 
@@ -222,10 +227,7 @@ namespace UFF.FichaAnestesica.Domain.Dto
     public class SurgicalCenterDto
     {
         [JsonPropertyName("id")]
-        public int Id { get; set; }
-
-        [JsonPropertyName("codigo")]
-        public string Code { get; set; }
+        public string Id { get; set; }
 
         [JsonPropertyName("descricao")]
         public string Description { get; set; }
@@ -234,7 +236,7 @@ namespace UFF.FichaAnestesica.Domain.Dto
     public class ProcedureDto
     {
         [JsonPropertyName("id")]
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         [JsonPropertyName("codigo")]
         public string Code { get; set; }

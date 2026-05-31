@@ -27,7 +27,7 @@ namespace UFF.FichaAnestesica.Service.Mappers
                 Procedures = patient.Procedures?
                     .Select(p => new ProcedureResponse
                     {
-                        Id = p.Id,
+                        Id = p.Code,
                         Description = p.Description
                     })
                     .ToList() ?? new List<ProcedureResponse>(),
@@ -55,14 +55,17 @@ namespace UFF.FichaAnestesica.Service.Mappers
                     MedicalRecordNumber = patient.MedicalRecordNumber,
                     FullName = patient.FullName,                    
                     BirthDate = patient.BirthDate,
+                    Gender = patient.Gender, 
+                    WeightKg = patient.WeightKg, 
+                    HeightCm = patient.HeightCm,
                     Age = CalculateAge(patient.BirthDate),
-                    //SurgeryStatus = ParseStatus(patient.SurgeryStatus),
+                    
                     ExpectedAt = patient.ExpectedAt,
                     Room = patient.Room,                    
                     Procedures = patient.Procedures?
                    .Select(p => new ProcedureResponse
                    {
-                       Id = p.Id,
+                       Id = p.Code,
                        Description = p.Description,
                        IsPrimary = p.IsPrimary,
                        Cid = p.Cid
@@ -87,7 +90,7 @@ namespace UFF.FichaAnestesica.Service.Mappers
                 SurgeryId = patient.Id,
                 Status = status,
 
-                PatientId = patient.PatientCode,
+                PatientId = patient.PatientId,
                 MedicalRecordNumber = patient.MedicalRecordNumber,
                 FullName = patient.FullName,
                 BirthDate = patient.BirthDate,
@@ -166,7 +169,6 @@ namespace UFF.FichaAnestesica.Service.Mappers
             return new SurgeryResponse
             {
                 Id = surgery.Id,
-
                 SurgeryDate = surgery.SurgeryDate,
                 Status = ParseStatus(surgery.SurgeryStatus),
                 Specialty = surgery.Specialty == null
@@ -185,7 +187,7 @@ namespace UFF.FichaAnestesica.Service.Mappers
                             ? null
                             : new SurgicalCenterResponse
                             {
-                                Code = surgery.Location.SurgicalCenter.Code,
+                                Code = surgery.Location.SurgicalCenter.Id,
                                 Description = surgery.Location.SurgicalCenter.Description
                             }
                     },

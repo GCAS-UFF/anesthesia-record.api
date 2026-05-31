@@ -6,8 +6,7 @@ namespace UFF.FichaAnestesica.Domain.Repositories.ReadOnly
 {
     public interface IPatientReadOnlyRepository
     {
-        Task<PagedResponse<PatientListDto>> GetPatientsFromHospitalAsync(DateTime? date, SurgeryStatusEnum? status, int page = 1, int pageSize = 10);
-        Task<PatientDto> GetPatientFromHospitalByIdAsync(string id);
+        Task<PagedResponse<PatientListDto>> GetPatientsFromHospitalAsync(DateTime? date, SurgeryStatusEnum? status, int page = 1, int pageSize = 10);      
         Task<PatientDto> GetFromHospitalByPatientIdAndSurgeryIdAsync(string patientId, int surgeryId);
     }
 }

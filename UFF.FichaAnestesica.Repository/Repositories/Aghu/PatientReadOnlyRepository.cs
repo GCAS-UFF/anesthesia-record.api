@@ -13,7 +13,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
         public PatientReadOnlyRepository(IHttpClientFactory factory)
         {
             _httpClient = factory.CreateClient("HospitalApi");
-        }      
+        }
 
         public async Task<PagedResponse<PatientListDto>> GetPatientsFromHospitalAsync(DateTime? date, SurgeryStatusEnum? status, int page = 1, int pageSize = 10)
         {
@@ -30,11 +30,11 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
 
             var queryString = string.Join("&", queryParams);
 
-            var response = await _httpClient.GetAsync($"/cirurgias?{queryString}");          
+            var response = await _httpClient.GetAsync($"/cirurgias?{queryString}");
 
             response.EnsureSuccessStatusCode();
 
-            var data = await response.Content.ReadFromJsonAsync<HospitalApiListResponseDto>();
+            var data = await response.Content.ReadFromJsonAsync<PatientsApiListDto>();
 
             return new PagedResponse<PatientListDto>
             {
@@ -45,7 +45,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
             };
         }
 
-        public async Task<PatientDto?> GetPatientFromHospitalByIdAsync(string id)
+        public async Task<PatientDto> GetPatientFromHospitalByIdAsync(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
                 return null;
@@ -60,7 +60,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
             return await response.Content.ReadFromJsonAsync<PatientDto>();
         }
 
-        public async Task<PatientDto?> GetFromHospitalByPatientIdAndSurgeryIdAsync(string patientId, int surgeryId)
+        public async Task<PatientDto> GetFromHospitalByPatientIdAndSurgeryIdAsync(string patientId, int surgeryId)
         {
             if (string.IsNullOrWhiteSpace(patientId) || surgeryId == default)
                 return null;
@@ -74,5 +74,6 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
 
             return await response.Content.ReadFromJsonAsync<PatientDto>();
         }
+      
     }
 }
