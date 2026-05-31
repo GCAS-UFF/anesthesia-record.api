@@ -122,9 +122,9 @@ namespace UFF.FichaAnestesica.Domain.Entities
             return entity;
         }
 
-        public void AssignFirstAnesthesiologistId(int id)
+        public void AssignFirstAnesthesiologistId(int? id)
         {
-            FirstAnesthesiologistId = id;
+            FirstAnesthesiologistId = id > 0 ? id : null;
             LastUpdate = DateTime.UtcNow;
         }
 

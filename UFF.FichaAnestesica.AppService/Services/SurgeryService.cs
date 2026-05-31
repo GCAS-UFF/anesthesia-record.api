@@ -136,17 +136,17 @@ namespace UFF.FichaAnestesica.Service.Services
             return CommandResult.Success(PatientResponseMapper.MapDetail(patient, anesthesiaRecord?.FirstAnesthesiologist, anesthesiaRecord?.SecondAnesthesiologist, anesthesiaRecord?.Surgeon, anesthesiaRecord?.Assistant));
         }
 
-        public async Task<CommandResult> AssumePatientAsync(string patientId, int surgeryId, int responsibleAnesthesiologistId)
+        public async Task<CommandResult> AssumePatientAsync(string patientId, int surgeryId, int? responsibleAnesthesiologistId)
         {
             var patient = await _hospitalApiRepository.GetFromHospitalByPatientIdAndSurgeryIdAsync(patientId, surgeryId);
 
             if (patient == null)
                 throw new Exception("Paciente não encontrado");
 
-            var responsibleAnesthesiologist = await _userRepository.GetUserByIdAsync(responsibleAnesthesiologistId);
+            User responsibleAnesthesiologist = null;
 
-            if (responsibleAnesthesiologist == null)
-                throw new Exception("Médico não encontrado");
+            if (responsibleAnesthesiologistId > 0)
+                responsibleAnesthesiologist = await _userRepository.GetUserByIdAsync(responsibleAnesthesiologistId.Value);           
 
             var anesthesiaRecord = await _anesthesiaRecordRepository.GetByIdAsync(surgeryId);
 

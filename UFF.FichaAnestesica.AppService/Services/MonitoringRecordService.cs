@@ -8,18 +8,18 @@ using UFF.FichaAnestesica.Domain.Services;
 
 public class MonitoringRecordService : IMonitoringRecordService
 {
-    private readonly IMonitoringRecordRepository _repository;
+    private readonly IMonitoringRecordRepository _monitoringRepository;
     private readonly IAnesthesiaRecordRepository _anesthesiaRecordRepository;
 
     public MonitoringRecordService(IMonitoringRecordRepository repository, IAnesthesiaRecordRepository anesthesiaRecordRepository)
     {
-        _repository = repository;
+        _monitoringRepository = repository;
         _anesthesiaRecordRepository = anesthesiaRecordRepository;
     }
 
     public async Task<CommandResult> GetByIdAsync(int id)
     {
-        var monitoring = await _repository.GetCompleteByIdAsync(id);
+        var monitoring = await _monitoringRepository.GetCompleteByIdAsync(id);
 
         if (monitoring == null)
             return new CommandResult(false, "Monitorização não encontrada");
@@ -33,8 +33,8 @@ public class MonitoringRecordService : IMonitoringRecordService
         {
             var monitoring = MonitoringRecord.Create(command);
 
-            await _repository.AddAsync(monitoring);
-            await _repository.SaveChangesAsync();
+            await _monitoringRepository.AddAsync(monitoring);
+            await _monitoringRepository.SaveChangesAsync();
 
             return new CommandResult(true, MonitoringRecordResponse.ToResponse(monitoring));
         }
@@ -46,7 +46,7 @@ public class MonitoringRecordService : IMonitoringRecordService
 
     public async Task<CommandResult> Update(int id, MonitoringRecordCommand command)
     {
-        var monitoring = await _repository.GetCompleteByIdAsync(id);
+        var monitoring = await _monitoringRepository.GetCompleteByIdAsync(id);
 
 
         if (monitoring == null)
@@ -55,9 +55,9 @@ public class MonitoringRecordService : IMonitoringRecordService
         try
         {
             monitoring.Update(command);
-            _repository.Update(monitoring);
+            _monitoringRepository.Update(monitoring);
 
-            await _repository.SaveChangesAsync();
+            await _monitoringRepository.SaveChangesAsync();
 
             return new CommandResult(true, MonitoringRecordResponse.ToResponse(monitoring));
         }
@@ -71,16 +71,17 @@ public class MonitoringRecordService : IMonitoringRecordService
     {
         try
         {
+            var monitoringRecord = await _monitoringRepository.GetByIdAsync(anesthesiaRecordId);
 
-            var anesthesiaRecord = await _anesthesiaRecordRepository.GetByIdAsync(anesthesiaRecordId);
-
-            if (anesthesiaRecord == null)
+            if (monitoringRecord == null)
                 throw new Exception("Ficha anestésica não encontrada");
 
-            anesthesiaRecord.SetStatus(SurgeryStatusEnum.Completed);
+            monitoringRecord.SetStatus(SurgeryStatusEnum.Completed);
 
-            if (anesthesiaRecord.MonitoringRecord != null)
-                anesthesiaRecord.MonitoringRecord.SetStatus(SurgeryStatusEnum.Completed);
+            if (monitoringRecord.AnesthesiaRecord != null) { }
+                monitoringRecord.AnesthesiaRecord.SetStatus(SurgeryStatusEnum.Completed);
+
+            _monitoringRepository.Update(monitoringRecord);
 
             await _anesthesiaRecordRepository.SaveChangesAsync();
 

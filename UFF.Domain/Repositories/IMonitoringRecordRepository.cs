@@ -10,6 +10,8 @@ namespace UFF.FichaAnestesica.Domain.Repositories
 
         Task<List<MonitoringRecord>> GetBySurgeryIdAsync(int surgeryId);
 
+        Task<MonitoringRecord> GetByIdAsync(int id);
+
         Task<List<MonitoringRecord>> GetByProfessionalIdAsync(int professionalId);
 
         Task<List<MonitoringRecord>> GetByPeriodAsync(DateTime start, DateTime end);

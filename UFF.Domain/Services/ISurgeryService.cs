@@ -7,6 +7,6 @@ namespace UFF.FichaAnestesica.Domain.Services
     {
         Task<CommandResult> GetPatientsWithSurgeriesAsync(DateTime? date, SurgeryStatusEnum? status, int page = 1, int size = 10);
         Task<CommandResult> GetPatientAnesthesiaRecordByIdAsync(string patientId, int surgeryId);
-        Task<CommandResult> AssumePatientAsync(string patientId, int surgeryId, int responsibleAnesthesiologistId);
+        Task<CommandResult> AssumePatientAsync(string patientId, int surgeryId, int? responsibleAnesthesiologistId);
     }
 }

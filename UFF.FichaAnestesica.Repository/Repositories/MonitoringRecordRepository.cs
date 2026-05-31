@@ -45,6 +45,14 @@ namespace UFF.FichaAnestesica.Infra.Repositories
                 .ToListAsync();
         }
 
+        public async Task<MonitoringRecord> GetByIdAsync(int id)
+        {
+            return await _context.MonitoringRecords
+                .Include(x => x.AnesthesiaRecord)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id);                
+        }
+
         public async Task<List<MonitoringRecord>> GetByProfessionalIdAsync(
             int professionalId)
         {
