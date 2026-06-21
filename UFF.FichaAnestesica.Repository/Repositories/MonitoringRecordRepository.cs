@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using UFF.FichaAnestesica.Domain.Entities;
 using UFF.FichaAnestesica.Domain.Repositories;
 using UFF.FichaAnestesica.Infra.Context;
@@ -26,7 +26,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories
                     .ThenInclude(x => x.Drug)
                 .Include(x => x.ClinicalEvents)
                 .Include(x => x.FluidBalances)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.AnesthesiaRecordId == id);
         }
 
         public async Task<MonitoringRecord?> GetByAnesthesiaRecordIdAsync(
@@ -50,7 +50,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories
             return await _context.MonitoringRecords
                 .Include(x => x.AnesthesiaRecord)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == id);                
+                .FirstOrDefaultAsync(x => x.AnesthesiaRecordId == id);                
         }
 
         public async Task<List<MonitoringRecord>> GetByProfessionalIdAsync(

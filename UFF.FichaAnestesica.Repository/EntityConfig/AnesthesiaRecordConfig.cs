@@ -12,9 +12,7 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
 
             builder.HasKey(x => x.Id);
 
-            builder.Property(x => x.Id)
-                .HasColumnName("id")
-                .IsRequired();
+            builder.Property(x => x.Id).HasColumnName("id").IsRequired().ValueGeneratedNever();
 
             builder.Property(x => x.PatientIdentifiedBeforeInduction)
                 .HasColumnName("patient_identified_before_induction");

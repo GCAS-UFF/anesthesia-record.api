@@ -141,7 +141,7 @@ namespace UFF.FichaAnestesica.Service.Services
             var patient = await _hospitalApiRepository.GetFromHospitalByPatientIdAndSurgeryIdAsync(patientId, surgeryId);
 
             if (patient == null)
-                throw new Exception("Paciente não encontrado");
+                throw new Exception("Paciente nï¿½o encontrado");
 
             User responsibleAnesthesiologist = null;
 
@@ -154,9 +154,7 @@ namespace UFF.FichaAnestesica.Service.Services
             {
                 if (anesthesiaRecord == null)
                 {
-                    anesthesiaRecord = AnesthesiaRecord.Create(new AnesthesiaRecordCommand
-                    {
-                        Status = SurgeryStatusEnum.InProgress,
+                    anesthesiaRecord = AnesthesiaRecord.Create(new AnesthesiaRecordCommand { SurgeryId = surgeryId, PatientId = 1, Status = SurgeryStatusEnum.InProgress,
                         ExternalPatientId = patientId,
                         FirstAnesthesiologistId = responsibleAnesthesiologistId,
                         RecordDate = DateOnly.FromDateTime(DateTime.Today)

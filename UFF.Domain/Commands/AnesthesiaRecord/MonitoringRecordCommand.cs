@@ -1,4 +1,4 @@
-﻿using UFF.FichaAnestesica.Domain.Enums;
+using UFF.FichaAnestesica.Domain.Enums;
 
 namespace UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord
 {
@@ -8,6 +8,7 @@ namespace UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord
         public MonitoringRecordCommand(int surgeryId)
         {
            SurgeryId = surgeryId;
+           AnesthesiaRecordId = surgeryId;
         }
 
         public int AnesthesiaRecordId { get; set; }
