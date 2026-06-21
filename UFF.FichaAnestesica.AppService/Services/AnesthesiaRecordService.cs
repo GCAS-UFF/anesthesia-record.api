@@ -33,16 +33,15 @@ public class AnesthesiaRecordService : IAnesthesiaRecordService
         try
         {
             await _anesthesiaRecordRepository.AddAsync(anesthesiaRecord);
+            await _anesthesiaRecordRepository.SaveChangesAsync();
             var monitoring = MonitoringRecord.Create(new MonitoringRecordCommand(anesthesiaRecord.Id));
-
             await _monitoringRecordRepository.AddAsync(monitoring);
-
             await _anesthesiaRecordRepository.SaveChangesAsync();
         }
         catch (Exception ex)
         {
-            return new CommandResult(false, ex.Message);
-        }      
+            return new CommandResult(false, ex.InnerException != null ? ex.InnerException.Message : ex.Message);
+        }
 
         return new CommandResult(true, AnesthesiaRecordResponse.ToResponse(anesthesiaRecord));
     }
@@ -52,10 +51,10 @@ public class AnesthesiaRecordService : IAnesthesiaRecordService
         var anesthesiaRecord = await _anesthesiaRecordRepository.GetByIdAsync(id);
 
         if (anesthesiaRecord == null)
-            throw new Exception("Ficha anestésica não encontrada");
+            throw new Exception("Ficha anestï¿½sica nï¿½o encontrada");
 
         //if (anesthesiaRecord.AnesthesiaRecordStatus == UFF.FichaAnestesica.Domain.Enums.AnesthesiaRecordStatus.Completed)
-        //    throw new Exception("Não é possível alterar uma ficha salva previamente");
+        //    throw new Exception("Nï¿½o ï¿½ possï¿½vel alterar uma ficha salva previamente");
 
         try
         {

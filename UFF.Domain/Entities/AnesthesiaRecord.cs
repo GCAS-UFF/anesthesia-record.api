@@ -1,4 +1,4 @@
-﻿using UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord;
+using UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord;
 using UFF.FichaAnestesica.Domain.Enums;
 
 namespace UFF.FichaAnestesica.Domain.Entities
@@ -80,7 +80,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
         public static AnesthesiaRecord Create(AnesthesiaRecordCommand command)
         {
             var entity = new AnesthesiaRecord();
-
+            entity.Id = command.SurgeryId;
             entity.SetValues(command);
             entity.CreatedAt = DateTime.UtcNow;
             entity.LastUpdate = DateTime.UtcNow;
