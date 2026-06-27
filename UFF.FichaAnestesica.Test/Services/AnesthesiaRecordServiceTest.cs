@@ -72,7 +72,7 @@ namespace UFF.FichaAnestesica.Test.Services
             Assert.Equal("P2", data.ExternalPatientId);
             _anesthesiaRepoMock.Verify(r => r.AddAsync(It.IsAny<AnesthesiaRecord>()), Times.Once);
             _monitoringRepoMock.Verify(r => r.AddAsync(It.IsAny<MonitoringRecord>()), Times.Once);
-            _anesthesiaRepoMock.Verify(r => r.SaveChangesAsync(), Times.Once);
+            _anesthesiaRepoMock.Verify(r => r.SaveChangesAsync(), Times.Exactly(2));
         }
 
         [Fact]
