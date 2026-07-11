@@ -1,12 +1,10 @@
 using UFF.FichaAnestesica.Domain.Commands;
 using UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord;
-using UFF.FichaAnestesica.Domain.Dto;
 using UFF.FichaAnestesica.Domain.Entities;
 using UFF.FichaAnestesica.Domain.Repositories;
 using UFF.FichaAnestesica.Domain.Repositories.ReadOnly;
 using UFF.FichaAnestesica.Domain.Response;
 using UFF.FichaAnestesica.Domain.Services;
-using UFF.FichaAnestesica.Service.Mappers;
 
 public class AnesthesiaRecordService : IAnesthesiaRecordService
 {
