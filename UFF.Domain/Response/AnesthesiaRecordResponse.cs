@@ -122,15 +122,17 @@ namespace UFF.FichaAnestesica.Domain.Response
         {
             return new AnesthesiaRecordResponse
             {
-                Patient = new PatientSurgeryResponse() { 
+                Patient = new PatientSurgeryResponse()
+                {
                     FullName = patientDetail.FullName,
-                    BirthDate = patientDetail.BirthDate,                    
+                    BirthDate = patientDetail.BirthDate,
                     Age = 32,
                     Gender = patientDetail.Gender,
                     WeightKg = patientDetail.WeightKg,
                     MedicalRecordNumber = patientDetail.MedicalRecordNumber,
-                    //PrimaryProcedure = patientDetail.Procedures
-                    //CurrentLocationDescription = patientDetail.Procedures.
+                    Surgeries = patientDetail.Surgeries?.Select(MapSurgery).ToList() ?? new List<SurgeryResponse>(),
+                    Allergies = patientDetail.Allergies?.Select(MapAllergy).ToList() ?? new List<Domain.Response.ListAllergyDto>(),
+                    CurrentLocation = MapLocation(patientDetail.CurrentLocation)
                 },
                 SurgeryId = anesthesiaRecord.Id,
                 ExternalPatientId = anesthesiaRecord.ExternalPatientId,
@@ -200,6 +202,86 @@ namespace UFF.FichaAnestesica.Domain.Response
                 RecordDate = anesthesiaRecord.RecordDate,
                 CreatedAt = anesthesiaRecord.CreatedAt,
                 LastUpdate = anesthesiaRecord.LastUpdate
+            };
+        }
+
+
+        private static PatientLocationResponse? MapLocation(CurrentLocationDto? location)
+        {
+            if (location == null)
+                return null;
+
+            return new PatientLocationResponse
+            {
+                Unit = location.Unit == null
+                    ? null
+                    : new UnitResponse
+                    {
+                        Code = location.Unit.Code,
+                        Description = location.Unit.Description
+                    },
+                Bed = location.Bed,
+                Floor = location.Floor,
+                Room = location.Room
+            };
+        }
+
+        private static SurgeryResponse MapSurgery(SurgeryDetailsDto surgery)
+        {
+            return new SurgeryResponse
+            {
+                Id = surgery.Id,
+                SurgeryDate = surgery.SurgeryDate,
+                //Status = ParseStatus(surgery.SurgeryStatus),
+                Specialty = surgery.Specialty == null
+                    ? null
+                    : new SpecialtyResponse
+                    {
+                        Code = surgery.Specialty.Id,
+                        Description = surgery.Specialty.Description
+                    },
+                Location = surgery.Location == null
+                    ? null
+                    : new SurgeryLocationResponse
+                    {
+                        Room = surgery.Location.Room,
+                        SurgicalCenter = surgery.Location.SurgicalCenter == null
+                            ? null
+                            : new SurgicalCenterResponse
+                            {
+                                Code = surgery.Location.SurgicalCenter.Id,
+                                Description = surgery.Location.SurgicalCenter.Description
+                            }
+                    },
+
+                Procedures = surgery.Procedures?
+                    .Select(p => new ProcedureResponse
+                    {
+                        Id = p.Id,
+                        Description = p.Description,
+                        Cid = p.Cid,
+                        IsPrimary = p.IsPrimary
+                    })
+                    .ToList() ?? new List<ProcedureResponse>()
+            };
+        }
+
+        private static Domain.Response.ListAllergyDto MapAllergy(Domain.Dto.ListAllergyDto allergy)
+        {
+            return new Domain.Response.ListAllergyDto
+            {
+                RegisterDate = allergy.RegisterDate,
+                Description = allergy.Description,
+                Reason = allergy.Reason,
+                AllergyCriticality = allergy.AllergyCriticality,
+                CertaintyLevel = allergy.CertaintyLevel,
+                CausativeAgent = allergy.CausativeAgent,
+                Medication = allergy.Medication == null
+                    ? null
+                    : new MedicationResponse
+                    {
+                        Description = allergy.Medication.Description
+                    }
             };
         }
     }

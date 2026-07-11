@@ -97,13 +97,13 @@ namespace UFF.FichaAnestesica.Service.Mappers
                 Status = firstAnesthesiologist != null && SurgeryStatusEnumMapping.Parse(patient.Status) != SurgeryStatusEnum.Completed ? SurgeryStatusEnum.InProgress : SurgeryStatusEnumMapping.Parse(patient.Status),
                 WeightKg = patient.WeightKg,
                 HeightCm = patient.HeightCm,
-                //CurrentLocation = MapLocation(patient.CurrentLocation),
+                CurrentLocation = MapLocation(patient.CurrentLocation),
                 Allergies = patient.Allergies?
                     .Select(MapAllergy)
                     .ToList() ?? new List<Domain.Response.ListAllergyDto>(),
-                //Surgeries = patient.S?
-                //    .Select(MapSurgery)
-                //    .ToList() ?? new List<SurgeryResponse>(),
+                Surgeries = patient.Surgeries?
+                    .Select(MapSurgery)
+                    .ToList() ?? new List<SurgeryResponse>(),
                 FirstAnesthesiologist = MapResponsible(firstAnesthesiologist),
                 SecondAnesthesiologist = MapResponsible(secondAnesthesiologist),
                 Surgeon = MapResponsible(surgeon),
