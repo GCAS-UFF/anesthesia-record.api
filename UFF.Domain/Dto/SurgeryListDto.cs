@@ -1,5 +1,3 @@
-using System;
-
 namespace UFF.FichaAnestesica.Domain.Dto
 {
     public class SurgeryListDto

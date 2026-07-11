@@ -17,7 +17,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
 
         public async Task SyncMedicines()
         {
-            var response = await _medicineApiReadOnlyRepository.GetDrugssFromAGHU();
+            var response = await _medicineApiReadOnlyRepository.GetDrugsFromAGHU();
 
             if (response != null && response.Drugs == null || !response.Drugs.Any())
                 return;

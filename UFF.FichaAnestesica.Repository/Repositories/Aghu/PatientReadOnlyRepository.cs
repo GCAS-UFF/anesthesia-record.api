@@ -1,5 +1,9 @@
-﻿using System.Net.Http.Json;
+﻿using System.ComponentModel;
+using System.Net;
+using System.Net.Http.Json;
+using System.Text.Json;
 using UFF.FichaAnestesica.CrossCutting.Extensions;
+using UFF.FichaAnestesica.CrossCutting.Helpers;
 using UFF.FichaAnestesica.Domain.Dto;
 using UFF.FichaAnestesica.Domain.Enums;
 using UFF.FichaAnestesica.Domain.Repositories.ReadOnly;
@@ -16,15 +20,18 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
             _httpClient = factory.CreateClient("HospitalApi");
         }
 
-        public async Task<PagedResponse<PatientListDto>> GetPatientsFromHospitalAsync(DateTime? date, SurgeryStatusEnum? status, int page = 1, int pageSize = 10)
+        public async Task<PagedResponse<PatientListDto>> GetPatientsFromHospitalAsync(DateTime? date, string term, SurgeryStatusEnum? status, int page = 1, int pageSize = 10)
         {
             var queryParams = new List<string>();
 
             if (date.HasValue)
-                queryParams.Add($"date={date.Value:yyyy-MM-dd}");
+                queryParams.Add($"data={date.Value:yyyy-MM-dd}");
+
+            if (!string.IsNullOrWhiteSpace(term))
+                queryParams.Add($"termo={term}");
 
             if (status.HasValue)
-                queryParams.Add($"status={EnumExtensions.GetDescription((SurgeryStatusEnum)status)}");
+                queryParams.Add($"status={EnumExtensions.GetDescription(status.Value)}");
 
             queryParams.Add($"page={page}");
             queryParams.Add($"pageSize={pageSize}");
@@ -35,30 +42,37 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
 
             response.EnsureSuccessStatusCode();
 
-            var data = await response.Content.ReadFromJsonAsync<PatientsApiListDto>();
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                Converters = { new CustomDateTimeConverter(), new CrossCutting.Helpers.DateOnlyConverter(), new StringToDoubleConverter() }
+            };
+
+            var data = await response.Content.ReadFromJsonAsync<PatientsApiListDto>(options);
 
             return new PagedResponse<PatientListDto>
             {
                 Data = data?.Patients ?? [],
-                Page = page,
-                PageSize = pageSize,
-                TotalItems = data?.Patients.Count ?? 0
+                Page = data?.Page ?? page,
+                PageSize = data?.PageSize ?? pageSize,
+                TotalItems = data?.TotalItems ?? 0,
+                HasNext = data?.HasNext ?? false
             };
-        }   
+        }
 
-        public async Task<PatientDto> GetFromHospitalByPatientIdAndSurgeryIdAsync(string patientId, int surgeryId)
+        public async Task<PatientListDto?> GetFromHospitalByPatientIdAndSurgeryIdAsync(string patientId, int surgeryId)
         {
             if (string.IsNullOrWhiteSpace(patientId) || surgeryId == default)
                 return null;
 
-            var response = await _httpClient.GetAsync($"/cirurgia/{patientId}/{surgeryId}");
+            var response = await _httpClient.GetAsync($"/cirurgias/{patientId}/{surgeryId}");
 
-            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            if (response.StatusCode == HttpStatusCode.NotFound)
                 return null;
 
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadFromJsonAsync<PatientDto>();
-        }      
+            return await response.Content.ReadFromJsonAsync<PatientListDto>();
+        }
     }
 }

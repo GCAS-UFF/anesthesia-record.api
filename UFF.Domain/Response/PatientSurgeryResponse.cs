@@ -14,8 +14,9 @@ namespace UFF.FichaAnestesica.Domain.Response
         public int HeightCm { get; set; }
         public int Age { get; set; } 
         public PatientLocationResponse CurrentLocation { get; set; }
+        public string CurrentLocationDescription { get; set; }
         public List<SurgeryResponse> Surgeries { get; set; }
-        public List<AllergyResponse> Allergies { get; set; }
+        public List<ListAllergyDto> Allergies { get; set; }
         public ResponsibleResponse? Surgeon { get; set; }
         public SurgeryStatusEnum Status { get; set; }
 
@@ -27,5 +28,6 @@ namespace UFF.FichaAnestesica.Domain.Response
         public DateTime? ExpectedAt { get; set; }
         public string Room { get; set; }
         public List<ProcedureResponse> Procedures { get; set; }
+        public string PrimaryProcedure { get; set; }
     }
 }

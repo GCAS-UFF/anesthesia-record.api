@@ -1,10 +1,12 @@
-﻿using UFF.FichaAnestesica.Domain.Entities;
+﻿using UFF.FichaAnestesica.Domain.Dto;
+using UFF.FichaAnestesica.Domain.Entities;
 using UFF.FichaAnestesica.Domain.Enums;
 
 namespace UFF.FichaAnestesica.Domain.Response
 {
     public class AnesthesiaRecordResponse
     {
+        public PatientSurgeryResponse Patient { get; set; }
         public int SurgeryId { get; set; }
         public bool? PatientIdentifiedBeforeInduction { get; set; }
         public bool? AnestheticConsentSigned { get; set; }
@@ -116,10 +118,20 @@ namespace UFF.FichaAnestesica.Domain.Response
         public SurgeryStatusEnum AnesthesiaRecordStatus { get; set; }
 
 
-        public static AnesthesiaRecordResponse ToResponse(AnesthesiaRecord anesthesiaRecord)
+        public static AnesthesiaRecordResponse ToResponse(AnesthesiaRecord anesthesiaRecord, PatientListDto patientDetail)
         {
             return new AnesthesiaRecordResponse
             {
+                Patient = new PatientSurgeryResponse() { 
+                    FullName = patientDetail.FullName,
+                    BirthDate = patientDetail.BirthDate,                    
+                    Age = 32,
+                    Gender = patientDetail.Gender,
+                    WeightKg = patientDetail.WeightKg,
+                    MedicalRecordNumber = patientDetail.MedicalRecordNumber,
+                    //PrimaryProcedure = patientDetail.Procedures
+                    //CurrentLocationDescription = patientDetail.Procedures.
+                },
                 SurgeryId = anesthesiaRecord.Id,
                 ExternalPatientId = anesthesiaRecord.ExternalPatientId,
                 PatientIdentifiedBeforeInduction = anesthesiaRecord.PatientIdentifiedBeforeInduction,

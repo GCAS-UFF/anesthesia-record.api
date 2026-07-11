@@ -8,10 +8,10 @@ namespace UFF.FichaAnestesica.CrossCutting.Mappings
         {
             return status?.ToLower().Trim() switch
             {
-                "agendado" => SurgeryStatusEnum.Scheduled,
+                "agendada" => SurgeryStatusEnum.Scheduled,
                 "em_preparo" => SurgeryStatusEnum.Preparing,
                 "em_progresso" => SurgeryStatusEnum.InProgress,
-                "concluido" => SurgeryStatusEnum.Completed,
+                "concluida" => SurgeryStatusEnum.Completed,
                 "cancelada" => SurgeryStatusEnum.Canceled,
 
                 _ => throw new ArgumentException($"Status inválido: {status}")

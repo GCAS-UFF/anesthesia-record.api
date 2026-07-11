@@ -27,13 +27,13 @@ namespace UFF.FichaAnestesica.Service.Mappers
                 Procedures = patient.Procedures?
                     .Select(p => new ProcedureResponse
                     {
-                        Id = p.Code,
+                        Id = p.Codigo,
                         Description = p.Description
                     })
                     .ToList() ?? new List<ProcedureResponse>(),
                 Allergies = patient.Allergies?
                     .Select(MapAllergy)
-                    .ToList() ?? new List<AllergyResponse>(),
+                    .ToList() ?? new List<Domain.Response.ListAllergyDto>(),
                 FirstAnesthesiologist =  null,
                 SecondAnesthesiologist = null
             };
@@ -65,13 +65,13 @@ namespace UFF.FichaAnestesica.Service.Mappers
                     Procedures = patient.Procedures?
                    .Select(p => new ProcedureResponse
                    {
-                       Id = p.Code,
+                       Id = p.Codigo,
                        Description = p.Description,
                        IsPrimary = p.IsPrimary,
                        Cid = p.Cid
                    }).ToList() ?? new List<ProcedureResponse>(),
                     Allergies = patient.Allergies?
-                   .Select(MapAllergy).ToList() ?? new List<AllergyResponse>(),
+                   .Select(MapAllergy).ToList() ?? new List<Domain.Response.ListAllergyDto>(),
                     FirstAnesthesiologist = null,
                     SecondAnesthesiologist = null
                 });
@@ -80,14 +80,14 @@ namespace UFF.FichaAnestesica.Service.Mappers
             return patientsList;
         }
 
-        public static PatientSurgeryResponse MapDetail(PatientDto patient, User? firstAnesthesiologist, User? secondAnesthesiologist, User? surgeon, User? assistant)
+        public static PatientSurgeryResponse MapDetail(PatientListDto patient, User? firstAnesthesiologist, User? secondAnesthesiologist, User? surgeon, User? assistant)
         {
             if (patient == null)
                 return null;
 
             return new PatientSurgeryResponse
             {
-                SurgeryId = patient.Id,
+                SurgeryId = patient.SurgeryId,
                 PatientId = patient.PatientId,
                 MedicalRecordNumber = patient.MedicalRecordNumber,
                 FullName = patient.FullName,
@@ -97,13 +97,13 @@ namespace UFF.FichaAnestesica.Service.Mappers
                 Status = firstAnesthesiologist != null && SurgeryStatusEnumMapping.Parse(patient.Status) != SurgeryStatusEnum.Completed ? SurgeryStatusEnum.InProgress : SurgeryStatusEnumMapping.Parse(patient.Status),
                 WeightKg = patient.WeightKg,
                 HeightCm = patient.HeightCm,
-                CurrentLocation = MapLocation(patient.CurrentLocation),
+                //CurrentLocation = MapLocation(patient.CurrentLocation),
                 Allergies = patient.Allergies?
                     .Select(MapAllergy)
-                    .ToList() ?? new List<AllergyResponse>(),
-                Surgeries = patient.Surgeries?
-                    .Select(MapSurgery)
-                    .ToList() ?? new List<SurgeryResponse>(),
+                    .ToList() ?? new List<Domain.Response.ListAllergyDto>(),
+                //Surgeries = patient.S?
+                //    .Select(MapSurgery)
+                //    .ToList() ?? new List<SurgeryResponse>(),
                 FirstAnesthesiologist = MapResponsible(firstAnesthesiologist),
                 SecondAnesthesiologist = MapResponsible(secondAnesthesiologist),
                 Surgeon = MapResponsible(surgeon),
@@ -158,7 +158,7 @@ namespace UFF.FichaAnestesica.Service.Mappers
             };
         }
 
-        private static SurgeryResponse MapSurgery(SurgeryDto surgery)
+        private static SurgeryResponse MapSurgery(SurgeryDetailsDto surgery)
         {
             return new SurgeryResponse
             {
@@ -169,7 +169,7 @@ namespace UFF.FichaAnestesica.Service.Mappers
                     ? null
                     : new SpecialtyResponse
                     {
-                        Code = surgery.Specialty.Code,
+                        Code = surgery.Specialty.Id,
                         Description = surgery.Specialty.Description
                     },
                 Location = surgery.Location == null
@@ -198,9 +198,9 @@ namespace UFF.FichaAnestesica.Service.Mappers
             };
         }
 
-        private static AllergyResponse MapAllergy(AllergyDto allergy)
+        private static Domain.Response.ListAllergyDto MapAllergy(Domain.Dto.ListAllergyDto allergy)
         {
-            return new AllergyResponse
+            return new Domain.Response.ListAllergyDto
             {
                 RegisterDate = allergy.RegisterDate,
                 Description = allergy.Description,
@@ -222,6 +222,9 @@ namespace UFF.FichaAnestesica.Service.Mappers
             return status?.ToLower() switch
             {
                 "agendada" => SurgeryStatusEnum.Scheduled,
+                "em_progresso" => SurgeryStatusEnum.InProgress,
+                "cancelada" => SurgeryStatusEnum.Canceled,
+                "em_preparacao" => SurgeryStatusEnum.Preparing,
                 "em_andamento" => SurgeryStatusEnum.InProgress,
                 "finalizada" => SurgeryStatusEnum.Completed,
                 _ => SurgeryStatusEnum.Scheduled

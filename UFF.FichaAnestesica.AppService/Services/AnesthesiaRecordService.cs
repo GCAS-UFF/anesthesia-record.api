@@ -1,34 +1,47 @@
 using UFF.FichaAnestesica.Domain.Commands;
 using UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord;
+using UFF.FichaAnestesica.Domain.Dto;
 using UFF.FichaAnestesica.Domain.Entities;
 using UFF.FichaAnestesica.Domain.Repositories;
+using UFF.FichaAnestesica.Domain.Repositories.ReadOnly;
 using UFF.FichaAnestesica.Domain.Response;
 using UFF.FichaAnestesica.Domain.Services;
+using UFF.FichaAnestesica.Service.Mappers;
 
 public class AnesthesiaRecordService : IAnesthesiaRecordService
 {
     private readonly IAnesthesiaRecordRepository _anesthesiaRecordRepository;
     private readonly IMonitoringRecordRepository _monitoringRecordRepository;
+    private readonly IPatientReadOnlyRepository _hospitalApiRepository;
 
-    public AnesthesiaRecordService(IAnesthesiaRecordRepository anesthesiaRecordRepository, IMonitoringRecordRepository monitoringRecordRepository)
+    public AnesthesiaRecordService(IAnesthesiaRecordRepository anesthesiaRecordRepository, IMonitoringRecordRepository monitoringRecordRepository, IPatientReadOnlyRepository hospitalApiRepository)
     {
         _anesthesiaRecordRepository = anesthesiaRecordRepository;
         _monitoringRecordRepository = monitoringRecordRepository;
+        _hospitalApiRepository = hospitalApiRepository;
     }
 
-    public async Task<CommandResult> GetByIdAsync(int id)
+    public async Task<CommandResult> GetByIdAsync(int id, string extenalPatientId)
     {
         var anestesiaRecord = await _anesthesiaRecordRepository.GetByIdAsync(id);
 
         if (anestesiaRecord == null)
-            throw new Exception("Nenhuma ficha encontrada com esse identificador");
+            return await this.Create(new AnesthesiaRecordCommand()
+            {
+                SurgeryId = id,
+                ExternalPatientId = extenalPatientId
+            });
 
-        return new CommandResult(true, AnesthesiaRecordResponse.ToResponse(anestesiaRecord));
+        var patient = await _hospitalApiRepository.GetFromHospitalByPatientIdAndSurgeryIdAsync(extenalPatientId, id);
+
+
+        return new CommandResult(true, AnesthesiaRecordResponse.ToResponse(anestesiaRecord, patient));
     }
 
     public async Task<CommandResult> Create(AnesthesiaRecordCommand command)
     {
         var anesthesiaRecord = AnesthesiaRecord.Create(command);
+        var patient = await _hospitalApiRepository.GetFromHospitalByPatientIdAndSurgeryIdAsync(command.ExternalPatientId, command.SurgeryId);
 
         try
         {
@@ -43,12 +56,13 @@ public class AnesthesiaRecordService : IAnesthesiaRecordService
             return new CommandResult(false, ex.InnerException != null ? ex.InnerException.Message : ex.Message);
         }
 
-        return new CommandResult(true, AnesthesiaRecordResponse.ToResponse(anesthesiaRecord));
+        return new CommandResult(true, AnesthesiaRecordResponse.ToResponse(anesthesiaRecord, patient));
     }
 
     public async Task<CommandResult> Update(int id, AnesthesiaRecordCommand command)
     {
         var anesthesiaRecord = await _anesthesiaRecordRepository.GetByIdAsync(id);
+        var patient = await _hospitalApiRepository.GetFromHospitalByPatientIdAndSurgeryIdAsync(command.ExternalPatientId, command.SurgeryId);
 
         if (anesthesiaRecord == null)
             throw new Exception("Ficha anest�sica n�o encontrada");
@@ -67,7 +81,7 @@ public class AnesthesiaRecordService : IAnesthesiaRecordService
         {
             return new CommandResult(false, ex.Message);
         }
-      
-        return CommandResult.Success(AnesthesiaRecordResponse.ToResponse(anesthesiaRecord));
-    }   
+
+        return CommandResult.Success(AnesthesiaRecordResponse.ToResponse(anesthesiaRecord, patient));
+    }
 }

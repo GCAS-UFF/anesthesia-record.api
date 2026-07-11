@@ -18,8 +18,10 @@
     <None Remove="EntityConfig\SpecialtyConfig.cs~RF56243e0.TMP" />
     <None Remove="EntityConfig\UnitConfig.cs~RF7e8b72.TMP" />
     <None Remove="Repositories\Aghu\HealthReadOnlyRepository.cs~RF3696bb4.TMP" />
+    <None Remove="Repositories\Aghu\MedicineReadOnlyRepository.cs~RFa5b95a.TMP" />
     <None Remove="Repositories\Aghu\n1hncmhj.wlb~" />
     <None Remove="Repositories\Aghu\PatientReadOnlyRepository.cs~RF27e74a4.TMP" />
+    <None Remove="Repositories\AnesthesiaRecordRepository.cs~RF12d899a.TMP" />
     <None Remove="Repositories\AnesthesiaRecordRepository.cs~RFb622d3c.TMP" />
     <None Remove="Repositories\Aghu\HospitalApiRepository.cs~RF64ee7b5.TMP" />
     <None Remove="Repositories\Aghu\HospitalApiRepository.cs~RF6edb064.TMP" />

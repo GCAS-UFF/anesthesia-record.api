@@ -1,18 +1,24 @@
 ﻿using System.Text.Json.Serialization;
+using UFF.FichaAnestesica.Domain.Helpers;
 
 namespace UFF.FichaAnestesica.Domain.Dto
 {
-
     public class PatientsApiListDto
     {
-        [JsonPropertyName("pacientes")]
+        [JsonPropertyName("cirurgias")]
         public List<PatientListDto> Patients { get; set; } = [];
-    }
 
-    public class PatientApiDto
-    {
-        [JsonPropertyName("paciente")]
-        public PatientListDto Patient { get; set; }
+        [JsonPropertyName("totalItems")]
+        public int TotalItems { get; set; }
+
+        [JsonPropertyName("page")]
+        public int Page { get; set; }
+
+        [JsonPropertyName("pageSize")]
+        public int PageSize { get; set; }
+
+        [JsonPropertyName("hasNext")]
+        public bool HasNext { get; set; }
     }
 
     public class PatientListDto
@@ -23,87 +29,18 @@ namespace UFF.FichaAnestesica.Domain.Dto
         [JsonPropertyName("paciente_id")]
         public string PatientId { get; set; }
 
-        [JsonPropertyName("nome_completo")]
-        public string FullName { get; set; }
-
-        [JsonPropertyName("data_nascimento")]
-        public DateTime BirthDate { get; set; }
-
-        [JsonPropertyName("numero_prontuario")]
-        public string MedicalRecordNumber { get; set; }
-
-        [JsonPropertyName("status")]
-        public string Status { get; set; }
-    
-        [JsonPropertyName("sexo")]
-        public string Gender { get; set; }
-
-        [JsonPropertyName("peso_kg")]
-        public double WeightKg { get; set; }
-
-        [JsonPropertyName("altura_cm")]
-        public int HeightCm { get; set; }
-
-        [JsonPropertyName("previsao_atendimento")]
-        public DateTime? ExpectedAt { get; set; }
-
-        [JsonPropertyName("sala")]
-        public string Room { get; set; }
-
-        [JsonPropertyName("procedimentos")]
-        public List<ProcedureSummaryDto> Procedures { get; set; }
-
-        [JsonPropertyName("alergias")]
-        public List<AllergyDto> Allergies { get; set; } = new();
-
-        [JsonIgnore]
-        public bool HaveFirstAnesthesist { get; set; }
-    }
-
-    public class ProcedureSummaryDto
-    {
-        [JsonPropertyName("codigo")]
-        public string Code { get; set; }
-
-        [JsonPropertyName("descricao")]
-        public string Description { get; set; }
-        [JsonPropertyName("cid")]
-        public string Cid { get; set; }
-        [JsonPropertyName("principal")]
-        public bool IsPrimary { get; set; }
-    }
-
-    public class AllergySummaryDto
-    {
-        [JsonPropertyName("id")]
-        public int Id { get; set; }
-
-        [JsonPropertyName("descricao")]
-        public string Description { get; set; }
-
-        [JsonPropertyName("criticidade_alergica")]
-        public string Criticality { get; set; }
-    }
-
-    public class PatientDto
-    {
-        [JsonPropertyName("cirurgia_id")]
-        public int Id { get; set; }
-        [JsonPropertyName("paciente_id")]
-        public string PatientId { get; set; }
-
         [JsonPropertyName("numero_prontuario")]
         public string MedicalRecordNumber { get; set; }
 
         [JsonPropertyName("nome_completo")]
         public string FullName { get; set; }
 
-        [JsonPropertyName("status")]
-        public string Status { get; set; }
-
-
         [JsonPropertyName("data_nascimento")]
         public DateTime BirthDate { get; set; }
+     
+
+        [JsonPropertyName("status")]
+        public string Status { get; set; }
 
         [JsonPropertyName("sexo")]
         public string Gender { get; set; }
@@ -118,10 +55,115 @@ namespace UFF.FichaAnestesica.Domain.Dto
         public CurrentLocationDto CurrentLocation { get; set; }
 
         [JsonPropertyName("alergias")]
+        public List<ListAllergyDto> Allergies { get; set; } = new();
+
+        [JsonPropertyName("cirurgias")]
+        public List<SurgeryDetailsDto> Surgeries { get; set; } = new();
+
+        [JsonPropertyName("previsao_atendimento")]
+        public DateTime? ExpectedAt { get; set; }
+
+        [JsonPropertyName("sala")]
+        public string Room { get; set; }
+
+        [JsonPropertyName("especialidade_id")]
+        public string SpecialtyId { get; set; }
+
+        [JsonPropertyName("especialidade")]
+        public string Specialty { get; set; }
+
+        [JsonPropertyName("procedimentos")]
+        public List<ListProcedureDto> Procedures { get; set; } = new();
+           
+
+        [JsonIgnore]
+        public bool HaveFirstAnesthesist { get; set; }
+    }
+
+    public class ListAllergyDto
+    {
+        [JsonPropertyName("data_registro")]
+        [JsonConverter(typeof(CustomDateTimeConverter))]   
+        public DateTime RegisterDate { get; set; }
+
+        [JsonPropertyName("descricao")]
+        public string Description { get; set; }
+
+        [JsonPropertyName("motivo")]
+        public string Reason { get; set; }
+
+        [JsonPropertyName("criticidade_alergica")]
+        public string AllergyCriticality { get; set; }
+
+        [JsonPropertyName("grau_certeza")]
+        public string CertaintyLevel { get; set; }
+
+        [JsonPropertyName("manifestacao_alergica")]
+        public string Manifestation { get; set; }
+
+        [JsonPropertyName("medicamento")]
+        public ListMedicationDto Medication { get; set; }
+
+        [JsonPropertyName("agente_causador")]
+        public string CausativeAgent { get; set; }
+
+    }
+
+    public class ListMedicationDto
+    {
+        [JsonPropertyName("descricao")]
+        public string Description { get; set; }
+    }
+
+    public class ListProcedureDto
+    {
+        [JsonPropertyName("id")]
+        public int Id { get; set; }
+
+        [JsonPropertyName("descricao")]
+        public string Description { get; set; }
+
+        [JsonPropertyName("cid")]
+        public string Cid { get; set; }
+
+        [JsonPropertyName("codigo")]
+        public string Codigo { get; set; }
+
+        [JsonPropertyName("principal")]
+        public bool IsPrimary { get; set; }
+    }
+
+    public class PatientDetailsDto
+    {
+        [JsonPropertyName("cirurgia_id")]
+        public int SurgeryId { get; set; }
+
+        [JsonPropertyName("paciente_id")]
+        public string PatientId { get; set; }
+
+        [JsonPropertyName("numero_prontuario")]
+        public string MedicalRecordNumber { get; set; }
+
+        [JsonPropertyName("nome_completo")]
+        public string FullName { get; set; }
+
+        [JsonPropertyName("data_nascimento")]
+        public DateTime BirthDate { get; set; }
+
+        [JsonPropertyName("sexo")]
+        public string Gender { get; set; }
+
+        [JsonPropertyName("peso_kg")]
+        public double WeightKg { get; set; }
+
+        [JsonPropertyName("altura_cm")]
+        public int HeightCm { get; set; }
+
+        [JsonPropertyName("alergias")]
         public List<AllergyDto> Allergies { get; set; } = new();
 
         [JsonPropertyName("cirurgias")]
-        public List<SurgeryDto> Surgeries { get; set; } = new();
+        public List<SurgeryDetailsDto> Surgeries { get; set; } = new();
     }
 
     public class CurrentLocationDto
@@ -141,9 +183,6 @@ namespace UFF.FichaAnestesica.Domain.Dto
 
     public class UnitDto
     {
-        [JsonPropertyName("id")]
-        public int Id { get; set; }
-
         [JsonPropertyName("codigo")]
         public string Code { get; set; }
 
@@ -153,9 +192,6 @@ namespace UFF.FichaAnestesica.Domain.Dto
 
     public class AllergyDto
     {
-        [JsonPropertyName("id")]
-        public int Id { get; set; }
-
         [JsonPropertyName("data_registro")]
         public DateTime RegisterDate { get; set; }
 
@@ -183,17 +219,14 @@ namespace UFF.FichaAnestesica.Domain.Dto
 
     public class MedicationDto
     {
-        [JsonPropertyName("id")]
-        public int Id { get; set; }
-
         [JsonPropertyName("descricao")]
         public string Description { get; set; }
     }
 
-    public class SurgeryDto
+    public class SurgeryDetailsDto
     {
         [JsonPropertyName("id")]
-        public string Id { get; set; }
+        public int Id { get; set; }
 
         [JsonPropertyName("data_cirurgia")]
         public DateTime SurgeryDate { get; set; }
@@ -201,20 +234,20 @@ namespace UFF.FichaAnestesica.Domain.Dto
         [JsonPropertyName("status_cirurgia")]
         public string SurgeryStatus { get; set; }
 
-        [JsonPropertyName("especialidade")]
-        public SpecialtyDto Specialty { get; set; }
-
         [JsonPropertyName("local")]
         public SurgeryLocationDto Location { get; set; }
 
         [JsonPropertyName("procedimentos")]
         public List<ProcedureDto> Procedures { get; set; } = new();
+
+        [JsonPropertyName("especialidade")]
+        public SpecialtyDto Specialty { get; set; }
     }
 
     public class SpecialtyDto
     {
-        [JsonPropertyName("codigo")]
-        public string Code { get; set; }
+        [JsonPropertyName("id")]
+        public string Id { get; set; }
 
         [JsonPropertyName("descricao")]
         public string Description { get; set; }
@@ -242,9 +275,6 @@ namespace UFF.FichaAnestesica.Domain.Dto
     {
         [JsonPropertyName("id")]
         public string Id { get; set; }
-
-        [JsonPropertyName("codigo")]
-        public string Code { get; set; }
 
         [JsonPropertyName("descricao")]
         public string Description { get; set; }

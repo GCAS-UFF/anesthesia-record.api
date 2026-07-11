@@ -29,22 +29,22 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
             var usersDatabase = await _userRepository.GetAllAsync();
 
             var usersByExternalId = usersDatabase
-                .Where(x => x.ExternalId > 0)
-                .ToDictionary(x => x.ExternalId);
+                .Where(x => x.Registration != string.Empty)
+                .ToDictionary(x => x.Registration);
 
-            var externalIdsFromApi = new HashSet<int>();
+            var externalIdsFromApi = new HashSet<string>();
 
             foreach (var professional in professionalsFromApi)
             {
-                if (professional.Id <= 0)
+                if (professional.Registration == string.Empty)
                     continue;
 
-                externalIdsFromApi.Add(professional.Id);
+                externalIdsFromApi.Add(professional.Registration);
 
                 var specialty = MedicalSpecialtyExtensions.ParseToEnum(professional.MedicalSpecialty);
                 var sector = SectorExtensions.ParseToEnum(professional.Sector);
 
-                if (usersByExternalId.TryGetValue(professional.Id, out var existingUser))
+                if (usersByExternalId.TryGetValue(professional.Registration, out var existingUser))
                 {
                     existingUser.Update(professional.Name, professional.Email, professional.Login, professional.Registration, specialty, sector);
                     _userRepository.Update(existingUser);
@@ -59,7 +59,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
             var usersToDisable = usersDatabase
                 .Where(x =>
                     x.ExternalId > 0 &&
-                    !externalIdsFromApi.Contains(x.ExternalId) &&
+                    !externalIdsFromApi.Contains(x.Registration) &&
                     x.Status != UserStatusEnum.Disabled)
                 .ToList();
 

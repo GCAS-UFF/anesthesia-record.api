@@ -25,12 +25,12 @@ namespace UFF.FichaAnestesica.Service.Services
             _monitoringRecordRepository = monitoringRecordRepository;
         }
 
-        public async Task<CommandResult> GetPatientsWithSurgeriesAsync(DateTime? date, SurgeryStatusEnum? status, int page = 1, int size = 10)
+        public async Task<CommandResult> GetPatientsWithSurgeriesAsync(DateTime? date, string term, SurgeryStatusEnum? status, int page = 1, int size = 10)
         {
             if (date.HasValue)
                 date = DateTime.SpecifyKind(date.Value, DateTimeKind.Utc);
 
-            var hospitalData = await _hospitalApiRepository.GetPatientsFromHospitalAsync(date, status, page, size);
+            var hospitalData = await _hospitalApiRepository.GetPatientsFromHospitalAsync(date, term, status, page, size);
 
             if (hospitalData.Data == null || !hospitalData.Data.Any())
             {

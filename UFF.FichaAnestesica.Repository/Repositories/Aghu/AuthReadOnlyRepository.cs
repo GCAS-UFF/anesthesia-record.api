@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Json;
+﻿using System.Net;
+using System.Net.Http.Json;
 using UFF.FichaAnestesica.Domain.Dto;
 using UFF.FichaAnestesica.Domain.Entities;
 using UFF.FichaAnestesica.Domain.Repositories;
@@ -18,20 +19,25 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
             _context = context;
         }
 
-
         public async Task<UserDto?> LoginAGHU(string login, string password)
         {
             if (string.IsNullOrWhiteSpace(login))
                 return null;
 
-            var response = await _httpClient.PostAsJsonAsync($"/auth", new { login = login, password = password });
+            var response = await _httpClient.PostAsJsonAsync("/auth", new
+            {
+                Login = login,
+                Senha = password
+            });
 
-            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            if (response.StatusCode == HttpStatusCode.NotFound)
                 return null;
 
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadFromJsonAsync<UserDto>();
+            var user = await response.Content.ReadFromJsonAsync<UserDto>();
+
+            return user;
         }
     }
 }

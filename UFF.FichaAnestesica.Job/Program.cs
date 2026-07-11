@@ -23,7 +23,7 @@ builder.Services.AddQuartz(q =>
         .ForJob(jobKey)
         .WithIdentity("SyncAghuTrigger")
         .StartNow()
-        .WithSimpleSchedule(x => x.WithIntervalInMinutes(30).RepeatForever()));
+        .WithSimpleSchedule(x => x.WithIntervalInMinutes(1440).RepeatForever()));
 });
 
 builder.Services.AddQuartzHostedService(q =>

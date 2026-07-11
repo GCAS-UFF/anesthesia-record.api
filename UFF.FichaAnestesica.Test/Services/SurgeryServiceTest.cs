@@ -36,10 +36,10 @@ namespace UFF.FichaAnestesica.Test.Services
         public async Task GetPatientsWithSurgeriesAsync_Should_Return_Empty_When_No_Hospital_Data()
         {
             _hospitalApiRepoMock
-                .Setup(h => h.GetPatientsFromHospitalAsync(It.IsAny<DateTime?>(), It.IsAny<SurgeryStatusEnum?>(), It.IsAny<int>(), It.IsAny<int>()))
+                .Setup(h => h.GetPatientsFromHospitalAsync(It.IsAny<DateTime?>(), string.Empty, It.IsAny<SurgeryStatusEnum?>(), It.IsAny<int>(), It.IsAny<int>()))
                 .ReturnsAsync(new PagedResponse<PatientListDto> { Data = new List<PatientListDto>(), TotalItems = 0, Page = 1, PageSize = 10 });
 
-            var result = await _service.GetPatientsWithSurgeriesAsync(null, null);
+            var result = await _service.GetPatientsWithSurgeriesAsync(null, string.Empty, null);
             var paged = Assert.IsType<PagedResponse<PatientSurgeryResponse>>(result.Data);
             Assert.True(result.Valid);
             Assert.Empty(paged.Data);
@@ -56,11 +56,11 @@ namespace UFF.FichaAnestesica.Test.Services
                 Status = "agendado"
             };
             _hospitalApiRepoMock
-                .Setup(h => h.GetPatientsFromHospitalAsync(It.IsAny<DateTime?>(), It.IsAny<SurgeryStatusEnum?>(), It.IsAny<int>(), It.IsAny<int>()))
+                .Setup(h => h.GetPatientsFromHospitalAsync(It.IsAny<DateTime?>(), string.Empty, It.IsAny<SurgeryStatusEnum?>(), It.IsAny<int>(), It.IsAny<int>()))
                 .ReturnsAsync(new PagedResponse<PatientListDto> { Data = new List<PatientListDto> { patientDto }, TotalItems = 1 });
             _anesthesiaRepoMock.Setup(a => a.GetByIdsAsync(It.IsAny<string[]>())).ReturnsAsync(new List<AnesthesiaRecord>());
 
-            var result = await _service.GetPatientsWithSurgeriesAsync(null, null);
+            var result = await _service.GetPatientsWithSurgeriesAsync(null, string.Empty, null);
             var paged = Assert.IsType<PagedResponse<PatientSurgeryResponse>>(result.Data);
             var patient = Assert.Single(paged.Data);
             Assert.Null(patient.FirstAnesthesiologist);
@@ -72,7 +72,7 @@ namespace UFF.FichaAnestesica.Test.Services
         {
             _hospitalApiRepoMock
                 .Setup(h => h.GetFromHospitalByPatientIdAndSurgeryIdAsync("P99", 99))
-                .ReturnsAsync((PatientDto?)null);
+                .ReturnsAsync((PatientListDto?)null);
 
             var result = await _service.GetPatientAnesthesiaRecordByIdAsync("P99", 99);
             Assert.Null(result);
@@ -81,7 +81,7 @@ namespace UFF.FichaAnestesica.Test.Services
         [Fact]
         public async Task GetPatientAnesthesiaRecordByIdAsync_Should_Return_Detail_When_Found()
         {
-            var patientDto = new PatientDto
+            var patientDto = new PatientListDto
             {
                 PatientId = "P1",
                 FullName = "Maria",
@@ -106,7 +106,7 @@ namespace UFF.FichaAnestesica.Test.Services
         {
             _hospitalApiRepoMock
                 .Setup(h => h.GetFromHospitalByPatientIdAndSurgeryIdAsync("P1", 1))
-                .ReturnsAsync((PatientDto?)null);
+                .ReturnsAsync((PatientListDto?)null);
 
             await Assert.ThrowsAsync<Exception>(() => _service.AssumePatientAsync("P1", 1, 10));
         }
@@ -114,7 +114,7 @@ namespace UFF.FichaAnestesica.Test.Services
         [Fact]
         public async Task AssumePatientAsync_Should_Create_Record_And_Monitoring_When_New()
         {
-            var patientDto = new PatientDto
+            var patientDto = new PatientListDto
             {
                 PatientId = "P1",
                 FullName = "João",
@@ -139,7 +139,7 @@ namespace UFF.FichaAnestesica.Test.Services
         {
             _hospitalApiRepoMock
                 .Setup(h => h.GetFromHospitalByPatientIdAndSurgeryIdAsync("P1", 1))
-                .ReturnsAsync(new PatientDto
+                .ReturnsAsync(new PatientListDto
                 {
                     PatientId = "P1",
                     FullName = "João",

@@ -48,11 +48,11 @@ namespace UFF.FichaAnestesica.Api.Controllers
             return Ok(new CommandResult(true, result));
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id}/{extenalPatientId}")]
         //    [Authorize]
-        public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
+        public async Task<IActionResult> GetByIdAsync([FromRoute] int id, string extenalPatientId)
         {
-            var surgeries = await _anesthesiaRecordService.GetByIdAsync(id);
+            var surgeries = await _anesthesiaRecordService.GetByIdAsync(id, extenalPatientId);
             return Ok(surgeries);
         }
 

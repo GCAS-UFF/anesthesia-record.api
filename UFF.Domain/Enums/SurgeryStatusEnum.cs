@@ -4,15 +4,15 @@ namespace UFF.FichaAnestesica.Domain.Enums
 {
     public enum SurgeryStatusEnum
     {
-        [Description("Agendado")]
+        [Description("AGENDADA")]
         Scheduled,
-        [Description("Em_preparo")]
+        [Description("EM_PREPARO")]
         Preparing,
-        [Description("Em_progresso")]
+        [Description("EM_PROGRESSO")]
         InProgress,
-        [Description("Concluido")]
+        [Description("CONCLUIDA")]
         Completed,
-        [Description("Cancelada")]
+        [Description("CANCELADA")]
         Canceled
     }
 }

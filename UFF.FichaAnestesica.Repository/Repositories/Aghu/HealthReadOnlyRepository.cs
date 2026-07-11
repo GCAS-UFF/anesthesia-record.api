@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+﻿using System.Net.Http.Json;
 using UFF.FichaAnestesica.Domain.Dto;
 using UFF.FichaAnestesica.Domain.Repositories.ReadOnly;
 using UFF.FichaAnestesica.Infra.Context;
@@ -42,19 +42,35 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
         {
             try
             {
-                var response = await _httpClient.GetAsync("saude");
+                // ============================================================
+                // MOCK TEMPORÁRIO
+                // ============================================================
+                // Atualmente a integração está sendo realizada através de um
+                // arquivo JSON armazenado no Supabase Storage.
+                //
+                // Endpoint utilizado:
+                // GET /saude/status.json
+                //
+                // Exemplo:
+                // https://<supabase>/storage/v1/object/public/siga_repo/saude/status.json
+                //
+                // Quando a API oficial do AGHU estiver disponível, substituir por:
+                //
+                // var response = await _httpClient.GetAsync("/saude");
+                // ============================================================
 
-                if (response.IsSuccessStatusCode)
-                {
-                    var content = await response.Content.ReadAsStringAsync();
-                    var healthResponse = JsonSerializer.Deserialize<HealthDto>(content);
-                    return healthResponse?.Online ?? false;
-                }
+                var response = await _httpClient.GetAsync("/saude/status.json");
 
-                return false;
+                if (!response.IsSuccessStatusCode)
+                    return false;
+
+                var health = await response.Content.ReadFromJsonAsync<HealthDto>();
+
+                return health?.Online ?? false;
             }
             catch
             {
+                // Timeout, erro de rede ou indisponibilidade do serviço.
                 return false;
             }
         }

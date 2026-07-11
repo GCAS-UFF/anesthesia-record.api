@@ -3,8 +3,8 @@ using UFF.FichaAnestesica.Domain.Commands;
 using UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord;
 using UFF.FichaAnestesica.Domain.Entities;
 using UFF.FichaAnestesica.Domain.Repositories;
+using UFF.FichaAnestesica.Domain.Repositories.ReadOnly;
 using UFF.FichaAnestesica.Domain.Response;
-using UFF.FichaAnestesica.Service.Services;
 
 namespace UFF.FichaAnestesica.Test.Services
 {
@@ -12,15 +12,18 @@ namespace UFF.FichaAnestesica.Test.Services
     {
         private readonly Mock<IAnesthesiaRecordRepository> _anesthesiaRepoMock;
         private readonly Mock<IMonitoringRecordRepository> _monitoringRepoMock;
+        private readonly Mock<IPatientReadOnlyRepository> _aghuRepoMock;
         private readonly AnesthesiaRecordService _service;
 
         public AnesthesiaRecordServiceTest()
         {
             _anesthesiaRepoMock = new Mock<IAnesthesiaRecordRepository>();
             _monitoringRepoMock = new Mock<IMonitoringRecordRepository>();
+            _aghuRepoMock = new Mock<IPatientReadOnlyRepository>();
             _service = new AnesthesiaRecordService(
                 _anesthesiaRepoMock.Object,
-                _monitoringRepoMock.Object);
+                _monitoringRepoMock.Object,
+                _aghuRepoMock.Object);
         }
 
         private static AnesthesiaRecordResponse GetData(CommandResult result)
@@ -39,7 +42,7 @@ namespace UFF.FichaAnestesica.Test.Services
             });
             _anesthesiaRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(record);
 
-            var result = await _service.GetByIdAsync(1);
+            var result = await _service.GetByIdAsync(1, "xpto");
             var data = GetData(result);
 
             Assert.True(result.Valid);
@@ -52,7 +55,7 @@ namespace UFF.FichaAnestesica.Test.Services
         {
             _anesthesiaRepoMock.Setup(r => r.GetByIdAsync(99)).ReturnsAsync((AnesthesiaRecord?)null);
 
-            await Assert.ThrowsAsync<Exception>(() => _service.GetByIdAsync(99));
+            await Assert.ThrowsAsync<Exception>(() => _service.GetByIdAsync(99, "xpto"));
         }
 
         // ========== Create ==========

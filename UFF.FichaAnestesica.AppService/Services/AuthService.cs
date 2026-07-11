@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using UFF.FichaAnestesica.CrossCutting.Extensions;
 using UFF.FichaAnestesica.Domain.Commands;
 using UFF.FichaAnestesica.Domain.Entities;
 using UFF.FichaAnestesica.Domain.Enums;
@@ -91,7 +92,8 @@ namespace UFF.FichaAnestesica.Service.Services
                     id = user.Id,
                     nome = user.Name,
                     email = user.Email,
-                    login = user.Login
+                    login = user.Login,
+                    role = EnumExtensions.GetDescription(user.MedicalSpecialty)
                 }
             });
         }

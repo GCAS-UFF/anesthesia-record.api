@@ -12,7 +12,9 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
         private readonly HttpClient _httpClient;
         private readonly SigaDbCtx _context;
 
-        public ProfessionalReadOnlyRepository(SigaDbCtx context, IHttpClientFactory factory)
+        public ProfessionalReadOnlyRepository(
+            SigaDbCtx context,
+            IHttpClientFactory factory)
             : base(context)
         {
             _context = context;
@@ -22,20 +24,17 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
         public async Task<List<User>> GetProfessionalsForAnethesiaRecord(string name)
         {
             return await _context.Users
-               .Where(x => x.Name.ToLower().Contains(name.ToLower()))
-               .OrderBy(x => x.Name)
-               .ToListAsync();
+                .Where(x => x.Name.ToLower().Contains(name.ToLower()))
+                .OrderBy(x => x.Name)
+                .ToListAsync();
         }
 
         public async Task<UserListDto> GetProfessionalsFromAGHU()
         {
-            var url = $"profissionais";
-
-            var response = await _httpClient.GetAsync(url);
-
+            var response = await _httpClient.GetAsync("/profissionais");
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadFromJsonAsync<UserListDto>();
+            return await response.Content.ReadFromJsonAsync<UserListDto>() ?? new UserListDto();
         }
     }
 }

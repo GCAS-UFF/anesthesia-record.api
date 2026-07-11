@@ -21,5 +21,11 @@ namespace UFF.FichaAnestesica.Domain.Dto
 
         [JsonPropertyName("unidade")]
         public string Unity { get; set; }
+
+        [JsonPropertyName("ativo")]
+        public bool Active { get; set; }
+
+        [JsonPropertyName("tipo")]
+        public string Type { get; set; }
     }
 }

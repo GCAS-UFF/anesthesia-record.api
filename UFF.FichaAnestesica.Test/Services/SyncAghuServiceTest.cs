@@ -16,7 +16,7 @@ namespace UFF.FichaAnestesica.Test.Services
         {
             var medicineRepoMock = new Mock<IMedicineReadOnlyRepository>();
             var drugRepoMock = new Mock<IDrugRepository>();
-            medicineRepoMock.Setup(m => m.GetDrugssFromAGHU()).ReturnsAsync((DrugListDto)null!);
+            medicineRepoMock.Setup(m => m.GetDrugsFromAGHU()).ReturnsAsync((DrugListDto)null!);
             var service = new MedicineApiService(medicineRepoMock.Object, drugRepoMock.Object);
 
             await Assert.ThrowsAsync<NullReferenceException>(() => service.SyncMedicines());
@@ -27,7 +27,7 @@ namespace UFF.FichaAnestesica.Test.Services
         {
             var medicineRepoMock = new Mock<IMedicineReadOnlyRepository>();
             var drugRepoMock = new Mock<IDrugRepository>();
-            medicineRepoMock.Setup(m => m.GetDrugssFromAGHU()).ReturnsAsync(new DrugListDto { Drugs = new List<DrugDto>() });
+            medicineRepoMock.Setup(m => m.GetDrugsFromAGHU()).ReturnsAsync(new DrugListDto { Drugs = new List<DrugDto>() });
             var service = new MedicineApiService(medicineRepoMock.Object, drugRepoMock.Object);
 
             await service.SyncMedicines();
@@ -49,7 +49,7 @@ namespace UFF.FichaAnestesica.Test.Services
                     new DrugDto { Codigo = "D2", Description = "Paracetamol", Unity = "mg" }
                 }
             };
-            medicineRepoMock.Setup(m => m.GetDrugssFromAGHU()).ReturnsAsync(aghuDrugs);
+            medicineRepoMock.Setup(m => m.GetDrugsFromAGHU()).ReturnsAsync(aghuDrugs);
 
             var existingDrug = Drug.Create("D1", "Dipirona antiga", "ml");
             drugRepoMock.Setup(d => d.GetAllAsync()).ReturnsAsync(new List<Drug> { existingDrug });
@@ -71,7 +71,7 @@ namespace UFF.FichaAnestesica.Test.Services
             var medicineRepoMock = new Mock<IMedicineReadOnlyRepository>();
             var drugRepoMock = new Mock<IDrugRepository>();
 
-            medicineRepoMock.Setup(m => m.GetDrugssFromAGHU()).ReturnsAsync(new DrugListDto
+            medicineRepoMock.Setup(m => m.GetDrugsFromAGHU()).ReturnsAsync(new DrugListDto
             {
                 Drugs = new List<DrugDto>
                 {

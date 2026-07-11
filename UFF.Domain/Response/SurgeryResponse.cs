@@ -4,7 +4,7 @@ namespace UFF.FichaAnestesica.Domain.Response
 {
     public class SurgeryResponse
     {
-        public string Id { get; set; }
+        public int Id { get; set; }
         public DateTime SurgeryDate { get; set; }
         public SurgeryStatusEnum Status { get; set; }
         public SpecialtyResponse Specialty { get; set; }

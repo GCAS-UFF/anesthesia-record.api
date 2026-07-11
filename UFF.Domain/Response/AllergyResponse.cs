@@ -1,6 +1,6 @@
 ﻿namespace UFF.FichaAnestesica.Domain.Response
 {
-    public class AllergyResponse
+    public class ListAllergyDto
     {
         public DateTime? RegisterDate { get; set; }
 
