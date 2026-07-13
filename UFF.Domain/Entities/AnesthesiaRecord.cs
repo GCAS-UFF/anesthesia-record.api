@@ -104,7 +104,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
         public void Update(AnesthesiaRecordCommand command)
         {
             SetValues(command);
-            AnesthesiaRecordStatus = SurgeryStatusEnum.Completed;
+            AnesthesiaRecordStatus = command.Status;
             LastUpdate = DateTime.UtcNow;
         }
 

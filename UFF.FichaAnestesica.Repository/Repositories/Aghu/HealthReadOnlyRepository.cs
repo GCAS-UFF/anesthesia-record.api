@@ -42,24 +42,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
         {
             try
             {
-                // ============================================================
-                // MOCK TEMPORÁRIO
-                // ============================================================
-                // Atualmente a integração está sendo realizada através de um
-                // arquivo JSON armazenado no Supabase Storage.
-                //
-                // Endpoint utilizado:
-                // GET /saude/status.json
-                //
-                // Exemplo:
-                // https://<supabase>/storage/v1/object/public/siga_repo/saude/status.json
-                //
-                // Quando a API oficial do AGHU estiver disponível, substituir por:
-                //
-                // var response = await _httpClient.GetAsync("/saude");
-                // ============================================================
-
-                var response = await _httpClient.GetAsync("/saude/status.json");
+                var response = await _httpClient.GetAsync("/saude");
 
                 if (!response.IsSuccessStatusCode)
                     return false;
@@ -70,7 +53,6 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
             }
             catch
             {
-                // Timeout, erro de rede ou indisponibilidade do serviço.
                 return false;
             }
         }
