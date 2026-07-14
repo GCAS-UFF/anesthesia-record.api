@@ -18,12 +18,12 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
             _userRepository = userRepository;
         }
 
-        public async Task SyncProfessionals()
+        public async Task<int> SyncProfessionals()
         {
             var aghuResponse = await _professionalReadOnlyRepository.GetProfessionalsFromAGHU();
 
             if (aghuResponse?.Professionals == null || !aghuResponse.Professionals.Any())
-                return;
+                return 0;
 
             var professionalsFromApi = aghuResponse.Professionals;
             var usersDatabase = await _userRepository.GetAllAsync();
@@ -70,6 +70,8 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
             }
 
             await _userRepository.SaveChangesAsync();
+
+            return aghuResponse.Professionals.Count();
         }
     }
 }

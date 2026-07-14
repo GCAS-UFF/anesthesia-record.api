@@ -15,12 +15,12 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
             _drugRepository = drugRepository;
         }
 
-        public async Task SyncMedicines()
+        public async Task<int> SyncMedicines()
         {
             var response = await _medicineApiReadOnlyRepository.GetDrugsFromAGHU();
 
             if (response != null && response.Drugs == null || !response.Drugs.Any())
-                return;
+                return 0;
 
             var dbDrugs = await _drugRepository.GetAllAsync();
             var drugsByExternalId = dbDrugs.Where(x => !string.IsNullOrWhiteSpace(x.ExternalId)).ToDictionary(x => x.ExternalId);
@@ -58,6 +58,8 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
             }
 
             await _drugRepository.SaveChangesAsync();
+
+            return response.Drugs.Count();
         }
     }
 }

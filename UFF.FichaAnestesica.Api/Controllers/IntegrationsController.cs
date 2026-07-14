@@ -4,13 +4,13 @@ using UFF.FichaAnestesica.Infra.Repositories.Aghu;
 using UFF.FichaAnestesica.Service.Services.Aghu;
 
 [ApiController]
-[Route("integrations")]
-public class IntegrationController : ControllerBase
+[Route("api/[controller]")]
+public class IntegrationsController : ControllerBase
 {
     private readonly IProfessionalApiService _professionalApiService;
     private readonly IMedicineApiService _medicineApiService;
 
-    public IntegrationController(IProfessionalApiService professionalApiService, IMedicineApiService medicineApiService)
+    public IntegrationsController(IProfessionalApiService professionalApiService, IMedicineApiService medicineApiService)
     {
         _professionalApiService = professionalApiService;
         _medicineApiService = medicineApiService;
@@ -21,8 +21,8 @@ public class IntegrationController : ControllerBase
     {
         try
         {
-            await _professionalApiService.SyncProfessionals();
-            return Ok(CommandResult.Success(true));
+            var total = await _professionalApiService.SyncProfessionals();
+            return Ok(CommandResult.Success(total));
         }
         catch (Exception ex)
         {
@@ -35,12 +35,12 @@ public class IntegrationController : ControllerBase
     {
         try
         {
-            await _medicineApiService.SyncMedicines();
-            return Ok(CommandResult.Success(true));
+            var total = await _medicineApiService.SyncMedicines();
+            return Ok(CommandResult.Success(total));
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             return BadRequest(CommandResult.Fail(ex.Message));
-        }       
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using UFF.FichaAnestesica.Domain.Dto;
 using UFF.FichaAnestesica.Domain.Entities;
 using UFF.FichaAnestesica.Domain.Enums;
+using UFF.FichaAnestesica.Domain.Extensions;
 
 namespace UFF.FichaAnestesica.Domain.Response
 {
@@ -115,7 +116,7 @@ namespace UFF.FichaAnestesica.Domain.Response
 
         public DateTime? LastUpdate { get; set; }
 
-        public SurgeryStatusEnum AnesthesiaRecordStatus { get; set; }
+        public SurgeryStatusEnum Status { get; set; }
 
 
         public static AnesthesiaRecordResponse ToResponse(AnesthesiaRecord anesthesiaRecord, PatientListDto patientDetail)
@@ -126,7 +127,8 @@ namespace UFF.FichaAnestesica.Domain.Response
                 {
                     FullName = patientDetail.FullName,
                     BirthDate = patientDetail.BirthDate,
-                    Age = 32,
+                    Age = patientDetail.BirthDate.Date.GetAge(),
+                    Status = patientDetail.HaveFirstAnesthesist && ParseStatus(patientDetail.Status) != SurgeryStatusEnum.Completed ? SurgeryStatusEnum.InProgress : ParseStatus(patientDetail.Status),
                     Gender = patientDetail.Gender,
                     WeightKg = patientDetail.WeightKg,
                     MedicalRecordNumber = patientDetail.MedicalRecordNumber,
@@ -190,7 +192,7 @@ namespace UFF.FichaAnestesica.Domain.Response
                 ClinicalDischargeCondition = anesthesiaRecord.ClinicalDischargeCondition,
                 Destination = anesthesiaRecord.Destination,
                 HasPain = anesthesiaRecord.HasPain,
-                AnesthesiaRecordStatus = anesthesiaRecord.AnesthesiaRecordStatus,
+                Status = anesthesiaRecord.Status,
                 FirstAnesthesiologistId = anesthesiaRecord.FirstAnesthesiologistId,
                 FirstAnesthesiologistName = anesthesiaRecord.FirstAnesthesiologist?.Name,
                 SecondAnesthesiologistId = anesthesiaRecord.SecondAnesthesiologistId,
@@ -232,7 +234,7 @@ namespace UFF.FichaAnestesica.Domain.Response
             {
                 Id = surgery.Id,
                 SurgeryDate = surgery.SurgeryDate,
-                //Status = ParseStatus(surgery.SurgeryStatus),
+                Status = ParseStatus(surgery.SurgeryStatus),
                 Specialty = surgery.Specialty == null
                     ? null
                     : new SpecialtyResponse
@@ -282,6 +284,20 @@ namespace UFF.FichaAnestesica.Domain.Response
                     {
                         Description = allergy.Medication.Description
                     }
+            };
+        }
+
+        private static SurgeryStatusEnum ParseStatus(string status)
+        {
+            return status?.ToLower() switch
+            {
+                "agendada" => SurgeryStatusEnum.Scheduled,
+                "em_progresso" => SurgeryStatusEnum.InProgress,
+                "cancelada" => SurgeryStatusEnum.Canceled,
+                "em_preparacao" => SurgeryStatusEnum.Preparing,
+                "em_andamento" => SurgeryStatusEnum.InProgress,
+                "finalizada" => SurgeryStatusEnum.Completed,
+                _ => SurgeryStatusEnum.Scheduled
             };
         }
     }

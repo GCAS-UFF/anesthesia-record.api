@@ -2,6 +2,6 @@
 {
     public interface IMedicineApiService
     {
-        Task SyncMedicines();
+        Task<int> SyncMedicines();
     }
 }

@@ -6,7 +6,7 @@ using UFF.FichaAnestesica.Domain.Services;
 namespace UFF.FichaAnestesica.Api.Controllers
 {
     [ApiController]
-    [Route("surgeries")]
+    [Route("api/[controller]")]
     public class SurgeriesController : ControllerBase
     {
         private readonly ISurgeryService _surgeriesService;

@@ -201,7 +201,7 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
             builder.Property(x => x.HasPain)
                 .HasColumnName("has_pain");
 
-            builder.Property(x => x.AnesthesiaRecordStatus)
+            builder.Property(x => x.Status)
                 .HasColumnName("status")
                 .HasConversion<int>()
                 .IsRequired();

@@ -58,7 +58,7 @@ namespace UFF.FichaAnestesica.Service.Mappers
                     Gender = patient.Gender,                     
                     WeightKg = patient.WeightKg, 
                     HeightCm = patient.HeightCm,
-                    Status = patient.HaveFirstAnesthesist && SurgeryStatusEnumMapping.Parse(patient.Status) != SurgeryStatusEnum.Completed ? SurgeryStatusEnum.InProgress : SurgeryStatusEnumMapping.Parse(patient.Status),
+                    Status = SurgeryStatusEnumMapping.Parse(patient.Status),
                     Age = CalculateAge(patient.BirthDate),                    
                     ExpectedAt = patient.ExpectedAt,
                     Room = patient.Room,                    

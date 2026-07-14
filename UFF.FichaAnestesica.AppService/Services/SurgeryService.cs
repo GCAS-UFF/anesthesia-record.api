@@ -2,6 +2,7 @@ using UFF.FichaAnestesica.Domain.Commands;
 using UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord;
 using UFF.FichaAnestesica.Domain.Entities;
 using UFF.FichaAnestesica.Domain.Enums;
+using UFF.FichaAnestesica.Domain.Extensions;
 using UFF.FichaAnestesica.Domain.Repositories;
 using UFF.FichaAnestesica.Domain.Repositories.ReadOnly;
 using UFF.FichaAnestesica.Domain.Response;
@@ -120,8 +121,104 @@ namespace UFF.FichaAnestesica.Service.Services
                 if (recordsBySurgeryId.TryGetValue(patient.SurgeryId, out var record))
                 {
                     patient.HaveFirstAnesthesist = record.FirstAnesthesiologist != null;
+                    patient.Status = record.Status.GetDescription();
+
                 }
             }
+        }
+
+        public async Task<CommandResult> GetMyPatientsAsync(int doctorId, DateTime? date, string term, SurgeryStatusEnum? status, int page = 1, int size = 10)
+        {
+            if (date.HasValue)
+                date = DateTime.SpecifyKind(date.Value, DateTimeKind.Utc);
+
+            var anesthesiaRecords = await _anesthesiaRecordRepository.GetByDoctorAndDateAsync(doctorId, date);
+
+            if (!anesthesiaRecords.Any())
+            {
+                return CommandResult.Success(new PagedResponse<PatientSurgeryResponse>
+                {
+                    Data = [],
+                    Page = page,
+                    PageSize = size,
+                    TotalItems = 0
+                });
+            }
+
+            var surgeryIds = anesthesiaRecords.Select(x => x.Id).Distinct().ToList();
+
+            var hospitalData = await _hospitalApiRepository.GetMyPatientsFromHospitalAsync(surgeryIds, term, page, size);
+
+            if (hospitalData.Data == null || !hospitalData.Data.Any())
+            {
+                return CommandResult.Success(new PagedResponse<PatientSurgeryResponse>
+                {
+                    Data = [],
+                    Page = hospitalData.Page,
+                    PageSize = hospitalData.PageSize,
+                    TotalItems = hospitalData.TotalItems
+                });
+            }
+
+            var recordsBySurgeryId = anesthesiaRecords.ToDictionary(x => x.Id, x => x);
+
+            SetSurgeryStatus(hospitalData, recordsBySurgeryId);
+
+            var responseData = PatientResponseMapper.Map(hospitalData.Data);
+
+            foreach (var patient in responseData)
+            {
+                if (!recordsBySurgeryId.TryGetValue(patient.SurgeryId, out var record))
+                    continue;
+
+                if (record.FirstAnesthesiologist != null)
+                {
+                    patient.FirstAnesthesiologist = new ResponsibleResponse
+                    {
+                        Id = record.FirstAnesthesiologist.Id,
+                        FullName = record.FirstAnesthesiologist.Name,
+                        Registration = record.FirstAnesthesiologist.Registration
+                    };
+                }
+
+                if (record.SecondAnesthesiologist != null)
+                {
+                    patient.SecondAnesthesiologist = new ResponsibleResponse
+                    {
+                        Id = record.SecondAnesthesiologist.Id,
+                        FullName = record.SecondAnesthesiologist.Name,
+                        Registration = record.SecondAnesthesiologist.Registration
+                    };
+                }
+
+                if (record.Surgeon != null)
+                {
+                    patient.Surgeon = new ResponsibleResponse
+                    {
+                        Id = record.Surgeon.Id,
+                        FullName = record.Surgeon.Name,
+                        Registration = record.Surgeon.Registration
+                    };
+                }
+
+                if (record.Assistant != null)
+                {
+                    patient.Assistant = new ResponsibleResponse
+                    {
+                        Id = record.Assistant.Id,
+                        FullName = record.Assistant.Name,
+                        Registration = record.Assistant.Registration
+                    };
+                }
+            }
+
+            return CommandResult.Success(new PagedResponse<PatientSurgeryResponse>
+            {
+                Data = responseData,
+                Page = hospitalData.Page,
+                PageSize = hospitalData.PageSize,
+                TotalItems = hospitalData.TotalItems
+            });
         }
 
         public async Task<CommandResult> GetPatientAnesthesiaRecordByIdAsync(string patientId, int surgeryId)

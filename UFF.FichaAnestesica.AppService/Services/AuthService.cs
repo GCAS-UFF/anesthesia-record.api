@@ -93,7 +93,7 @@ namespace UFF.FichaAnestesica.Service.Services
                     nome = user.Name,
                     email = user.Email,
                     login = user.Login,
-                    role = EnumExtensions.GetDescription(user.MedicalSpecialty),
+                    role = user.MedicalSpecialty.GetDescription(),
                     sector = hospitalUser.Sector
                 }
             });

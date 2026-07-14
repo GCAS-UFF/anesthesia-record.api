@@ -1,6 +1,7 @@
 using UFF.FichaAnestesica.Domain.Commands;
 using UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord;
 using UFF.FichaAnestesica.Domain.Entities;
+using UFF.FichaAnestesica.Domain.Enums;
 using UFF.FichaAnestesica.Domain.Repositories;
 using UFF.FichaAnestesica.Domain.Repositories.ReadOnly;
 using UFF.FichaAnestesica.Domain.Response;
@@ -63,10 +64,10 @@ public class AnesthesiaRecordService : IAnesthesiaRecordService
         var patient = await _hospitalApiRepository.GetFromHospitalByPatientIdAndSurgeryIdAsync(command.ExternalPatientId, command.SurgeryId);
 
         if (anesthesiaRecord == null)
-            throw new Exception("Ficha anest�sica n�o encontrada");
+            throw new Exception("Ficha anestésica não encontrada");
 
-        //if (anesthesiaRecord.AnesthesiaRecordStatus == UFF.FichaAnestesica.Domain.Enums.AnesthesiaRecordStatus.Completed)
-        //    throw new Exception("N�o � poss�vel alterar uma ficha salva previamente");
+        if (anesthesiaRecord.Status == SurgeryStatusEnum.Completed)
+            throw new Exception("Não é possível alterar uma ficha depois da cirurgia finalizada.");
 
         try
         {

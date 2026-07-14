@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using UFF.FichaAnestesica.CrossCutting.Extensions;
@@ -39,6 +38,54 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
             var queryString = string.Join("&", queryParams);
 
             var response = await _httpClient.GetAsync($"/cirurgias?{queryString}");
+
+            response.EnsureSuccessStatusCode();
+
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                Converters = { new CustomDateTimeConverter(), new CrossCutting.Helpers.DateOnlyConverter(), new StringToDoubleConverter() }
+            };
+
+            var data = await response.Content.ReadFromJsonAsync<PatientsApiListDto>(options);
+
+            return new PagedResponse<PatientListDto>
+            {
+                Data = data?.Patients ?? [],
+                Page = data?.Page ?? page,
+                PageSize = data?.PageSize ?? pageSize,
+                TotalItems = data?.TotalItems ?? 0,
+                HasNext = data?.HasNext ?? false
+            };
+        }
+
+        public async Task<PagedResponse<PatientListDto>> GetMyPatientsFromHospitalAsync(IEnumerable<int> surgeryIds, string? term, int page = 1, int pageSize = 10)
+        {
+            if (surgeryIds == null || !surgeryIds.Any())
+            {
+                return new PagedResponse<PatientListDto>
+                {
+                    Data = [],
+                    Page = page,
+                    PageSize = pageSize,
+                    TotalItems = 0,
+                    HasNext = false
+                };
+            }
+
+            var queryParams = new List<string>
+            {
+                $"ids={string.Join(",", surgeryIds)}",
+                $"page={page}",
+                $"pageSize={pageSize}"
+            };
+
+            if (!string.IsNullOrWhiteSpace(term))
+                queryParams.Add($"termo={Uri.EscapeDataString(term)}");          
+
+            var queryString = string.Join("&", queryParams);
+
+            var response = await _httpClient.GetAsync($"/cirurgias/por-ids?{queryString}");
 
             response.EnsureSuccessStatusCode();
 

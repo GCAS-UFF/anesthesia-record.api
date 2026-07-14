@@ -180,7 +180,7 @@ namespace UFF.FichaAnestesica.Test.Services
 
             Assert.True(result.Valid);
             Assert.Equal(SurgeryStatusEnum.Completed, monitoringRecord.Status);
-            Assert.Equal(SurgeryStatusEnum.Completed, anesthesiaRecord.AnesthesiaRecordStatus);
+            Assert.Equal(SurgeryStatusEnum.Completed, anesthesiaRecord.Status);
             _monitoringRepoMock.Verify(r => r.Update(monitoringRecord), Times.Once);
             _anesthesiaRepoMock.Verify(r => r.SaveChangesAsync(), Times.Once);
         }

@@ -5,7 +5,7 @@ using UFF.FichaAnestesica.Domain.Services;
 namespace UFF.FichaAnestesica.Api.Controllers
 {
     [ApiController]
-    [Route("api/monitoring")]
+    [Route("api/[controller]")]
     public class MonitoringRecordController : ControllerBase
     {
         private readonly IMonitoringRecordService _monitoringRecordService;

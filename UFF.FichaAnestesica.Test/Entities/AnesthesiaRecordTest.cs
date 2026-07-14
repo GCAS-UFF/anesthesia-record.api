@@ -35,7 +35,7 @@ namespace UFF.FichaAnestesica.Test.Entities
             Assert.Equal(SurgicalPositionEnum.Supine, record.SurgicalPosition);
             Assert.Equal(new DateOnly(2025, 6, 1), record.RecordDate);
             Assert.Equal("123", record.ExternalPatientId);
-            Assert.Equal(SurgeryStatusEnum.Scheduled, record.AnesthesiaRecordStatus);
+            Assert.Equal(SurgeryStatusEnum.Scheduled, record.Status);
             Assert.NotEqual(default, record.CreatedAt);
             Assert.NotEqual(default, record.LastUpdate);
         }
@@ -75,7 +75,7 @@ namespace UFF.FichaAnestesica.Test.Entities
             Assert.Equal("Hérnia inguinal direta", record.PostOperativeDiagnosis);
             Assert.Equal(2, record.ConsciousnessScore);
             Assert.Equal(10, record.TotalAldreteKroulikScore);
-            Assert.Equal(SurgeryStatusEnum.Completed, record.AnesthesiaRecordStatus);
+            Assert.Equal(SurgeryStatusEnum.Completed, record.Status);
             Assert.NotEqual(default, record.LastUpdate);
         }
 
@@ -87,7 +87,7 @@ namespace UFF.FichaAnestesica.Test.Entities
 
             record.SetStatus(SurgeryStatusEnum.Canceled);
 
-            Assert.Equal(SurgeryStatusEnum.Canceled, record.AnesthesiaRecordStatus);
+            Assert.Equal(SurgeryStatusEnum.Canceled, record.Status);
             Assert.NotEqual(oldLastUpdate, record.LastUpdate);
         }
 

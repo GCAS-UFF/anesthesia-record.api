@@ -2,6 +2,7 @@
 using UFF.FichaAnestesica.Application.Interfaces;
 using UFF.FichaAnestesica.Domain.Commands;
 using UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord;
+using UFF.FichaAnestesica.Domain.Enums;
 using UFF.FichaAnestesica.Domain.Services;
 
 namespace UFF.FichaAnestesica.Api.Controllers
@@ -11,17 +12,20 @@ namespace UFF.FichaAnestesica.Api.Controllers
     public class AnesthesiaRecordController : ControllerBase
     {
         private readonly IAnesthesiaRecordService _anesthesiaRecordService;
+        private readonly ISurgeryService _surgeryService;
 
         private readonly IRazorViewRenderer _razorViewRenderer;
         private readonly IPdfService _pdfService;
 
         public AnesthesiaRecordController(IAnesthesiaRecordService anesthesiaRecordService, IRazorViewRenderer razorViewRenderer,
-            IPdfService pdfService)
+            IPdfService pdfService, ISurgeryService surgeryService)
         {
             _anesthesiaRecordService = anesthesiaRecordService;
 
             _razorViewRenderer = razorViewRenderer;
             _pdfService = pdfService;
+            _surgeryService = surgeryService;
+
         }
 
         [HttpPost]
@@ -56,6 +60,12 @@ namespace UFF.FichaAnestesica.Api.Controllers
             return Ok(surgeries);
         }
 
+        [HttpGet("my-patients")]
+        public async Task<IActionResult> GetMyPatients([FromQuery] int doctorId, [FromQuery] DateTime? date, [FromQuery] string? term, [FromQuery] SurgeryStatusEnum? status, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            var result = await _surgeryService.GetMyPatientsAsync(doctorId, date, term, status, page, pageSize);
+            return Ok(result);
+        }
 
         [HttpGet("{id}/print")]
         public async Task<IActionResult> Print([FromRoute] int id)

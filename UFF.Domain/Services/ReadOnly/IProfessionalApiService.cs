@@ -2,7 +2,6 @@
 {
     public interface IProfessionalApiService
     {
-        Task SyncProfessionals();
-
+        Task<int> SyncProfessionals();
     }
 }
