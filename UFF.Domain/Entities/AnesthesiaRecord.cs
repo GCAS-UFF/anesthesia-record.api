@@ -74,6 +74,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
         public MonitoringRecord? MonitoringRecord { get; private set; }
         public string ExternalPatientId { get; private set; } = string.Empty;
         public DateOnly RecordDate { get; private set; }
+        public DateTime SurgeryDate { get; private set; }
         public SurgeryStatusEnum Status { get; private set; }
         public DateTime CreatedAt { get; protected set; }
         public DateTime LastUpdate { get; protected set; }
@@ -195,6 +196,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
 
             ExternalPatientId = command.ExternalPatientId;
             RecordDate = command.RecordDate;
+            SurgeryDate = command.SurgeryDate;
         }
     }
 }

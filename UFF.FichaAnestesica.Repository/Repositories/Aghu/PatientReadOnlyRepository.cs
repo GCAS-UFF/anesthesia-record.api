@@ -19,7 +19,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
             _httpClient = factory.CreateClient("HospitalApi");
         }
 
-        public async Task<PagedResponse<PatientListDto>> GetPatientsFromHospitalAsync(DateTime? date, string term, SurgeryStatusEnum? status, int page = 1, int pageSize = 10)
+        public async Task<PagedResponse<PatientDetailDto>> GetPatientsFromHospitalAsync(DateTime? date, string term, SurgeryStatusEnum? status, int page = 1, int pageSize = 10)
         {
             var queryParams = new List<string>();
 
@@ -44,12 +44,12 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
             var options = new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true,
-                Converters = { new CustomDateTimeConverter(), new CrossCutting.Helpers.DateOnlyConverter(), new StringToDoubleConverter() }
+                Converters = { new CustomDateTimeConverter(), new DateOnlyConverter(), new StringToDoubleConverter() }
             };
 
-            var data = await response.Content.ReadFromJsonAsync<PatientsApiListDto>(options);
+            var data = await response.Content.ReadFromJsonAsync<PatientsListDto>(options);
 
-            return new PagedResponse<PatientListDto>
+            return new PagedResponse<PatientDetailDto>
             {
                 Data = data?.Patients ?? [],
                 Page = data?.Page ?? page,
@@ -59,11 +59,11 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
             };
         }
 
-        public async Task<PagedResponse<PatientListDto>> GetMyPatientsFromHospitalAsync(IEnumerable<int> surgeryIds, string? term, int page = 1, int pageSize = 10)
+        public async Task<PagedResponse<PatientDetailDto>> GetMyPatientsFromHospitalAsync(IEnumerable<int> surgeryIds, string? term, int page = 1, int pageSize = 10)
         {
             if (surgeryIds == null || !surgeryIds.Any())
             {
-                return new PagedResponse<PatientListDto>
+                return new PagedResponse<PatientDetailDto>
                 {
                     Data = [],
                     Page = page,
@@ -95,9 +95,9 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
                 Converters = { new CustomDateTimeConverter(), new CrossCutting.Helpers.DateOnlyConverter(), new StringToDoubleConverter() }
             };
 
-            var data = await response.Content.ReadFromJsonAsync<PatientsApiListDto>(options);
+            var data = await response.Content.ReadFromJsonAsync<PatientsListDto>(options);
 
-            return new PagedResponse<PatientListDto>
+            return new PagedResponse<PatientDetailDto>
             {
                 Data = data?.Patients ?? [],
                 Page = data?.Page ?? page,
@@ -107,7 +107,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
             };
         }
 
-        public async Task<PatientListDto?> GetFromHospitalByPatientIdAndSurgeryIdAsync(string patientId, int surgeryId)
+        public async Task<PatientDetailDto?> GetFromHospitalByPatientIdAndSurgeryIdAsync(string patientId, int surgeryId)
         {
             if (string.IsNullOrWhiteSpace(patientId) || surgeryId == default)
                 return null;
@@ -119,7 +119,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
 
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadFromJsonAsync<PatientListDto>();
+            return await response.Content.ReadFromJsonAsync<PatientDetailDto>();
         }
     }
 }

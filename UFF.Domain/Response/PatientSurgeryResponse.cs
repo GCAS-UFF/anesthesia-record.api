@@ -6,6 +6,7 @@ namespace UFF.FichaAnestesica.Domain.Response
     {
         public int SurgeryId { get; set; }
         public string PatientId { get; set; }
+        public DateTime SurgeryDate { get; set; }
         public string MedicalRecordNumber { get; set; }
         public string FullName { get; set; }
         public DateTime BirthDate { get; set; }

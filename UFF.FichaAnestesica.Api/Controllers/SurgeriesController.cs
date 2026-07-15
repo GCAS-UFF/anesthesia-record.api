@@ -16,11 +16,11 @@ namespace UFF.FichaAnestesica.Api.Controllers
             _surgeriesService = surgeriesService;
         }
 
-        [HttpGet]
+        [HttpGet("{doctorId}")]
         //[Authorize]
-        public async Task<IActionResult> GetSurgeries([FromQuery] DateTime? date, [FromQuery] string? term, [FromQuery] SurgeryStatusEnum? status, [FromQuery] int page = 1, [FromQuery] int size = 10)
+        public async Task<IActionResult> GetSurgeries([FromRoute] int doctorId, [FromQuery] DateTime? date, [FromQuery] string? term, [FromQuery] SurgeryStatusEnum? status, [FromQuery] int page = 1, [FromQuery] int size = 10)
         {
-            var surgeries = await _surgeriesService.GetPatientsWithSurgeriesAsync(date, term, status, page, size);
+            var surgeries = await _surgeriesService.GetPatientsWithSurgeriesAsync(doctorId, date, term, status, page, size);
             return Ok(surgeries);
         }
 

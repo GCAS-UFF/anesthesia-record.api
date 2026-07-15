@@ -111,6 +111,7 @@ namespace UFF.FichaAnestesica.Domain.Response
         public string ExternalPatientId { get; set; } = string.Empty;
 
         public DateOnly RecordDate { get; set; }
+        public DateTime SurgeryDate { get; set; }
 
         public DateTime CreatedAt { get; set; }
 
@@ -119,7 +120,7 @@ namespace UFF.FichaAnestesica.Domain.Response
         public SurgeryStatusEnum Status { get; set; }
 
 
-        public static AnesthesiaRecordResponse ToResponse(AnesthesiaRecord anesthesiaRecord, PatientListDto patientDetail)
+        public static AnesthesiaRecordResponse ToResponse(AnesthesiaRecord anesthesiaRecord, PatientDetailDto patientDetail)
         {
             return new AnesthesiaRecordResponse
             {
@@ -133,7 +134,7 @@ namespace UFF.FichaAnestesica.Domain.Response
                     WeightKg = patientDetail.WeightKg,
                     MedicalRecordNumber = patientDetail.MedicalRecordNumber,
                     Surgeries = patientDetail.Surgeries?.Select(MapSurgery).ToList() ?? new List<SurgeryResponse>(),
-                    Allergies = patientDetail.Allergies?.Select(MapAllergy).ToList() ?? new List<Domain.Response.ListAllergyDto>(),
+                    Allergies = patientDetail.Allergies?.Select(MapAllergy).ToList() ?? new List<ListAllergyDto>(),
                     CurrentLocation = MapLocation(patientDetail.CurrentLocation)
                 },
                 SurgeryId = anesthesiaRecord.Id,
@@ -202,6 +203,7 @@ namespace UFF.FichaAnestesica.Domain.Response
                 AssistantId = anesthesiaRecord.AssistantId,
                 AssistantName = anesthesiaRecord.Assistant?.Name,
                 RecordDate = anesthesiaRecord.RecordDate,
+                SurgeryDate = anesthesiaRecord.SurgeryDate,
                 CreatedAt = anesthesiaRecord.CreatedAt,
                 LastUpdate = anesthesiaRecord.LastUpdate
             };

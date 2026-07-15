@@ -37,9 +37,9 @@ namespace UFF.FichaAnestesica.Test.Services
         {
             _hospitalApiRepoMock
                 .Setup(h => h.GetPatientsFromHospitalAsync(It.IsAny<DateTime?>(), string.Empty, It.IsAny<SurgeryStatusEnum?>(), It.IsAny<int>(), It.IsAny<int>()))
-                .ReturnsAsync(new PagedResponse<PatientListDto> { Data = new List<PatientListDto>(), TotalItems = 0, Page = 1, PageSize = 10 });
+                .ReturnsAsync(new PagedResponse<PatientDetailDto> { Data = new List<PatientDetailDto>(), TotalItems = 0, Page = 1, PageSize = 10 });
 
-            var result = await _service.GetPatientsWithSurgeriesAsync(null, string.Empty, null);
+            var result = await _service.GetPatientsWithSurgeriesAsync(1, null, string.Empty, null);
             var paged = Assert.IsType<PagedResponse<PatientSurgeryResponse>>(result.Data);
             Assert.True(result.Valid);
             Assert.Empty(paged.Data);
@@ -48,7 +48,7 @@ namespace UFF.FichaAnestesica.Test.Services
         [Fact]
         public async Task GetPatientsWithSurgeriesAsync_Should_Set_Anesthesiologists_Null_When_No_Record()
         {
-            var patientDto = new PatientListDto
+            var patientDto = new PatientDetailDto
             {
                 PatientId = "P1",
                 FullName = "João",
@@ -57,10 +57,10 @@ namespace UFF.FichaAnestesica.Test.Services
             };
             _hospitalApiRepoMock
                 .Setup(h => h.GetPatientsFromHospitalAsync(It.IsAny<DateTime?>(), string.Empty, It.IsAny<SurgeryStatusEnum?>(), It.IsAny<int>(), It.IsAny<int>()))
-                .ReturnsAsync(new PagedResponse<PatientListDto> { Data = new List<PatientListDto> { patientDto }, TotalItems = 1 });
+                .ReturnsAsync(new PagedResponse<PatientDetailDto> { Data = new List<PatientDetailDto> { patientDto }, TotalItems = 1 });
             _anesthesiaRepoMock.Setup(a => a.GetByIdsAsync(It.IsAny<string[]>())).ReturnsAsync(new List<AnesthesiaRecord>());
 
-            var result = await _service.GetPatientsWithSurgeriesAsync(null, string.Empty, null);
+            var result = await _service.GetPatientsWithSurgeriesAsync(1, null, string.Empty, null);
             var paged = Assert.IsType<PagedResponse<PatientSurgeryResponse>>(result.Data);
             var patient = Assert.Single(paged.Data);
             Assert.Null(patient.FirstAnesthesiologist);
@@ -72,7 +72,7 @@ namespace UFF.FichaAnestesica.Test.Services
         {
             _hospitalApiRepoMock
                 .Setup(h => h.GetFromHospitalByPatientIdAndSurgeryIdAsync("P99", 99))
-                .ReturnsAsync((PatientListDto?)null);
+                .ReturnsAsync((PatientDetailDto?)null);
 
             var result = await _service.GetPatientAnesthesiaRecordByIdAsync("P99", 99);
             Assert.Null(result);
@@ -81,7 +81,7 @@ namespace UFF.FichaAnestesica.Test.Services
         [Fact]
         public async Task GetPatientAnesthesiaRecordByIdAsync_Should_Return_Detail_When_Found()
         {
-            var patientDto = new PatientListDto
+            var patientDto = new PatientDetailDto
             {
                 PatientId = "P1",
                 FullName = "Maria",
@@ -106,7 +106,7 @@ namespace UFF.FichaAnestesica.Test.Services
         {
             _hospitalApiRepoMock
                 .Setup(h => h.GetFromHospitalByPatientIdAndSurgeryIdAsync("P1", 1))
-                .ReturnsAsync((PatientListDto?)null);
+                .ReturnsAsync((PatientDetailDto?)null);
 
             await Assert.ThrowsAsync<Exception>(() => _service.AssumePatientAsync("P1", 1, 10));
         }
@@ -114,7 +114,7 @@ namespace UFF.FichaAnestesica.Test.Services
         [Fact]
         public async Task AssumePatientAsync_Should_Create_Record_And_Monitoring_When_New()
         {
-            var patientDto = new PatientListDto
+            var patientDto = new PatientDetailDto
             {
                 PatientId = "P1",
                 FullName = "João",
@@ -139,7 +139,7 @@ namespace UFF.FichaAnestesica.Test.Services
         {
             _hospitalApiRepoMock
                 .Setup(h => h.GetFromHospitalByPatientIdAndSurgeryIdAsync("P1", 1))
-                .ReturnsAsync(new PatientListDto
+                .ReturnsAsync(new PatientDetailDto
                 {
                     PatientId = "P1",
                     FullName = "João",

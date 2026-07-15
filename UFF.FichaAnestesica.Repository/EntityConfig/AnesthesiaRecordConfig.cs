@@ -216,6 +216,11 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .HasColumnType("date")
                 .IsRequired();
 
+            builder.Property(x => x.SurgeryDate)
+              .HasColumnName("surgery_date")
+              .HasColumnType("date")
+              .IsRequired();
+
             builder.Property(x => x.CreatedAt)
                 .HasColumnName("created_at")
                 .HasColumnType("timestamptz");

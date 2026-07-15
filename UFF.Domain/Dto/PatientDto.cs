@@ -3,10 +3,10 @@ using UFF.FichaAnestesica.Domain.Helpers;
 
 namespace UFF.FichaAnestesica.Domain.Dto
 {
-    public class PatientsApiListDto
+    public class PatientsListDto
     {
         [JsonPropertyName("cirurgias")]
-        public List<PatientListDto> Patients { get; set; } = [];
+        public List<PatientDetailDto> Patients { get; set; } = [];
 
         [JsonPropertyName("totalItems")]
         public int TotalItems { get; set; }
@@ -21,8 +21,11 @@ namespace UFF.FichaAnestesica.Domain.Dto
         public bool HasNext { get; set; }
     }
 
-    public class PatientListDto
+    public class PatientDetailDto
     {
+        [JsonPropertyName("data_cirurgia")]
+        public DateTime SurgeryDate { get; set; }
+
         [JsonPropertyName("cirurgia_id")]
         public int SurgeryId { get; set; }
 

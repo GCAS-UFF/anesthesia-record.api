@@ -7,5 +7,6 @@
         public int Page { get; set; }
         public int PageSize { get; set; }
         public bool HasNext {  get; set; }
+        public bool CanAssumePatient { get; set; }
     }
 }

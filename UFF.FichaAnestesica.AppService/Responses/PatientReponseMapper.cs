@@ -8,7 +8,7 @@ namespace UFF.FichaAnestesica.Service.Mappers
 {
     public static class PatientResponseMapper
     {
-        public static PatientSurgeryResponse Map(PatientListDto patient, User? user)
+        public static PatientSurgeryResponse Map(PatientDetailDto patient, User? user)
         {
             if (patient == null)
                 return null;
@@ -16,6 +16,7 @@ namespace UFF.FichaAnestesica.Service.Mappers
             return new PatientSurgeryResponse
             {
                 SurgeryId = patient.SurgeryId,
+                SurgeryDate = patient.SurgeryDate,
                 PatientId = patient.PatientId,
                 MedicalRecordNumber = patient.MedicalRecordNumber,
                 FullName = patient.FullName,
@@ -39,7 +40,7 @@ namespace UFF.FichaAnestesica.Service.Mappers
             };
         }
 
-        public static List<PatientSurgeryResponse> Map(IEnumerable<PatientListDto> patients)
+        public static List<PatientSurgeryResponse> Map(IEnumerable<PatientDetailDto> patients)
         {
             if (patients == null || !patients.Any())
                 return null;
@@ -52,6 +53,7 @@ namespace UFF.FichaAnestesica.Service.Mappers
                 {
                     SurgeryId = patient.SurgeryId,
                     PatientId = patient.PatientId,
+                    SurgeryDate = patient.SurgeryDate,
                     MedicalRecordNumber = patient.MedicalRecordNumber,
                     FullName = patient.FullName,                    
                     BirthDate = patient.BirthDate,
@@ -80,7 +82,7 @@ namespace UFF.FichaAnestesica.Service.Mappers
             return patientsList;
         }
 
-        public static PatientSurgeryResponse MapDetail(PatientListDto patient, User? firstAnesthesiologist, User? secondAnesthesiologist, User? surgeon, User? assistant)
+        public static PatientSurgeryResponse MapDetail(PatientDetailDto patient, User? firstAnesthesiologist, User? secondAnesthesiologist, User? surgeon, User? assistant)
         {
             if (patient == null)
                 return null;
@@ -89,6 +91,7 @@ namespace UFF.FichaAnestesica.Service.Mappers
             {
                 SurgeryId = patient.SurgeryId,
                 PatientId = patient.PatientId,
+                SurgeryDate = patient.SurgeryDate,
                 MedicalRecordNumber = patient.MedicalRecordNumber,
                 FullName = patient.FullName,
                 BirthDate = patient.BirthDate,
@@ -96,7 +99,7 @@ namespace UFF.FichaAnestesica.Service.Mappers
                 Gender = patient.Gender,
                 Status = firstAnesthesiologist != null && SurgeryStatusEnumMapping.Parse(patient.Status) != SurgeryStatusEnum.Completed ? SurgeryStatusEnum.InProgress : SurgeryStatusEnumMapping.Parse(patient.Status),
                 WeightKg = patient.WeightKg,
-                HeightCm = patient.HeightCm,
+                HeightCm = patient.HeightCm,                
                 CurrentLocation = MapLocation(patient.CurrentLocation),
                 Allergies = patient.Allergies?
                     .Select(MapAllergy)
@@ -111,7 +114,7 @@ namespace UFF.FichaAnestesica.Service.Mappers
             };
         }
 
-        public static List<PatientSurgeryResponse> Map(IEnumerable<PatientListDto> patients, User user)
+        public static List<PatientSurgeryResponse> Map(IEnumerable<PatientDetailDto> patients, User user)
             => patients.Select(p => Map(p, user)).ToList();
 
         private static int CalculateAge(DateTime birthDate)

@@ -35,13 +35,19 @@ namespace UFF.FichaAnestesica.Infra.Repositories
                 .ToListAsync();
         }
 
+        public async Task<bool> CanAssumePatientsAsync(int id)
+        {
+            return await _context.AnesthesiaRecords
+                .AnyAsync(x => x.FirstAnesthesiologistId == id
+                && (x.Status == Domain.Enums.SurgeryStatusEnum.InProgress || x.Status == Domain.Enums.SurgeryStatusEnum.Scheduled
+                || x.Status == Domain.Enums.SurgeryStatusEnum.Preparing));
+        }
+
         public async Task<IEnumerable<AnesthesiaRecord>> GetByDoctorAndDateAsync(int doctorId, DateTime? date)
         {
             return await _context.AnesthesiaRecords
                 .Include(x => x.FirstAnesthesiologist)
-                .Where(x => x.FirstAnesthesiologistId == doctorId
-                //&& x.Da)
-                )
+                .Where(x => x.FirstAnesthesiologistId == doctorId && x.SurgeryDate == date)
                 .ToListAsync();
         }
 

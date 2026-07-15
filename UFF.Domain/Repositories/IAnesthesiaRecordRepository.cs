@@ -8,5 +8,6 @@ namespace UFF.FichaAnestesica.Domain.Repositories
         Task<List<AnesthesiaRecord>> GetByIdsAsync(IEnumerable<string> ids);
         Task<AnesthesiaRecord> GetByExternalPatientIdAsync(string id);
         Task<IEnumerable<AnesthesiaRecord>> GetByDoctorAndDateAsync(int doctorId, DateTime? date);
+        Task<bool> CanAssumePatientsAsync(int id);
     }
 }

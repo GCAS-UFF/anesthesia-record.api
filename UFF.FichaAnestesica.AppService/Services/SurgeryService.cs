@@ -26,7 +26,7 @@ namespace UFF.FichaAnestesica.Service.Services
             _monitoringRecordRepository = monitoringRecordRepository;
         }
 
-        public async Task<CommandResult> GetPatientsWithSurgeriesAsync(DateTime? date, string term, SurgeryStatusEnum? status, int page = 1, int size = 10)
+        public async Task<CommandResult> GetPatientsWithSurgeriesAsync(int doctorId, DateTime? date, string term, SurgeryStatusEnum? status, int page = 1, int size = 10)
         {
             if (date.HasValue)
                 date = DateTime.SpecifyKind(date.Value, DateTimeKind.Utc);
@@ -51,6 +51,8 @@ namespace UFF.FichaAnestesica.Service.Services
 
             var responseData = PatientResponseMapper.Map(hospitalData.Data);
             var recordsByPatientId = anesthesiaRecords.GroupBy(x => x.Id).ToDictionary(x => x.Key, x => x.First());
+
+            var canAssumePatient = await _anesthesiaRecordRepository.CanAssumePatientsAsync(doctorId);
 
             foreach (var patient in responseData)
             {
@@ -110,11 +112,12 @@ namespace UFF.FichaAnestesica.Service.Services
                 Data = responseData,
                 Page = hospitalData.Page,
                 PageSize = hospitalData.PageSize,
-                TotalItems = hospitalData.TotalItems
+                TotalItems = hospitalData.TotalItems,
+                CanAssumePatient = !canAssumePatient
             });
         }
 
-        private static void SetSurgeryStatus(PagedResponse<Domain.Dto.PatientListDto> hospitalData, Dictionary<int, AnesthesiaRecord> recordsBySurgeryId)
+        private static void SetSurgeryStatus(PagedResponse<Domain.Dto.PatientDetailDto> hospitalData, Dictionary<int, AnesthesiaRecord> recordsBySurgeryId)
         {
             foreach (var patient in hospitalData.Data)
             {
@@ -161,6 +164,11 @@ namespace UFF.FichaAnestesica.Service.Services
             }
 
             var recordsBySurgeryId = anesthesiaRecords.ToDictionary(x => x.Id, x => x);
+
+            var canAssumePatient = recordsBySurgeryId.Any(x => x.Value.FirstAnesthesiologistId == doctorId 
+            && (x.Value.Status == SurgeryStatusEnum.InProgress)
+            || x.Value.Status == SurgeryStatusEnum.Scheduled
+            || x.Value.Status == SurgeryStatusEnum.Preparing);
 
             SetSurgeryStatus(hospitalData, recordsBySurgeryId);
 
@@ -217,7 +225,8 @@ namespace UFF.FichaAnestesica.Service.Services
                 Data = responseData,
                 Page = hospitalData.Page,
                 PageSize = hospitalData.PageSize,
-                TotalItems = hospitalData.TotalItems
+                TotalItems = hospitalData.TotalItems,
+                CanAssumePatient = !canAssumePatient
             });
         }
 
@@ -238,12 +247,12 @@ namespace UFF.FichaAnestesica.Service.Services
             var patient = await _hospitalApiRepository.GetFromHospitalByPatientIdAndSurgeryIdAsync(patientId, surgeryId);
 
             if (patient == null)
-                throw new Exception("Paciente n�o encontrado");
+                throw new Exception("Paciente não encontrado");
 
             User responsibleAnesthesiologist = null;
 
             if (responsibleAnesthesiologistId > 0)
-                responsibleAnesthesiologist = await _userRepository.GetUserByIdAsync(responsibleAnesthesiologistId.Value);           
+                responsibleAnesthesiologist = await _userRepository.GetUserByIdAsync(responsibleAnesthesiologistId.Value);
 
             var anesthesiaRecord = await _anesthesiaRecordRepository.GetByIdAsync(surgeryId);
 
@@ -251,8 +260,12 @@ namespace UFF.FichaAnestesica.Service.Services
             {
                 if (anesthesiaRecord == null)
                 {
-                    anesthesiaRecord = AnesthesiaRecord.Create(new AnesthesiaRecordCommand { SurgeryId = surgeryId, PatientId = 1, Status = SurgeryStatusEnum.InProgress,
+                    anesthesiaRecord = AnesthesiaRecord.Create(new AnesthesiaRecordCommand
+                    {
+                        SurgeryId = surgeryId,
+                        Status = SurgeryStatusEnum.Preparing,
                         ExternalPatientId = patientId,
+                        SurgeryDate = patient.SurgeryDate,
                         FirstAnesthesiologistId = responsibleAnesthesiologistId,
                         RecordDate = DateOnly.FromDateTime(DateTime.Today)
                     });
@@ -262,7 +275,7 @@ namespace UFF.FichaAnestesica.Service.Services
                 else
                 {
                     anesthesiaRecord.AssignFirstAnesthesiologistId(responsibleAnesthesiologistId);
-                    anesthesiaRecord.SetStatus(SurgeryStatusEnum.InProgress);
+                    anesthesiaRecord.SetStatus(SurgeryStatusEnum.Preparing);
 
                     _anesthesiaRecordRepository.Update(anesthesiaRecord);
                 }

@@ -92,6 +92,7 @@ namespace UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord
         public int PatientId { get; set; }
 
         public DateOnly RecordDate { get; set; }
+        public DateTime SurgeryDate { get; set; }
         public string ExternalPatientId { get; set; }
     }
 }
