@@ -32,7 +32,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories
         public async Task<bool> ExistsByNameAsync(string name)
         {
             return await _context.Drugs
-                .AnyAsync(x => x.Description == name);
+                .AnyAsync(x => x.Description.ToLower() == name.ToLower());
         }
 
         public async Task<List<Drug>> GetActiveAsync()

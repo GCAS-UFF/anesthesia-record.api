@@ -13,6 +13,7 @@
     <None Remove="Dto\DrugDto.cs~RF33d28a6.TMP" />
     <None Remove="Dto\MonitoringRecordDto.cs~RF109620d9.TMP" />
     <None Remove="Dto\PatientDto.cs~RF6a792ed.TMP" />
+    <None Remove="Dto\PatientDto.cs~RFf05804d.TMP" />
     <None Remove="Dto\UserDto.cs~RF74b85f0.TMP" />
     <None Remove="Entities\AdministeredAgent.cs~RF20a31a.TMP" />
     <None Remove="Entities\AnesthesiaRecord.cs~RF4a0de5a.TMP" />

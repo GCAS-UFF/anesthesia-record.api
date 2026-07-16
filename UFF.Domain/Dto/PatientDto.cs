@@ -272,20 +272,5 @@ namespace UFF.FichaAnestesica.Domain.Dto
 
         [JsonPropertyName("descricao")]
         public string Description { get; set; }
-    }
-
-    public class ProcedureDto
-    {
-        [JsonPropertyName("id")]
-        public string Id { get; set; }
-
-        [JsonPropertyName("descricao")]
-        public string Description { get; set; }
-
-        [JsonPropertyName("cid")]
-        public string Cid { get; set; }
-
-        [JsonPropertyName("principal")]
-        public bool IsPrimary { get; set; }
-    }
+    }   
 }

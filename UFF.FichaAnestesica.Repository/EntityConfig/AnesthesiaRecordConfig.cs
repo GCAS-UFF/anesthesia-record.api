@@ -241,6 +241,11 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
             builder.Property(x => x.AssistantId)
                 .HasColumnName("assistant_id");
 
+            builder.HasMany(x => x.Procedures)
+                .WithOne(x => x.AnesthesiaRecord)
+                .HasForeignKey(x => x.AnesthesiaRecordId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             builder.HasOne(x => x.FirstAnesthesiologist)
                 .WithMany()
                 .HasForeignKey(x => x.FirstAnesthesiologistId)

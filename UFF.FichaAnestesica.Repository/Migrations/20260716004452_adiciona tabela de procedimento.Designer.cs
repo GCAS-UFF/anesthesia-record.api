@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using UFF.FichaAnestesica.Infra.Context;
@@ -11,9 +12,11 @@ using UFF.FichaAnestesica.Infra.Context;
 namespace UFF.FichaAnestesica.Infra.Migrations
 {
     [DbContext(typeof(SigaDbCtx))]
-    partial class SigaDbCtxModelSnapshot : ModelSnapshot
+    [Migration("20260716004452_adiciona tabela de procedimento")]
+    partial class adicionatabeladeprocedimento
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -101,7 +104,7 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .HasColumnName("procedure_id");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamptz")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
                     b.Property<bool>("IsPrimary")
@@ -947,30 +950,30 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .HasColumnName("active");
 
                     b.Property<string>("Cid")
-                        .HasColumnType("varchar(20)")
+                        .HasColumnType("text")
                         .HasColumnName("cid");
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("varchar(30)")
+                        .HasColumnType("text")
                         .HasColumnName("code");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamptz")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("varchar(255)")
+                        .HasColumnType("text")
                         .HasColumnName("description");
 
                     b.Property<string>("ExternalId")
                         .IsRequired()
-                        .HasColumnType("varchar(50)")
+                        .HasColumnType("text")
                         .HasColumnName("external_id");
 
                     b.Property<DateTime?>("LastSyncAt")
-                        .HasColumnType("timestamptz")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("last_sync_at");
 
                     b.Property<DateTime>("LastUpdate")
@@ -979,12 +982,7 @@ namespace UFF.FichaAnestesica.Infra.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Code");
-
-                    b.HasIndex("ExternalId")
-                        .IsUnique();
-
-                    b.ToTable("procedures", "siga_db");
+                    b.ToTable("procedure", "siga_db");
                 });
 
             modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.User", b =>
@@ -1199,9 +1197,9 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                     b.HasOne("UFF.FichaAnestesica.Domain.Entities.Procedure", "Procedure")
                         .WithMany("AnesthesiaRecords")
                         .HasForeignKey("ProcedureId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("f_k_anesthesia_record_procedure__procedures_procedure_id");
+                        .HasConstraintName("f_k_anesthesia_record_procedure__procedure_procedure_id");
 
                     b.Navigation("AnesthesiaRecord");
 

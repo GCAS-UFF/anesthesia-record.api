@@ -9,11 +9,14 @@ public class IntegrationsController : ControllerBase
 {
     private readonly IProfessionalApiService _professionalApiService;
     private readonly IMedicineApiService _medicineApiService;
+    private readonly IProcedureApiService _procedureApiService;
 
-    public IntegrationsController(IProfessionalApiService professionalApiService, IMedicineApiService medicineApiService)
+    public IntegrationsController(IProfessionalApiService professionalApiService, IMedicineApiService medicineApiService, IProcedureApiService procedureApiService  )
     {
         _professionalApiService = professionalApiService;
         _medicineApiService = medicineApiService;
+        _procedureApiService = procedureApiService;
+
     }
 
     [HttpPost("sync/professionals")]
@@ -36,6 +39,20 @@ public class IntegrationsController : ControllerBase
         try
         {
             var total = await _medicineApiService.SyncMedicines();
+            return Ok(CommandResult.Success(total));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(CommandResult.Fail(ex.Message));
+        }
+    }
+
+    [HttpPost("sync/procedures")]
+    public async Task<IActionResult> SyncProcedures()
+    {
+        try
+        {
+            var total = await _procedureApiService.SyncProcedures();
             return Ok(CommandResult.Success(total));
         }
         catch (Exception ex)

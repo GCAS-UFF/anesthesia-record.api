@@ -78,6 +78,10 @@ namespace UFF.FichaAnestesica.Domain.Entities
         public SurgeryStatusEnum Status { get; private set; }
         public DateTime CreatedAt { get; protected set; }
         public DateTime LastUpdate { get; protected set; }
+
+        private readonly List<AnesthesiaRecordProcedure> _Procedures = [];
+        public IReadOnlyCollection<AnesthesiaRecordProcedure> Procedures => _Procedures.AsReadOnly();
+
         public static AnesthesiaRecord Create(AnesthesiaRecordCommand command)
         {
             var entity = new AnesthesiaRecord();
@@ -88,6 +92,49 @@ namespace UFF.FichaAnestesica.Domain.Entities
             entity.Status = SurgeryStatusEnum.Scheduled;
 
             return entity;
+        }
+
+        public void AddProcedure(int procedureId, bool isPrimary = false)
+        {
+            if (_Procedures.Any(x => x.ProcedureId == procedureId))
+                return;
+
+            if (isPrimary)
+                ClearPrimaryProcedure();
+
+            _Procedures.Add(AnesthesiaRecordProcedure.Create(procedureId, isPrimary));
+            LastUpdate = DateTime.UtcNow;
+        }
+
+        public void RemoveProcedure(int procedureId)
+        {
+            var procedure = _Procedures
+                .FirstOrDefault(x => x.ProcedureId == procedureId);
+
+            if (procedure == null)
+                return;
+
+            _Procedures.Remove(procedure);
+            LastUpdate = DateTime.UtcNow;
+        }
+
+        public void SetPrimaryProcedure(int procedureId)
+        {
+            ClearPrimaryProcedure();
+
+            var procedure = _Procedures
+                .FirstOrDefault(x => x.ProcedureId == procedureId);
+
+            if (procedure != null)
+                procedure.SetPrimary(true);
+
+            LastUpdate = DateTime.UtcNow;
+        }
+
+        private void ClearPrimaryProcedure()
+        {
+            foreach (var procedure in _Procedures)
+                procedure.SetPrimary(false);
         }
 
         public void AssignFirstAnesthesiologistId(int? id)

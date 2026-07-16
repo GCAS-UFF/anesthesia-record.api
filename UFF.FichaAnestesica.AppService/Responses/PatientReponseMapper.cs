@@ -192,7 +192,7 @@ namespace UFF.FichaAnestesica.Service.Mappers
                 Procedures = surgery.Procedures?
                     .Select(p => new ProcedureResponse
                     {
-                        Id = p.Id,
+                        Id = p.ExternalId.ToString(),
                         Description = p.Description,
                         Cid = p.Cid,
                         IsPrimary = p.IsPrimary
