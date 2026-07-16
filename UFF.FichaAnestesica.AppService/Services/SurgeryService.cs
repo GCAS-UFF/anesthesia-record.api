@@ -1,5 +1,6 @@
 using UFF.FichaAnestesica.Domain.Commands;
 using UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord;
+using UFF.FichaAnestesica.Domain.Dto;
 using UFF.FichaAnestesica.Domain.Entities;
 using UFF.FichaAnestesica.Domain.Enums;
 using UFF.FichaAnestesica.Domain.Extensions;
@@ -47,7 +48,11 @@ namespace UFF.FichaAnestesica.Service.Services
             var patientIds = hospitalData.Data.Select(x => x.PatientId).ToArray();
             var anesthesiaRecords = await _anesthesiaRecordRepository.GetByIdsAsync(patientIds);
             var recordsBySurgeryId = anesthesiaRecords.GroupBy(x => x.Id).ToDictionary(x => x.Key, x => x.First());
+
             SetSurgeryStatus(hospitalData, recordsBySurgeryId);
+
+            await AssociateSurgeryProcedures(hospitalData, recordsBySurgeryId);
+            await _anesthesiaRecordRepository.SaveChangesAsync();
 
             var responseData = PatientResponseMapper.Map(hospitalData.Data);
             var recordsByPatientId = anesthesiaRecords.GroupBy(x => x.Id).ToDictionary(x => x.Key, x => x.First());
@@ -117,7 +122,7 @@ namespace UFF.FichaAnestesica.Service.Services
             });
         }
 
-        private static void SetSurgeryStatus(PagedResponse<Domain.Dto.PatientDetailDto> hospitalData, Dictionary<int, AnesthesiaRecord> recordsBySurgeryId)
+        private static void SetSurgeryStatus(PagedResponse<PatientDetailDto> hospitalData, Dictionary<int, AnesthesiaRecord> recordsBySurgeryId)
         {
             foreach (var patient in hospitalData.Data)
             {
@@ -126,6 +131,47 @@ namespace UFF.FichaAnestesica.Service.Services
                     patient.HaveFirstAnesthesist = record.FirstAnesthesiologist != null;
                     patient.Status = record.Status.GetDescription();
 
+                }
+            }
+        }
+
+        private async Task AssociateSurgeryProcedures(PagedResponse<PatientDetailDto> hospitalData, Dictionary<int, AnesthesiaRecord> recordsBySurgeryId)
+        {
+            foreach (var surgery in hospitalData.Data)
+            {
+                if (!recordsBySurgeryId.TryGetValue(surgery.SurgeryId, out var record))
+                {
+                    record = AnesthesiaRecord.Create(new AnesthesiaRecordCommand
+                    {
+                        SurgeryId = surgery.SurgeryId,
+                        ExternalPatientId = surgery.PatientId,
+                        SurgeryDate = surgery.SurgeryDate,
+                        RecordDate = DateOnly.FromDateTime(DateTime.Today)
+                    });
+
+                    await _anesthesiaRecordRepository.AddAsync(record);
+
+                    recordsBySurgeryId.Add(record.Id, record);
+                }
+
+                if (record.ProceduresCustomized)
+                    continue;
+
+                var aghuProcedures = surgery.Procedures ?? [];
+                var aghuById = aghuProcedures.ToDictionary(x => x.Id);
+                var relationsToRemove = record.Procedures.Where(x => !aghuById.ContainsKey(x.ProcedureId)).ToList();
+
+                foreach (var relation in relationsToRemove)
+                    record.Procedures.Remove(relation);
+
+                foreach (var procedure in aghuProcedures)
+                {
+                    var relation = record.Procedures.FirstOrDefault(x => x.ProcedureId == procedure.Id);
+
+                    if (relation == null)
+                        record.Procedures.Add(AnesthesiaRecordProcedure.Create(record.Id, procedure.Id, procedure.IsPrimary));
+                    else
+                        relation.SetPrimary(procedure.IsPrimary);
                 }
             }
         }
@@ -165,7 +211,7 @@ namespace UFF.FichaAnestesica.Service.Services
 
             var recordsBySurgeryId = anesthesiaRecords.ToDictionary(x => x.Id, x => x);
 
-            var canAssumePatient = recordsBySurgeryId.Any(x => x.Value.FirstAnesthesiologistId == doctorId 
+            var canAssumePatient = recordsBySurgeryId.Any(x => x.Value.FirstAnesthesiologistId == doctorId
             && (x.Value.Status == SurgeryStatusEnum.InProgress)
             || x.Value.Status == SurgeryStatusEnum.Scheduled
             || x.Value.Status == SurgeryStatusEnum.Preparing);

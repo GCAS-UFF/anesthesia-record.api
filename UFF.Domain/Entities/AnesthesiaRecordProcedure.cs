@@ -13,10 +13,11 @@ public class AnesthesiaRecordProcedure
     public DateTime LastUpdate { get; protected set; }
 
 
-    public static AnesthesiaRecordProcedure Create(int procedureId, bool isPrimary)
+    public static AnesthesiaRecordProcedure Create(int anesthesiaRecordId, int procedureId, bool isPrimary)
     {
         return new()
         {
+            AnesthesiaRecordId = anesthesiaRecordId,
             ProcedureId = procedureId,
             IsPrimary = isPrimary,
             CreatedAt = DateTime.UtcNow

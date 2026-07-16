@@ -55,19 +55,19 @@ namespace UFF.FichaAnestesica.Service.Mappers
                     PatientId = patient.PatientId,
                     SurgeryDate = patient.SurgeryDate,
                     MedicalRecordNumber = patient.MedicalRecordNumber,
-                    FullName = patient.FullName,                    
+                    FullName = patient.FullName,
                     BirthDate = patient.BirthDate,
-                    Gender = patient.Gender,                     
-                    WeightKg = patient.WeightKg, 
+                    Gender = patient.Gender,
+                    WeightKg = patient.WeightKg,
                     HeightCm = patient.HeightCm,
                     Status = SurgeryStatusEnumMapping.Parse(patient.Status),
-                    Age = CalculateAge(patient.BirthDate),                    
+                    Age = CalculateAge(patient.BirthDate),
                     ExpectedAt = patient.ExpectedAt,
-                    Room = patient.Room,                    
+                    Room = patient.Room,
                     Procedures = patient.Procedures?
                    .Select(p => new ProcedureResponse
                    {
-                       Id = p.Codigo,
+                       Id = p.Id.ToString(),
                        Description = p.Description,
                        IsPrimary = p.IsPrimary,
                        Cid = p.Cid

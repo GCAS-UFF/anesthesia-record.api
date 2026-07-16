@@ -9,6 +9,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
 
         public int Id { get; private set; }
 
+        public bool ProceduresCustomized { get; private set; }
         public bool? PatientIdentifiedBeforeInduction { get; private set; }
         public bool? AnestheticConsentSigned { get; private set; }
         public bool? AnesthesiaEquipmentChecked { get; private set; }
@@ -78,9 +79,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
         public SurgeryStatusEnum Status { get; private set; }
         public DateTime CreatedAt { get; protected set; }
         public DateTime LastUpdate { get; protected set; }
-
-        private readonly List<AnesthesiaRecordProcedure> _Procedures = [];
-        public IReadOnlyCollection<AnesthesiaRecordProcedure> Procedures => _Procedures.AsReadOnly();
+        public List<AnesthesiaRecordProcedure> Procedures { get; protected set; } = [];
 
         public static AnesthesiaRecord Create(AnesthesiaRecordCommand command)
         {
@@ -94,27 +93,9 @@ namespace UFF.FichaAnestesica.Domain.Entities
             return entity;
         }
 
-        public void AddProcedure(int procedureId, bool isPrimary = false)
+        public void MarkProceduresCustomized()
         {
-            if (_Procedures.Any(x => x.ProcedureId == procedureId))
-                return;
-
-            if (isPrimary)
-                ClearPrimaryProcedure();
-
-            _Procedures.Add(AnesthesiaRecordProcedure.Create(procedureId, isPrimary));
-            LastUpdate = DateTime.UtcNow;
-        }
-
-        public void RemoveProcedure(int procedureId)
-        {
-            var procedure = _Procedures
-                .FirstOrDefault(x => x.ProcedureId == procedureId);
-
-            if (procedure == null)
-                return;
-
-            _Procedures.Remove(procedure);
+            ProceduresCustomized = true;
             LastUpdate = DateTime.UtcNow;
         }
 
@@ -122,7 +103,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
         {
             ClearPrimaryProcedure();
 
-            var procedure = _Procedures
+            var procedure = Procedures
                 .FirstOrDefault(x => x.ProcedureId == procedureId);
 
             if (procedure != null)
@@ -133,7 +114,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
 
         private void ClearPrimaryProcedure()
         {
-            foreach (var procedure in _Procedures)
+            foreach (var procedure in Procedures)
                 procedure.SetPrimary(false);
         }
 
