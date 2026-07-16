@@ -158,7 +158,7 @@ namespace UFF.FichaAnestesica.Service.Services
                     continue;
 
                 var aghuProcedures = surgery.Procedures ?? [];
-                var aghuById = aghuProcedures.ToDictionary(x => x.Id);
+                var aghuById = aghuProcedures.ToDictionary(x => x.ExternalId);
                 var relationsToRemove = record.Procedures.Where(x => !aghuById.ContainsKey(x.ProcedureId)).ToList();
 
                 foreach (var relation in relationsToRemove)
@@ -166,10 +166,10 @@ namespace UFF.FichaAnestesica.Service.Services
 
                 foreach (var procedure in aghuProcedures)
                 {
-                    var relation = record.Procedures.FirstOrDefault(x => x.ProcedureId == procedure.Id);
+                    var relation = record.Procedures.FirstOrDefault(x => x.ProcedureId == procedure.ExternalId);
 
                     if (relation == null)
-                        record.Procedures.Add(AnesthesiaRecordProcedure.Create(record.Id, procedure.Id, procedure.IsPrimary));
+                        record.Procedures.Add(AnesthesiaRecordProcedure.Create(record.Id, procedure.ExternalId, procedure.IsPrimary));
                     else
                         relation.SetPrimary(procedure.IsPrimary);
                 }

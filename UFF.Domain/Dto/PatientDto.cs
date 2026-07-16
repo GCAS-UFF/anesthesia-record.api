@@ -76,7 +76,7 @@ namespace UFF.FichaAnestesica.Domain.Dto
         public string Specialty { get; set; }
 
         [JsonPropertyName("procedimentos")]
-        public List<ListProcedureDto> Procedures { get; set; } = new();
+        public List<ProcedureDto> Procedures { get; set; } = new();
            
 
         [JsonIgnore]
@@ -118,23 +118,7 @@ namespace UFF.FichaAnestesica.Domain.Dto
         public string Description { get; set; }
     }
 
-    public class ListProcedureDto
-    {
-        [JsonPropertyName("id")]
-        public int Id { get; set; }
-
-        [JsonPropertyName("descricao")]
-        public string Description { get; set; }
-
-        [JsonPropertyName("cid")]
-        public string Cid { get; set; }
-
-        [JsonPropertyName("codigo")]
-        public string Codigo { get; set; }
-
-        [JsonPropertyName("principal")]
-        public bool IsPrimary { get; set; }
-    }
+   
 
     public class PatientDetailsDto
     {
