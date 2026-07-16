@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using UFF.FichaAnestesica.Domain.Entities;
+using UFF.FichaAnestesica.Domain.Enums;
 using UFF.FichaAnestesica.Domain.Repositories;
 using UFF.FichaAnestesica.Infra.Context;
 
@@ -49,6 +50,12 @@ namespace UFF.FichaAnestesica.Infra.Repositories
             return await _context.AnesthesiaRecords
                 .Include(x => x.FirstAnesthesiologist)
                 .Where(x => x.FirstAnesthesiologistId == doctorId && x.SurgeryDate == date)
+                .OrderBy(x => x.Status == SurgeryStatusEnum.InProgress ? 0 :
+                              x.Status == SurgeryStatusEnum.Preparing ? 1 :
+                              x.Status == SurgeryStatusEnum.Scheduled ? 2 :
+                              x.Status == SurgeryStatusEnum.Completed ? 3 :
+                              4)
+                .ThenBy(x => x.SurgeryDate)
                 .ToListAsync();
         }
 
