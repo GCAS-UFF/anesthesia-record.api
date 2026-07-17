@@ -5,7 +5,8 @@ namespace UFF.FichaAnestesica.Domain.Repositories.ReadOnly
 {
     public interface IProfessionalReadOnlyRepository
     {
-        Task<List<User>> GetProfessionalsForAnethesiaRecord(string name);
+        Task<List<User>> GetProfessionalsForAnethesiaRecord(string term);
+        Task<List<User>> GetAllProfessionalsForAnethesiaRecord();
         Task<UserListDto> GetProfessionalsFromAGHU();
     }
 }

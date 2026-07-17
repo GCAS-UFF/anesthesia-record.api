@@ -12,19 +12,24 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
         private readonly HttpClient _httpClient;
         private readonly SigaDbCtx _context;
 
-        public ProfessionalReadOnlyRepository(
-            SigaDbCtx context,
-            IHttpClientFactory factory)
-            : base(context)
+        public ProfessionalReadOnlyRepository(SigaDbCtx context, IHttpClientFactory factory) : base(context)
         {
             _context = context;
             _httpClient = factory.CreateClient("HospitalApi");
         }
 
-        public async Task<List<User>> GetProfessionalsForAnethesiaRecord(string name)
+        public async Task<List<User>> GetProfessionalsForAnethesiaRecord(string term)
         {
             return await _context.Users
-                .Where(x => x.Name.ToLower().Contains(name.ToLower()))
+                .Where(x => x.Name.ToLower().Contains(term.ToLower()) || x.Registration.ToLower().Contains(term.ToLower()))
+                .OrderBy(x => x.Name)
+                .ToListAsync();
+        }
+
+        public async Task<List<User>> GetAllProfessionalsForAnethesiaRecord()
+        {
+            return await _context.Users
+                .Where(x => x.Status == Domain.Enums.UserStatusEnum.Enabled)
                 .OrderBy(x => x.Name)
                 .ToListAsync();
         }

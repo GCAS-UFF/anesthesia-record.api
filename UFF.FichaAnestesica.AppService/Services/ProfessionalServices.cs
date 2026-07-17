@@ -14,10 +14,16 @@ namespace UFF.FichaAnestesica.Service.Services
             _professionalRepository = professionalRepository;
         }
 
-        public async Task<CommandResult> GetProfessionalsForAnethesiaRecord(string name)
+        public async Task<CommandResult> GetProfessionalsForAnethesiaRecord(string term)
         {
-            var professionals = await _professionalRepository.GetProfessionalsForAnethesiaRecord(name);
+            var professionals = await _professionalRepository.GetProfessionalsForAnethesiaRecord(term);
             return  CommandResult.Success(ProfessionalReponseMapper.Map(professionals));
+        }
+
+        public async Task<CommandResult> GetAllProfessionalsForAnethesiaRecord()
+        {
+            var professionals = await _professionalRepository.GetAllProfessionalsForAnethesiaRecord();
+            return CommandResult.Success(ProfessionalReponseMapper.Map(professionals));
         }
     }
 }

@@ -14,11 +14,11 @@ namespace UFF.FichaAnestesica.Api.Controllers
             _professionalService = professionalService;
         }
 
-        [HttpGet("{name}")]
+        [HttpGet("{term}")]
         //    [Authorize]
-        public async Task<IActionResult> GetProfessionalsByName([FromRoute] string name)
+        public async Task<IActionResult> GetProfessionalsByName([FromRoute] string term)
         {
-            var professionals = await _professionalService.GetProfessionalsForAnethesiaRecord(name);
+            var professionals = await _professionalService.GetProfessionalsForAnethesiaRecord(term);
             return Ok(professionals);
         }
     }
