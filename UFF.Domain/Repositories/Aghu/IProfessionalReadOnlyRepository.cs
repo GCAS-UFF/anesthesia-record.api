@@ -8,5 +8,6 @@ namespace UFF.FichaAnestesica.Domain.Repositories.ReadOnly
         Task<List<User>> GetProfessionalsForAnethesiaRecord(string term);
         Task<List<User>> GetAllProfessionalsForAnethesiaRecord();
         Task<UserListDto> GetProfessionalsFromAGHU();
+        Task<DateTime?> GetLastTimeIntegration();
     }
 }

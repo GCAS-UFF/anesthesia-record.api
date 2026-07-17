@@ -30,6 +30,7 @@
     <None Remove="Repositories\Aghu\ProfessionalRepository.cs~RF99d8c11.TMP" />
     <None Remove="Repositories\Aghu\ProfessionalRepository.cs~RFa154711.TMP" />
     <None Remove="Repositories\AuthRepository.cs~RF3f84289.TMP" />
+    <None Remove="Repositories\ProcedureRepository.cs~RF386df9e.TMP" />
     <None Remove="Repositories\SurgeriesRepository.cs~RFf4fef99.TMP" />
     <None Remove="Repositories\SurgeryRepository.cs~RF5b28af6.TMP" />
     <None Remove="Repositories\SurgeryRepository.cs~RFd34e3fe.TMP" />

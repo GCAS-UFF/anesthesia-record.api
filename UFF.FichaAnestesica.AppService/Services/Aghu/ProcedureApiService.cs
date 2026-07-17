@@ -14,7 +14,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
             _procedureReadOnlyRepository = procedureReadOnlyRepository;
             _procedureRepository = procedureRepository;
         }
-
+      
         public async Task<int> SyncProcedures()
         {
             var response = await _procedureReadOnlyRepository.GetProceduresFromAGHU();

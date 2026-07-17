@@ -63,6 +63,7 @@
     <None Remove="Response\UnitResponse.cs~RFcc8992.TMP" />
     <None Remove="Services\IAnesthesiaRecordService.cs~RF46f688d.TMP" />
     <None Remove="Services\IPdfService.cs~RFb5f9839.TMP" />
+    <None Remove="Services\IProcedureService.cs~RF38b378f.TMP" />
     <None Remove="Services\IProfessionalsService.cs~RF92fa647.TMP" />
     <None Remove="Services\ISurgeryService.cs~RF225a8f3.TMP" />
     <None Remove="Services\ISurgeryService.cs~RFdc1d0f.TMP" />

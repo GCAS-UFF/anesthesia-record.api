@@ -29,6 +29,12 @@ namespace UFF.FichaAnestesica.Infra.Repositories
                 .ToListAsync();
         }
 
+        public async Task<DateTime?> GetLastTimeIntegration()
+        {
+            var procedure = await _context.Procedures.FirstOrDefaultAsync();
+            return procedure == null ? null : procedure.LastSyncAt;
+        }
+
         public async Task<Procedure?> GetByNameAsync(string description)
         {
             return await _context.Procedures
@@ -41,6 +47,6 @@ namespace UFF.FichaAnestesica.Infra.Repositories
                 .Where(x => x.Description.ToLower().Contains(search.ToLower()))
                 .OrderBy(x => x.Description)
                 .ToListAsync();
-        }      
+        }
     }
 }

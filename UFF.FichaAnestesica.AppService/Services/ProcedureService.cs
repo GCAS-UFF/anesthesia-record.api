@@ -14,6 +14,11 @@ namespace UFF.FichaAnestesica.Service.Services
             _procedureRepository = procedureRepository;
         }
 
+        public async Task<DateTime?> GetLasIntegrationTime()
+        {
+            return await _procedureRepository.GetLastTimeIntegration();
+        }
+
         public async Task<CommandResult> GetAllProceduresForAnethesiaRecord()
         {
             var procedures = await _procedureRepository.GetAllAsync();

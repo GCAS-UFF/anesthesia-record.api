@@ -26,6 +26,12 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
                 .ToListAsync();
         }
 
+        public async Task<DateTime?> GetLastTimeIntegration()
+        {
+            var professional = await _context.Users.FirstOrDefaultAsync();
+            return professional == null ? null : professional.LastSyncAt;
+        }
+
         public async Task<List<User>> GetAllProfessionalsForAnethesiaRecord()
         {
             return await _context.Users

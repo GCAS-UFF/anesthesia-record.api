@@ -21,6 +21,12 @@ namespace UFF.FichaAnestesica.Infra.Repositories
                 .FirstOrDefaultAsync(x => x.Description == name);
         }
 
+        public async Task<DateTime?> GetLastTimeIntegration()
+        {
+            var drug = await _context.Drugs.FirstOrDefaultAsync();
+            return drug == null ? null : drug.LastSyncAt;
+        }
+
         public async Task<List<Drug>> SearchByNameAsync(string search)
         {
             return await _context.Drugs

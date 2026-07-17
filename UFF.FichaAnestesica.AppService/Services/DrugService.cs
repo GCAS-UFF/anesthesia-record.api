@@ -19,5 +19,10 @@ namespace UFF.FichaAnestesica.Service.Services
             var drugs = await _drugRepository.GetAllAsync();
             return CommandResult.Success(DrugResponseMapper.Map(drugs));
         }
+
+        public async Task<DateTime?> GetLasIntegrationTime()
+        {
+            return await _drugRepository.GetLastTimeIntegration();
+        }
     }
 }

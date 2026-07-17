@@ -17,7 +17,7 @@ namespace UFF.FichaAnestesica.Service.Services
         public async Task<CommandResult> GetProfessionalsForAnethesiaRecord(string term)
         {
             var professionals = await _professionalRepository.GetProfessionalsForAnethesiaRecord(term);
-            return  CommandResult.Success(ProfessionalReponseMapper.Map(professionals));
+            return CommandResult.Success(ProfessionalReponseMapper.Map(professionals));
         }
 
         public async Task<CommandResult> GetAllProfessionalsForAnethesiaRecord()
@@ -25,5 +25,8 @@ namespace UFF.FichaAnestesica.Service.Services
             var professionals = await _professionalRepository.GetAllProfessionalsForAnethesiaRecord();
             return CommandResult.Success(ProfessionalReponseMapper.Map(professionals));
         }
+
+        public async Task<DateTime?> GetLasIntegrationTime()
+            => await _professionalRepository.GetLastTimeIntegration();
     }
 }

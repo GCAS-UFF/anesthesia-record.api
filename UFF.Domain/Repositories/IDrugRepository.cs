@@ -11,5 +11,6 @@ namespace UFF.FichaAnestesica.Domain.Repositories
         Task<bool> ExistsByNameAsync(string name);
 
         Task<List<Drug>> GetActiveAsync();
+        Task<DateTime?> GetLastTimeIntegration();
     }
 }

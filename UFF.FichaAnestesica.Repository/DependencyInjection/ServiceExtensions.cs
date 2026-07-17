@@ -29,8 +29,10 @@ namespace UFF.FichaAnestesica.Infra.DependencyInjection
             services.AddScoped<IAuthRepository, AuthReadOnlyRepository>();
             services.AddScoped<IProcedureRepository, ProcedureRepository>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IProcedureService, ProcedureService>();
+            services.AddScoped<IDrugService, DrugService>();
 
-            services.AddScoped<IProfessionalApiService, ProfessionalApiService>();
+            services.AddScoped<IProfessionalApiService, ProfessionalApiService>(); 
             services.AddScoped<IMedicineApiService, MedicineApiService>();
             services.AddScoped<IProcedureApiService, ProcedureApiService>();
 

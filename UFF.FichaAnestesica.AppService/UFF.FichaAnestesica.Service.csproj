@@ -16,6 +16,7 @@
     <None Remove="Services\AuthService.cs~RF7eae977.TMP" />
     <None Remove="Services\PdfService.cs~RFb493331.TMP" />
     <None Remove="Services\PdfService.cs~RFb63b8dd.TMP" />
+    <None Remove="Services\ProfessionalServices.cs~RF518c7fc.TMP" />
     <None Remove="Services\SurgeryService.cs~RF236cd70.TMP" />
     <None Remove="Services\SurgeryService.cs~RF5b91017.TMP" />
     <None Remove="Services\SurgeryService.cs~RF5e3eccf.TMP" />
