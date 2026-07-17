@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using UFF.FichaAnestesica.Domain.Commands;
 using UFF.FichaAnestesica.Domain.Services;
 using UFF.FichaAnestesica.Infra.Repositories.Aghu;
@@ -70,7 +69,7 @@ public class IntegrationsController : ControllerBase
         }
     }
 
-    [HttpGet("sync/last-integration")]
+    [HttpGet("sync/last-integrations")]
     public async Task<IActionResult> GetLastIntegrations()
     {
         try
