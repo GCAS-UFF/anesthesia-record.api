@@ -21,5 +21,13 @@ namespace UFF.FichaAnestesica.Api.Controllers
             var professionals = await _professionalService.GetProfessionalsForAnethesiaRecord(term);
             return Ok(professionals);
         }
+
+        [HttpGet()]
+        //    [Authorize]
+        public async Task<IActionResult> GetAllProceduresForAnethesiaRecord()
+        {
+            var professionals = await _professionalService.GetAllProfessionalsForAnethesiaRecord();
+            return Ok(professionals);
+        }
     }
 }

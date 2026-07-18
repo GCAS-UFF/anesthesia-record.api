@@ -76,7 +76,7 @@ public class IntegrationsController : ControllerBase
         {
             var procedureLastIntegration = await _procedureService.GetLasIntegrationTime();
             var drugLastIntegration = await _drugService.GetLasIntegrationTime();
-            var professioalIntegration = await _professionalService.GetLasIntegrationTime();
+            var professioalIntegration = await _professionalService.GetLastIntegrationTime();
 
             var lastIntegrations = new
             {

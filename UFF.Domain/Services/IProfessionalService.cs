@@ -5,6 +5,7 @@ namespace UFF.FichaAnestesica.Domain.Services
     public interface IProfessionalService
     {
         Task<CommandResult> GetProfessionalsForAnethesiaRecord(string name);
-        Task<DateTime?> GetLasIntegrationTime();
+        Task<DateTime?> GetLastIntegrationTime();
+        Task<CommandResult> GetAllProfessionalsForAnethesiaRecord();
     }
 }

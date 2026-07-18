@@ -26,7 +26,7 @@ namespace UFF.FichaAnestesica.Service.Services
             return CommandResult.Success(ProfessionalReponseMapper.Map(professionals));
         }
 
-        public async Task<DateTime?> GetLasIntegrationTime()
+        public async Task<DateTime?> GetLastIntegrationTime()
             => await _professionalRepository.GetLastTimeIntegration();
     }
 }

@@ -4,15 +4,46 @@ namespace UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord
 {
     public class AnesthesiaRecordCommand
     {
+        public int Id { get; set; }
+
         public int SurgeryId { get; set; }
+
+        public string PatientId { get; set; } = default!;
+
+        public DateOnly RecordDate { get; set; }
+
+        public List<SurgeryCommand> Surgeries { get; set; } = [];
+
+        #region Segurança
+
         public bool PatientIdentifiedBeforeInduction { get; set; }
         public bool AnestheticConsentSigned { get; set; }
         public bool AnesthesiaEquipmentChecked { get; set; }
         public string? SafetyObservations { get; set; }
 
+        #endregion
+
+        #region Pré-medicação
+
         public bool PreAnestheticMedication { get; set; }
+        public int? PreAnestheticMedicationId { get; set; }
+        public string? PreAnestheticMedicationName { get; set; }
+        public string? PreAnestheticMedicationDose { get; set; }
+        public string? PreAnestheticMedicationRoute { get; set; }
+        public string? PreAnestheticMedicationOtherRoute { get; set; }
+        public TimeOnly? PreAnestheticMedicationTime { get; set; }
+
+        #endregion
+
+        #region Antibióticos
 
         public bool ProphylacticAntibioticUsed { get; set; }
+
+        public List<AntibioticCommand> AntibioticsList { get; set; } = [];
+
+        #endregion
+
+        #region Sinais vitais
 
         public string BloodPressure { get; set; } = default!;
         public int RespiratoryRate { get; set; }
@@ -22,11 +53,31 @@ namespace UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord
 
         public AsaClassificationEnum AsaClassification { get; set; }
 
+        #endregion
+
+        #region Horários
+
         public TimeOnly RoomEntryTime { get; set; }
         public TimeOnly AnesthesiaStartTime { get; set; }
         public TimeOnly SurgeryEndTime { get; set; }
         public TimeOnly AnesthesiaEndTime { get; set; }
-        public SurgeryStatusEnum Status { get; set; }
+
+        #endregion
+
+        #region Equipe
+
+        public ProfessionalCommand? Surgeon { get; set; }
+        public ProfessionalCommand? Assistant { get; set; }
+
+        public int? FirstAnesthesiologistId { get; set; }
+        public string? FirstAnesthesiologistName { get; set; }
+
+        public int? SecondAnesthesiologistId { get; set; }
+        public string? SecondAnesthesiologistName { get; set; }
+
+        #endregion
+
+        #region Procedimento
 
         public string PreOperativeDiagnosis { get; set; } = default!;
 
@@ -63,14 +114,16 @@ namespace UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord
         public string? OtherAirwayTechnique { get; set; }
 
         public bool SpinalBlockPerformed { get; set; }
-
         public bool SedationPerformed { get; set; }
         public bool OxygenSupplementation { get; set; }
-
         public bool PlexusBlockPerformed { get; set; }
 
         public string SurgeryPerformed { get; set; } = default!;
         public string PostOperativeDiagnosis { get; set; } = default!;
+
+        #endregion
+
+        #region Recuperação
 
         public int ConsciousnessScore { get; set; }
         public int ActivityScore { get; set; }
@@ -79,20 +132,13 @@ namespace UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord
         public int OxygenSaturationScore { get; set; }
 
         public int TotalAldreteKroulikScore { get; set; }
+
         public ClinicalDischargeConditionEnum ClinicalDischargeCondition { get; set; }
 
         public PatientDestinationEnum Destination { get; set; }
 
         public bool HasPain { get; set; }
-        public int? SurgeonId { get; set; } = default!;
-        public int? AssistantId { get; set; } = default!;
-        public int? FirstAnesthesiologistId { get; set; }
-        public int? SecondAnesthesiologistId { get; set; }
 
-        public int PatientId { get; set; }
-
-        public DateOnly RecordDate { get; set; }
-        public DateTime SurgeryDate { get; set; }
-        public string ExternalPatientId { get; set; }
+        #endregion
     }
 }
