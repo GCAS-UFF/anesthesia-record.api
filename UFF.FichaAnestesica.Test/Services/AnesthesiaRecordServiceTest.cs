@@ -37,7 +37,7 @@ namespace UFF.FichaAnestesica.Test.Services
         {
             var record = AnesthesiaRecord.Create(new AnesthesiaRecordCommand
             {
-                ExternalPatientId = "P1",
+                PatientId = "P1",
                 BloodPressure = "120/80"
             });
             _anesthesiaRepoMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(record);
@@ -64,7 +64,7 @@ namespace UFF.FichaAnestesica.Test.Services
         {
             var command = new AnesthesiaRecordCommand
             {
-                ExternalPatientId = "P2",
+                PatientId = "P2",
                 BloodPressure = "130/85"
             };
 
@@ -93,12 +93,12 @@ namespace UFF.FichaAnestesica.Test.Services
         [Fact]
         public async Task Update_Should_Update_Record_And_Save()
         {
-            var existing = AnesthesiaRecord.Create(new AnesthesiaRecordCommand { ExternalPatientId = "P3" });
+            var existing = AnesthesiaRecord.Create(new AnesthesiaRecordCommand { PatientId = "P3" });
             _anesthesiaRepoMock.Setup(r => r.GetByIdAsync(3)).ReturnsAsync(existing);
 
             var command = new AnesthesiaRecordCommand
             {
-                ExternalPatientId = "P3",
+                PatientId = "P3",
                 BloodPressure = "110/70"
             };
 
@@ -121,7 +121,7 @@ namespace UFF.FichaAnestesica.Test.Services
         [Fact]
         public async Task Update_Should_Return_Fail_On_Exception()
         {
-            var existing = AnesthesiaRecord.Create(new AnesthesiaRecordCommand { ExternalPatientId = "P4" });
+            var existing = AnesthesiaRecord.Create(new AnesthesiaRecordCommand { PatientId = "P4" });
             _anesthesiaRepoMock.Setup(r => r.GetByIdAsync(4)).ReturnsAsync(existing);
             _anesthesiaRepoMock.Setup(r => r.SaveChangesAsync()).ThrowsAsync(new Exception("Erro ao salvar"));
 

@@ -15,6 +15,16 @@ namespace UFF.FichaAnestesica.Domain.Entities
         public bool? AnesthesiaEquipmentChecked { get; private set; }
         public string? SafetyObservations { get; private set; }
         public bool? PreAnestheticMedication { get; private set; }
+
+        public int? PreAnestheticMedicationId { get; private set; }
+        public string? PreAnestheticMedicationName { get; private set; }
+        public string? PreAnestheticMedicationDose { get; private set; }
+        public string? PreAnestheticMedicationRoute { get; private set; }
+        public string? PreAnestheticMedicationOtherRoute { get; private set; }
+        public TimeOnly? PreAnestheticMedicationTime { get; private set; }
+
+        public List<AnesthesiaRecordAntibiotic> Antibiotics { get; private set; } = [];
+
         public bool? ProphylacticAntibioticUsed { get; private set; }
         public string? BloodPressure { get; private set; }
         public int? RespiratoryRate { get; private set; }
@@ -73,7 +83,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
         public int? AssistantId { get; private set; }
         public User? Assistant { get; private set; }
         public MonitoringRecord? MonitoringRecord { get; private set; }
-        public string ExternalPatientId { get; private set; } = string.Empty;
+        public string PatientId { get; private set; } = string.Empty;
         public DateOnly RecordDate { get; private set; }
         public DateTime SurgeryDate { get; private set; }
         public SurgeryStatusEnum Status { get; private set; }
@@ -85,6 +95,10 @@ namespace UFF.FichaAnestesica.Domain.Entities
         {
             var entity = new AnesthesiaRecord();
             entity.Id = command.SurgeryId;
+            entity.SetValues(command);
+            entity.CreatedAt = DateTime.UtcNow;
+            entity.LastUpdate = DateTime.UtcNow;
+            entity.Status = SurgeryStatusEnum.Scheduled;
             entity.SetValues(command);
             entity.CreatedAt = DateTime.UtcNow;
             entity.LastUpdate = DateTime.UtcNow;
@@ -133,7 +147,6 @@ namespace UFF.FichaAnestesica.Domain.Entities
         public void Update(AnesthesiaRecordCommand command)
         {
             SetValues(command);
-            Status = command.Status;
             LastUpdate = DateTime.UtcNow;
         }
 
@@ -217,14 +230,25 @@ namespace UFF.FichaAnestesica.Domain.Entities
 
             HasPain = command.HasPain;
 
-            SurgeonId = command.SurgeonId;
-            AssistantId = command.AssistantId;
+            SurgeonId = command.Surgeon?.Id;
+            AssistantId = command.Assistant?.Id;
             FirstAnesthesiologistId = command.FirstAnesthesiologistId;
             SecondAnesthesiologistId = command.SecondAnesthesiologistId;
 
-            ExternalPatientId = command.ExternalPatientId;
-            RecordDate = command.RecordDate;
+            PatientId = command.PatientId;
             SurgeryDate = command.SurgeryDate;
+
+            PreAnestheticMedicationId = command.PreAnestheticMedicationId;
+            PreAnestheticMedicationName = command.PreAnestheticMedicationName;
+            PreAnestheticMedicationDose = command.PreAnestheticMedicationDose;
+            PreAnestheticMedicationRoute = command.PreAnestheticMedicationRoute;
+            PreAnestheticMedicationOtherRoute = command.PreAnestheticMedicationOtherRoute;
+            PreAnestheticMedicationTime = command.PreAnestheticMedicationTime;
+
+            Antibiotics.Clear();
+
+            foreach (var antibiotic in command.AntibioticsList)
+                Antibiotics.Add(AnesthesiaRecordAntibiotic.Create(antibiotic));
         }
     }
 }

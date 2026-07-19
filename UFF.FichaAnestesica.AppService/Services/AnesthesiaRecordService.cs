@@ -28,7 +28,7 @@ public class AnesthesiaRecordService : IAnesthesiaRecordService
             return await this.Create(new AnesthesiaRecordCommand()
             {
                 SurgeryId = id,
-                ExternalPatientId = extenalPatientId
+                PatientId = extenalPatientId
             });
 
         var patient = await _hospitalApiRepository.GetFromHospitalByPatientIdAndSurgeryIdAsync(extenalPatientId, id);
@@ -40,7 +40,7 @@ public class AnesthesiaRecordService : IAnesthesiaRecordService
     public async Task<CommandResult> Create(AnesthesiaRecordCommand command)
     {
         var anesthesiaRecord = AnesthesiaRecord.Create(command);
-        var patient = await _hospitalApiRepository.GetFromHospitalByPatientIdAndSurgeryIdAsync(command.ExternalPatientId, command.SurgeryId);
+        var patient = await _hospitalApiRepository.GetFromHospitalByPatientIdAndSurgeryIdAsync(command.PatientId, command.SurgeryId);
 
         try
         {
@@ -61,7 +61,7 @@ public class AnesthesiaRecordService : IAnesthesiaRecordService
     public async Task<CommandResult> Update(int id, AnesthesiaRecordCommand command)
     {
         var anesthesiaRecord = await _anesthesiaRecordRepository.GetByIdAsync(id);
-        var patient = await _hospitalApiRepository.GetFromHospitalByPatientIdAndSurgeryIdAsync(command.ExternalPatientId, command.SurgeryId);
+        var patient = await _hospitalApiRepository.GetFromHospitalByPatientIdAndSurgeryIdAsync(command.PatientId, command.SurgeryId);
 
         if (anesthesiaRecord == null)
             throw new Exception("Ficha anestésica não encontrada");

@@ -138,7 +138,7 @@ namespace UFF.FichaAnestesica.Domain.Response
                     CurrentLocation = MapLocation(patientDetail.CurrentLocation)
                 },
                 SurgeryId = anesthesiaRecord.Id,
-                ExternalPatientId = anesthesiaRecord.ExternalPatientId,
+                ExternalPatientId = anesthesiaRecord.PatientId,
                 PatientIdentifiedBeforeInduction = anesthesiaRecord.PatientIdentifiedBeforeInduction,
                 AnestheticConsentSigned = anesthesiaRecord.AnestheticConsentSigned,
                 AnesthesiaEquipmentChecked = anesthesiaRecord.AnesthesiaEquipmentChecked,

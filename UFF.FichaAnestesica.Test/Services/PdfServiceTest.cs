@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Moq;
 using UFF.FichaAnestesica.Domain.Entities;
-using UFF.FichaAnestesica.Domain.Enums;
 using UFF.FichaAnestesica.Domain.Repositories;
 using UFF.FichaAnestesica.Infra.Services;
 
@@ -17,12 +16,12 @@ namespace UFF.FichaAnestesica.Test.Services
         {
             _repoMock = new Mock<IAnesthesiaRecordRepository>();
             _configMock = new Mock<IConfiguration>();
-            // Os demais parâmetros não são usados diretamente no fluxo principal, então passamos null.
+           
             _service = new PdfService(
-                null!, // ICompositeViewEngine
-                null!, // ITempDataProvider
-                null!, // IHttpContextAccessor
-                null!, // IServiceProvider
+                null!, 
+                null!,
+                null!, 
+                null!, 
                 _configMock.Object,
                 _repoMock.Object);
         }
@@ -44,7 +43,7 @@ namespace UFF.FichaAnestesica.Test.Services
         {
             var record = AnesthesiaRecord.Create(new Domain.Commands.AnesthesiaRecord.AnesthesiaRecordCommand
             {
-                ExternalPatientId = "123"
+                PatientId = "123"
             });
 
             _repoMock.Setup(r => r.GetByIdAsync(1))
@@ -52,12 +51,9 @@ namespace UFF.FichaAnestesica.Test.Services
             _configMock.Setup(c => c["Pdf:ViewPath"])
                        .Returns("Views/Pdf/AnesthesiaRecord.cshtml");
 
-            // Como RenderViewToStringAsync usará view engine nula, uma exceção será lançada.
-            // Para evitar, não chamamos o método real; apenas testamos o fluxo até a chamada.
-            // Isso já valida a lógica de busca e configuração.
             var exception = await Record.ExceptionAsync(() => _service.GeneratePdfAsync(1));
-            // Espera-se uma exceção porque a view engine é nula, mas o teste garante que o repositório e a config foram acessados.
-            Assert.NotNull(exception); // Confirma que tentou renderizar
+
+            Assert.NotNull(exception);
             _repoMock.Verify(r => r.GetByIdAsync(1), Times.Once);
             _configMock.Verify(c => c["Pdf:ViewPath"], Times.Once);
         }

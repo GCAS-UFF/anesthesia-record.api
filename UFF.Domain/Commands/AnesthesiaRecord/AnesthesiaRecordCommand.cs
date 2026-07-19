@@ -10,7 +10,11 @@ namespace UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord
 
         public string PatientId { get; set; } = default!;
 
-        public DateOnly RecordDate { get; set; }
+        public DateTime SurgeryDate { get; set; }
+        
+        public SurgeryStatusEnum Status { get; set; }
+
+
 
         public List<SurgeryCommand> Surgeries { get; set; } = [];
 

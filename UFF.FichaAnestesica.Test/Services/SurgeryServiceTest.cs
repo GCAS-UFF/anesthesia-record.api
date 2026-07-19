@@ -90,7 +90,7 @@ namespace UFF.FichaAnestesica.Test.Services
             _hospitalApiRepoMock
                 .Setup(h => h.GetFromHospitalByPatientIdAndSurgeryIdAsync("P1", 1))
                 .ReturnsAsync(patientDto);
-            var record = AnesthesiaRecord.Create(new Domain.Commands.AnesthesiaRecord.AnesthesiaRecordCommand { ExternalPatientId = "P1" });
+            var record = AnesthesiaRecord.Create(new Domain.Commands.AnesthesiaRecord.AnesthesiaRecordCommand { PatientId = "P1" });
             var anesthesiologist = User.Create(1, "Dr. João", "joao@teste.com", "jsilva", "123", MedicalSpecialtyEnum.Anesthesiology, SectorEnum.SurgicalCenter);
             typeof(AnesthesiaRecord).GetProperty("FirstAnesthesiologist")!.SetValue(record, anesthesiologist);
             _anesthesiaRepoMock.Setup(a => a.GetByIdAsync(1)).ReturnsAsync(record);

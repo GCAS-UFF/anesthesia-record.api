@@ -144,9 +144,8 @@ namespace UFF.FichaAnestesica.Service.Services
                     record = AnesthesiaRecord.Create(new AnesthesiaRecordCommand
                     {
                         SurgeryId = surgery.SurgeryId,
-                        ExternalPatientId = surgery.PatientId,
-                        SurgeryDate = surgery.SurgeryDate,
-                        RecordDate = DateOnly.FromDateTime(DateTime.Today)
+                        PatientId = surgery.PatientId,
+                        SurgeryDate = surgery.SurgeryDate
                     });
 
                     await _anesthesiaRecordRepository.AddAsync(record);
@@ -310,10 +309,9 @@ namespace UFF.FichaAnestesica.Service.Services
                     {
                         SurgeryId = surgeryId,
                         Status = SurgeryStatusEnum.Preparing,
-                        ExternalPatientId = patientId,
+                        PatientId = patientId,
                         SurgeryDate = patient.SurgeryDate,
-                        FirstAnesthesiologistId = responsibleAnesthesiologistId,
-                        RecordDate = DateOnly.FromDateTime(DateTime.Today)
+                        FirstAnesthesiologistId = responsibleAnesthesiologistId                        
                     });
 
                     await _anesthesiaRecordRepository.AddAsync(anesthesiaRecord);

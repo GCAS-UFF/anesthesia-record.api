@@ -206,7 +206,7 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .HasConversion<int>()
                 .IsRequired();
 
-            builder.Property(x => x.ExternalPatientId)
+            builder.Property(x => x.PatientId)
                 .HasColumnName("patient_id")
                 .HasColumnType("varchar(100)")
                 .IsRequired();

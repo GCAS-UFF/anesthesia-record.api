@@ -33,7 +33,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories
                 .Include(x => x.FirstAnesthesiologist)
                 .Include(x => x.SecondAnesthesiologist)
                 .Include(x => x.Procedures)
-                .Where(x => ids.Contains(x.ExternalPatientId))
+                .Where(x => ids.Contains(x.PatientId))
                 .ToListAsync();
         }
 
@@ -64,7 +64,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories
             return await _context.AnesthesiaRecords
                 .Include(x => x.FirstAnesthesiologist)
                 .Include(x => x.SecondAnesthesiologist)
-                .FirstOrDefaultAsync(x => x.ExternalPatientId.ToLower() == id.ToLower());
+                .FirstOrDefaultAsync(x => x.PatientId.ToLower() == id.ToLower());
         }
     }
 }

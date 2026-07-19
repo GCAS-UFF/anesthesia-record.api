@@ -19,8 +19,8 @@ namespace UFF.FichaAnestesica.Test.Entities
                 AnesthesiaStartTime = new TimeOnly(8, 15),
                 PreOperativeDiagnosis = "Apendicite",
                 SurgicalPosition = SurgicalPositionEnum.Supine,
-                RecordDate = new DateOnly(2025, 6, 1),
-                ExternalPatientId = "123"
+                SurgeryDate = new DateTime(),
+                PatientId = "123"
             };
 
             var record = AnesthesiaRecord.Create(command);
@@ -34,7 +34,7 @@ namespace UFF.FichaAnestesica.Test.Entities
             Assert.Equal("Apendicite", record.PreOperativeDiagnosis);
             Assert.Equal(SurgicalPositionEnum.Supine, record.SurgicalPosition);
             Assert.Equal(new DateOnly(2025, 6, 1), record.RecordDate);
-            Assert.Equal("123", record.ExternalPatientId);
+            Assert.Equal("123", record.PatientId);
             Assert.Equal(SurgeryStatusEnum.Scheduled, record.Status);
             Assert.NotEqual(default, record.CreatedAt);
             Assert.NotEqual(default, record.LastUpdate);

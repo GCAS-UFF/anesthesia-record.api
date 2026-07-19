@@ -45,7 +45,7 @@ namespace UFF.FichaAnestesica.Infra.Services
             var layoutBase = _configuration["Pdf:ViewPath"];
             var html = await RenderViewToStringAsync(layoutBase, model);
 
-            return (html, model.ExternalPatientId);
+            return (html, model.PatientId);
         }
 
         private async Task<string> RenderViewToStringAsync(string viewPath, object model)
