@@ -9,7 +9,7 @@ namespace UFF.FichaAnestesica.Domain.Response
     {
         public PatientSurgeryResponse Patient { get; set; }
         public int SurgeryId { get; set; }
-        
+
         public int? PreAnestheticMedicationId { get; set; }
         public string? PreAnestheticMedicationName { get; set; }
         public string? PreAnestheticMedicationDose { get; set; }
@@ -17,16 +17,10 @@ namespace UFF.FichaAnestesica.Domain.Response
         public string? PreAnestheticMedicationOtherRoute { get; set; }
         public TimeOnly? PreAnestheticMedicationTime { get; set; }
         public List<SurgeryResponse> Surgeries { get; set; }
-
         public List<AntibioticResponse>? AntibioticsList { get; set; }
-
         public string? SurgeonRegistration { get; set; }
         public string? AssistantRegistration { get; set; }
-
-      
         public bool ProceduresCustomized { get; set; }
-
-        
         public bool? DorUsouENV { get; set; }
         public int? DorENV { get; set; }
         public bool? DorUsouPAINAD { get; set; }
@@ -34,8 +28,6 @@ namespace UFF.FichaAnestesica.Domain.Response
         public bool? DorUsouBPS { get; set; }
         public int? DorBPS { get; set; }
         public string? Conduta { get; set; }
-
-      
         public bool? PatientIdentifiedBeforeInduction { get; set; }
         public bool? AnestheticConsentSigned { get; set; }
         public bool? AnesthesiaEquipmentChecked { get; set; }
@@ -56,7 +48,6 @@ namespace UFF.FichaAnestesica.Domain.Response
         public SurgicalPositionEnum? SurgicalPosition { get; set; }
         public bool? UsesCushions { get; set; }
         public string CushionsAccessLocation { get; set; }
-        
         public VenousAccessTypeEnum? VenousAccessType { get; set; }
         public string? VenousAccessLocation { get; set; }
         public bool? DifficultVenousPuncture { get; set; }
@@ -123,32 +114,23 @@ namespace UFF.FichaAnestesica.Domain.Response
                     Gender = patientDetail.Gender,
                     WeightKg = patientDetail.WeightKg,
                     MedicalRecordNumber = patientDetail.MedicalRecordNumber,
-                    
+
                     Allergies = patientDetail.Allergies?.Select(MapAllergy).ToList() ?? new List<ListAllergyDto>(),
                     CurrentLocation = MapLocation(patientDetail.CurrentLocation)
                 },
                 SurgeryId = anesthesiaRecord.Id,
                 ExternalPatientId = anesthesiaRecord.PatientId,
                 Surgeries = surgeries,
-
-                                PreAnestheticMedicationId = anesthesiaRecord.PreAnestheticMedicationId,
+                PreAnestheticMedicationId = anesthesiaRecord.PreAnestheticMedicationId,
                 PreAnestheticMedicationName = anesthesiaRecord.PreAnestheticMedicationName,
                 PreAnestheticMedicationDose = anesthesiaRecord.PreAnestheticMedicationDose,
                 PreAnestheticMedicationRoute = anesthesiaRecord.PreAnestheticMedicationRoute,
                 PreAnestheticMedicationOtherRoute = anesthesiaRecord.PreAnestheticMedicationOtherRoute,
                 PreAnestheticMedicationTime = anesthesiaRecord.PreAnestheticMedicationTime,
-
-               
                 AntibioticsList = anesthesiaRecord.Antibiotics?.Select(MapAntibiotic).ToList() ?? new List<AntibioticResponse>(),
-
-              
                 SurgeonRegistration = anesthesiaRecord.Surgeon?.Registration,
                 AssistantRegistration = anesthesiaRecord.Assistant?.Registration,
-
-               
                 ProceduresCustomized = anesthesiaRecord.ProceduresCustomized,
-
-            
                 DorUsouENV = anesthesiaRecord.DorUsouENV,
                 DorENV = anesthesiaRecord.DorENV,
                 DorUsouPAINAD = anesthesiaRecord.DorUsouPAINAD,
@@ -156,8 +138,6 @@ namespace UFF.FichaAnestesica.Domain.Response
                 DorUsouBPS = anesthesiaRecord.DorUsouBPS,
                 DorBPS = anesthesiaRecord.DorBPS,
                 Conduta = anesthesiaRecord.Conduta,
-
-              
                 PatientIdentifiedBeforeInduction = anesthesiaRecord.PatientIdentifiedBeforeInduction,
                 AnestheticConsentSigned = anesthesiaRecord.AnestheticConsentSigned,
                 AnesthesiaEquipmentChecked = anesthesiaRecord.AnesthesiaEquipmentChecked,
@@ -291,8 +271,8 @@ namespace UFF.FichaAnestesica.Domain.Response
                         .Select(p => new ProcedureResponse
                         {
                             Id = p.ProcedureId.ToString(),
-                            Description = p.Procedure.Description,
-                            Cid = p.Procedure.Cid,
+                            Description = p.Procedure?.Description,
+                            Cid = p.Procedure?.Cid,
                             IsPrimary = p.IsPrimary,
                             Time = p.Time
                         })

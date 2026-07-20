@@ -19,9 +19,12 @@ namespace UFF.FichaAnestesica.Infra.Repositories
 
         public async Task RemoveProceduresAsync(int anesthesiaRecordId)
         {
-            await _context.AnesthesiaRecordProcedures
+           var procedures =  await _context.AnesthesiaRecordProcedures
                 .Where(x => x.AnesthesiaRecordId == anesthesiaRecordId)
-                .ExecuteDeleteAsync();
+                .ToArrayAsync();
+
+            _context.RemoveRange(procedures);
+            _context.SaveChanges();
         }
 
         public async Task<AnesthesiaRecord> GetByIdAsync(int id)
