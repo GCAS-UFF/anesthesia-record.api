@@ -1,4 +1,4 @@
-using UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord;
+﻿using UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord;
 using UFF.FichaAnestesica.Domain.Enums;
 
 namespace UFF.FichaAnestesica.Domain.Entities
@@ -23,6 +23,14 @@ namespace UFF.FichaAnestesica.Domain.Entities
         public string? PreAnestheticMedicationOtherRoute { get; private set; }
         public TimeOnly? PreAnestheticMedicationTime { get; private set; }
 
+        public bool? DorUsouENV { get; private set; }
+        public int? DorENV { get; private set; }
+        public bool? DorUsouPAINAD { get; private set; }
+        public int? DorPAINAD { get; private set; }
+        public bool? DorUsouBPS { get; private set; }
+        public int? DorBPS { get; private set; }
+        public string? Conduta { get; private set; }
+
         public List<AnesthesiaRecordAntibiotic> Antibiotics { get; private set; } = [];
 
         public bool? ProphylacticAntibioticUsed { get; private set; }
@@ -39,6 +47,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
         public string? PreOperativeDiagnosis { get; private set; }
         public SurgicalPositionEnum? SurgicalPosition { get; private set; }
         public bool? UsesCushions { get; private set; }
+        public string CushionsAccessLocation { get; private set; }
         public VenousAccessTypeEnum? VenousAccessType { get; private set; }
         public string? VenousAccessLocation { get; private set; }
         public bool? DifficultVenousPuncture { get; private set; }
@@ -89,7 +98,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
         public SurgeryStatusEnum Status { get; private set; }
         public DateTime CreatedAt { get; protected set; }
         public DateTime LastUpdate { get; protected set; }
-        public List<AnesthesiaRecordProcedure> Procedures { get; protected set; } = [];
+        public List<AnesthesiaRecordSurgery> Surgeries { get; protected set; } = [];
 
         public static AnesthesiaRecord Create(AnesthesiaRecordCommand command, DateTime surgeryDate)
         {
@@ -118,7 +127,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
         {
             ClearPrimaryProcedure();
 
-            var procedure = Procedures
+            var procedure = Surgeries
                 .FirstOrDefault(x => x.ProcedureId == procedureId);
 
             if (procedure != null)
@@ -129,7 +138,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
 
         private void ClearPrimaryProcedure()
         {
-            foreach (var procedure in Procedures)
+            foreach (var procedure in Surgeries)
                 procedure.SetPrimary(false);
         }
 
@@ -178,6 +187,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
 
             SurgicalPosition = command.SurgicalPosition;
             UsesCushions = command.UsesCushions;
+            CushionsAccessLocation = command.CushionsAccessLocation;
 
             VenousAccessType = command.VenousAccessType;
             VenousAccessLocation = command.VenousAccessLocation;
@@ -231,12 +241,20 @@ namespace UFF.FichaAnestesica.Domain.Entities
 
             HasPain = command.HasPain;
 
-            SurgeonId = command.Surgeon?.Id;
-            AssistantId = command.Assistant?.Id;
+            SurgeonId = command.SurgeonId;
+            AssistantId = command.AssistantId;
             FirstAnesthesiologistId = command.FirstAnesthesiologistId;
             SecondAnesthesiologistId = command.SecondAnesthesiologistId;
 
             PatientId = command.PatientId;
+
+            DorUsouENV = command.DorUsouENV;
+            DorENV = command.DorENV;
+            DorUsouPAINAD = command.DorUsouPAINAD;
+            DorPAINAD = command.DorPAINAD;
+            DorUsouBPS = command.DorUsouBPS;
+            DorBPS = command.DorBPS;
+            Conduta = command.Conduta;
 
             PreAnestheticMedicationId = command.PreAnestheticMedicationId;
             PreAnestheticMedicationName = command.PreAnestheticMedicationName;
@@ -246,9 +264,27 @@ namespace UFF.FichaAnestesica.Domain.Entities
             PreAnestheticMedicationTime = command.PreAnestheticMedicationTime;
 
             Antibiotics.Clear();
-
             foreach (var antibiotic in command.AntibioticsList)
                 Antibiotics.Add(AnesthesiaRecordAntibiotic.Create(antibiotic));
+
+            this.AddProcedures(command.Surgeries);
+        }
+
+        public void AddProcedures(IEnumerable<SurgeryCommand> surgeries)
+        {
+            Surgeries.Clear();
+
+            foreach (var surgery in surgeries)
+            {
+                if (!int.TryParse(surgery.Id, out var procedureId))
+                    continue;
+
+                Surgeries.Add(
+                    AnesthesiaRecordSurgery.Create(Id, procedureId, surgery.IsPrimary,
+                        string.IsNullOrWhiteSpace(surgery.Time)
+                            ? null
+                            : TimeOnly.Parse(surgery.Time)));
+            }
         }
     }
 }

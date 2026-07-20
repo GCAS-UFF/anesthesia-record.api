@@ -168,7 +168,7 @@ namespace UFF.FichaAnestesica.Test.Services
         [Fact]
         public async Task FinalizePatientAsync_Should_Set_Status_Completed_And_Save()
         {
-            var anesthesiaRecord = AnesthesiaRecord.Create(new AnesthesiaRecordCommand());
+            var anesthesiaRecord = AnesthesiaRecord.Create(new AnesthesiaRecordCommand(), DateTime.MinValue);
             var monitoringRecord = CreateBaseRecord(60, 13);
             monitoringRecord.SetAnesthesiaRecord(anesthesiaRecord);
 
@@ -201,7 +201,7 @@ namespace UFF.FichaAnestesica.Test.Services
         public async Task FinalizePatientAsync_Should_Return_Fail_When_Exception_Occurs()
         {
             var monitoringRecord = CreateBaseRecord(70, 14);
-            var anesthesiaRecord = AnesthesiaRecord.Create(new AnesthesiaRecordCommand());
+            var anesthesiaRecord = AnesthesiaRecord.Create(new AnesthesiaRecordCommand(), DateTime.MinValue);
             monitoringRecord.SetAnesthesiaRecord(anesthesiaRecord);
 
             _monitoringRepoMock.Setup(r => r.GetByIdAsync(70))

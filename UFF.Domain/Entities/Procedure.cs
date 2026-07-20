@@ -9,7 +9,7 @@
         public string? Cid { get; private set; }
         public bool Active { get; private set; }
         public DateTime? LastSyncAt { get; private set; }
-        public ICollection<AnesthesiaRecordProcedure> AnesthesiaRecords { get; private set; } = [];
+        public ICollection<AnesthesiaRecordSurgery> AnesthesiaRecords { get; private set; } = [];
 
         public static Procedure Create(string externalId, string code, string description, string? cid)
         {

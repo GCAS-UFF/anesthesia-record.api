@@ -23,7 +23,7 @@ namespace UFF.FichaAnestesica.Test.Entities
                 PatientId = "123"
             };
 
-            var record = AnesthesiaRecord.Create(command);
+            var record = AnesthesiaRecord.Create(command, DateTime.MinValue);
 
             Assert.True(record.PatientIdentifiedBeforeInduction);
             Assert.Equal("120/80", record.BloodPressure);
@@ -49,7 +49,7 @@ namespace UFF.FichaAnestesica.Test.Entities
                 WeightKg = 60,
                 PreOperativeDiagnosis = "Hérnia"
             };
-            var record = AnesthesiaRecord.Create(initialCommand);
+            var record = AnesthesiaRecord.Create(initialCommand, DateTime.MinValue);
 
             var updateCommand = new AnesthesiaRecordCommand
             {
@@ -82,7 +82,7 @@ namespace UFF.FichaAnestesica.Test.Entities
         [Fact]
         public void SetStatus_Should_Change_Status_And_Update_LastUpdate()
         {
-            var record = AnesthesiaRecord.Create(new AnesthesiaRecordCommand());
+            var record = AnesthesiaRecord.Create(new AnesthesiaRecordCommand(), DateTime.MinValue);
             var oldLastUpdate = record.LastUpdate;
 
             record.SetStatus(SurgeryStatusEnum.Canceled);
@@ -94,7 +94,7 @@ namespace UFF.FichaAnestesica.Test.Entities
         [Fact]
         public void AssignFirstAnesthesiologistId_Should_Set_Id_When_Greater_Than_Zero()
         {
-            var record = AnesthesiaRecord.Create(new AnesthesiaRecordCommand());
+            var record = AnesthesiaRecord.Create(new AnesthesiaRecordCommand(), DateTime.MinValue);
 
             record.AssignFirstAnesthesiologistId(10);
 
@@ -105,7 +105,7 @@ namespace UFF.FichaAnestesica.Test.Entities
         [Fact]
         public void AssignFirstAnesthesiologistId_Should_Set_Null_When_Id_Is_Zero()
         {
-            var record = AnesthesiaRecord.Create(new AnesthesiaRecordCommand());
+            var record = AnesthesiaRecord.Create(new AnesthesiaRecordCommand(), DateTime.MinValue);
             record.AssignFirstAnesthesiologistId(10);
 
             record.AssignFirstAnesthesiologistId(0);
@@ -116,7 +116,7 @@ namespace UFF.FichaAnestesica.Test.Entities
         [Fact]
         public void AssignFirstAnesthesiologistId_Should_Set_Null_When_Id_Is_Negative()
         {
-            var record = AnesthesiaRecord.Create(new AnesthesiaRecordCommand());
+            var record = AnesthesiaRecord.Create(new AnesthesiaRecordCommand(), DateTime.MinValue);
             record.AssignFirstAnesthesiologistId(10);
 
             record.AssignFirstAnesthesiologistId(-5);

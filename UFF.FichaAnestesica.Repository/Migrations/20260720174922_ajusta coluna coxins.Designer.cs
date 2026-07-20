@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using UFF.FichaAnestesica.Infra.Context;
@@ -11,9 +12,11 @@ using UFF.FichaAnestesica.Infra.Context;
 namespace UFF.FichaAnestesica.Infra.Migrations
 {
     [DbContext(typeof(SigaDbCtx))]
-    partial class SigaDbCtxModelSnapshot : ModelSnapshot
+    [Migration("20260720174922_ajusta coluna coxins")]
+    partial class ajustacolunacoxins
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -111,10 +114,6 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                     b.Property<DateTime>("LastUpdate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("last_update");
-
-                    b.Property<TimeOnly?>("Time")
-                        .HasColumnType("time without time zone")
-                        .HasColumnName("time");
 
                     b.HasKey("AnesthesiaRecordId", "ProcedureId");
 
@@ -432,7 +431,7 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .HasColumnName("uses_cushions");
 
                     b.Property<string>("VenousAccessLocation")
-                        .HasColumnType("varchar(200)")
+                        .HasColumnType("varchar(100)")
                         .HasColumnName("venous_access_location");
 
                     b.Property<int?>("VenousAccessType")
@@ -1149,6 +1148,10 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                     b.Property<DateTime>("LastUpdate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("last_update");
+
+                    b.Property<TimeOnly>("Time")
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("time");
 
                     b.HasKey("Id");
 

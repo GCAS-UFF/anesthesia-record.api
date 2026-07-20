@@ -44,7 +44,7 @@ namespace UFF.FichaAnestesica.Test.Services
             var record = AnesthesiaRecord.Create(new Domain.Commands.AnesthesiaRecord.AnesthesiaRecordCommand
             {
                 PatientId = "123"
-            });
+            }, DateTime.MinValue);
 
             _repoMock.Setup(r => r.GetByIdAsync(1))
                      .ReturnsAsync(record);

@@ -24,5 +24,8 @@ namespace UFF.FichaAnestesica.Domain.Dto
 
         [JsonPropertyName("principal")]
         public bool IsPrimary { get; set; }
+
+        [JsonPropertyName("hora")]
+        public TimeOnly Time { get; set; }
     }
 }

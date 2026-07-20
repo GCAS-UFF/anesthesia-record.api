@@ -88,7 +88,12 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
 
             builder.Property(x => x.VenousAccessLocation)
                 .HasColumnName("venous_access_location")
-                .HasColumnType("varchar(100)");
+                .HasColumnType("varchar(200)")
+                .IsRequired(false);
+
+            builder.Property(x => x.CushionsAccessLocation)
+              .HasColumnName("cushions_access_location")
+              .HasColumnType("varchar(100)");
 
             builder.Property(x => x.DifficultVenousPuncture)
                 .HasColumnName("difficult_venous_puncture");
@@ -241,7 +246,7 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
             builder.Property(x => x.AssistantId)
                 .HasColumnName("assistant_id");
 
-            builder.HasMany(x => x.Procedures)
+            builder.HasMany(x => x.Surgeries)
                 .WithOne(x => x.AnesthesiaRecord)
                 .HasForeignKey(x => x.AnesthesiaRecordId)
                 .OnDelete(DeleteBehavior.Cascade);

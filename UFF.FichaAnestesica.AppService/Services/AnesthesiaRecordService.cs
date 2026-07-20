@@ -72,8 +72,11 @@ public class AnesthesiaRecordService : IAnesthesiaRecordService
         try
         {
             anesthesiaRecord.Update(command);
-            anesthesiaRecord.MarkProceduresCustomized();
 
+            await _anesthesiaRecordRepository.RemoveProceduresAsync(id);
+            await _anesthesiaRecordRepository.SaveChangesAsync();
+            
+            anesthesiaRecord.AddProcedures(command.Surgeries);            
             _anesthesiaRecordRepository.Update(anesthesiaRecord);
 
             await _anesthesiaRecordRepository.SaveChangesAsync();

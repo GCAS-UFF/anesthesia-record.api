@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace UFF.FichaAnestesica.Infra.EntityConfig
 {
-    public class AnesthesiaRecordProcedureConfig : IEntityTypeConfiguration<AnesthesiaRecordProcedure>
+    public class AnesthesiaRecordProcedureConfig : IEntityTypeConfiguration<AnesthesiaRecordSurgery>
     {
-        public void Configure(EntityTypeBuilder<AnesthesiaRecordProcedure> builder)
+        public void Configure(EntityTypeBuilder<AnesthesiaRecordSurgery> builder)
         {
             builder.ToTable("anesthesia_record_procedures");
 
@@ -25,12 +25,16 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .HasColumnName("is_primary")
                 .IsRequired();
 
+            builder.Property(x => x.Time)
+             .HasColumnName("time")
+             .IsRequired(false);
+
             builder.Property(x => x.CreatedAt)
                 .HasColumnName("created_at")
                 .HasColumnType("timestamptz");
 
             builder.HasOne(x => x.AnesthesiaRecord)
-                .WithMany(x => x.Procedures)
+                .WithMany(x => x.Surgeries)
                 .HasForeignKey(x => x.AnesthesiaRecordId)
                 .OnDelete(DeleteBehavior.Cascade);
 

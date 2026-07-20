@@ -13,7 +13,13 @@ namespace UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord
         public DateTime SurgeryDate { get; set; }
         
         public SurgeryStatusEnum Status { get; set; }
-
+        public bool? DorUsouENV { get; set; }
+        public int? DorENV { get; set; }
+        public bool? DorUsouPAINAD { get; set; }
+        public int? DorPAINAD { get; set; }
+        public bool? DorUsouBPS { get; set; }
+        public int? DorBPS { get; set; }
+        public string? Conduta { get; set; }
 
 
         public List<SurgeryCommand> Surgeries { get; set; } = [];
@@ -70,8 +76,8 @@ namespace UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord
 
         #region Equipe
 
-        public ProfessionalCommand? Surgeon { get; set; }
-        public ProfessionalCommand? Assistant { get; set; }
+        public int? SurgeonId { get; set; }
+        public int? AssistantId { get; set; }
 
         public int? FirstAnesthesiologistId { get; set; }
         public string? FirstAnesthesiologistName { get; set; }
@@ -87,6 +93,7 @@ namespace UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord
 
         public SurgicalPositionEnum SurgicalPosition { get; set; }
         public bool UsesCushions { get; set; }
+        public string? CushionsAccessLocation { get; set; }        
 
         public VenousAccessTypeEnum VenousAccessType { get; set; }
         public string VenousAccessLocation { get; set; } = default!;

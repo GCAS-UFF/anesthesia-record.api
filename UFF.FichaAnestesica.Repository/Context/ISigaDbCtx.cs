@@ -9,6 +9,7 @@ namespace UFF.FichaAnestesica.Infra.Context
         public DbSet<AnesthesiaRecord> AnesthesiaRecords { get; }
         public DbSet<PreAnesthesiaRecord> PreAnesthesiaRecords { get; }
         public DbSet<User> Users { get; }
+        public DbSet<AnesthesiaRecordSurgery> AnesthesiaRecordProcedures { get; }
         public DbSet<AdministeredAgent> AdministeredAgents { get; }
         public DbSet<ClinicalEvent> ClinicalEvents { get; }
         public DbSet<CustomField> CustomFields { get; }

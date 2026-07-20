@@ -6,5 +6,6 @@
         public string Description { get; set; }
         public string Cid { get; set; }
         public bool IsPrimary { get; set; }
+        public TimeOnly? Time {  get; set; }
     }
 }

@@ -16,6 +16,14 @@ namespace UFF.FichaAnestesica.Infra.Repositories
             _context = context;
         }
 
+
+        public async Task RemoveProceduresAsync(int anesthesiaRecordId)
+        {
+            await _context.AnesthesiaRecordProcedures
+                .Where(x => x.AnesthesiaRecordId == anesthesiaRecordId)
+                .ExecuteDeleteAsync();
+        }
+
         public async Task<AnesthesiaRecord> GetByIdAsync(int id)
         {
             return await _context.AnesthesiaRecords
@@ -23,6 +31,8 @@ namespace UFF.FichaAnestesica.Infra.Repositories
                             .Include(x => x.SecondAnesthesiologist)
                             .Include(x => x.Surgeon)
                             .Include(x => x.Assistant)
+                            .Include(x => x.Surgeries)
+                                .ThenInclude(x => x.Procedure)
                             .Include(x => x.Antibiotics)
                               .ThenInclude(x => x.Boosters)
                             .Include(x => x.MonitoringRecord)
@@ -34,7 +44,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories
             return await _context.AnesthesiaRecords
                 .Include(x => x.FirstAnesthesiologist)
                 .Include(x => x.SecondAnesthesiologist)
-                .Include(x => x.Procedures)
+                .Include(x => x.Surgeries)
                 .Where(x => ids.Contains(x.PatientId))
                 .ToListAsync();
         }
