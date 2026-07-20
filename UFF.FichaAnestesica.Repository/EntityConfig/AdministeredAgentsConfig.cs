@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using UFF.FichaAnestesica.Domain.Entities;
 
 namespace UFF.FichaAnestesica.Infra.EntityConfig
 {

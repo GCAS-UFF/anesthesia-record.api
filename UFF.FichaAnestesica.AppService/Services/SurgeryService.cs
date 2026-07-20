@@ -146,7 +146,7 @@ namespace UFF.FichaAnestesica.Service.Services
                         SurgeryId = surgery.SurgeryId,
                         PatientId = surgery.PatientId,
                         SurgeryDate = surgery.SurgeryDate
-                    });
+                    }, surgery.SurgeryDate);
 
                     await _anesthesiaRecordRepository.AddAsync(record);
 
@@ -310,9 +310,8 @@ namespace UFF.FichaAnestesica.Service.Services
                         SurgeryId = surgeryId,
                         Status = SurgeryStatusEnum.Preparing,
                         PatientId = patientId,
-                        SurgeryDate = patient.SurgeryDate,
-                        FirstAnesthesiologistId = responsibleAnesthesiologistId                        
-                    });
+                        FirstAnesthesiologistId = responsibleAnesthesiologistId
+                    }, patient.SurgeryDate);
 
                     await _anesthesiaRecordRepository.AddAsync(anesthesiaRecord);
                 }

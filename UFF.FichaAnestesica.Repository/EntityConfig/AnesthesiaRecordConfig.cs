@@ -269,6 +269,11 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
             builder.HasOne(x => x.MonitoringRecord)
                 .WithOne(x => x.AnesthesiaRecord)
                 .HasForeignKey<MonitoringRecord>(x => x.AnesthesiaRecordId);
+
+            builder.HasMany(x => x.Antibiotics)
+                .WithOne(x => x.AnesthesiaRecord)
+                .HasForeignKey(x => x.AnesthesiaRecordId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

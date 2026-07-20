@@ -9,116 +9,94 @@ namespace UFF.FichaAnestesica.Domain.Response
     {
         public PatientSurgeryResponse Patient { get; set; }
         public int SurgeryId { get; set; }
+
+        // ✅ CAMPOS DA MEDICAÇÃO PRÉ-ANESTÉSICA (ADICIONADOS)
+        public int? PreAnestheticMedicationId { get; set; }
+        public string? PreAnestheticMedicationName { get; set; }
+        public string? PreAnestheticMedicationDose { get; set; }
+        public string? PreAnestheticMedicationRoute { get; set; }
+        public string? PreAnestheticMedicationOtherRoute { get; set; }
+        public TimeOnly? PreAnestheticMedicationTime { get; set; }
+
+        // ✅ LISTA DE ANTIBIÓTICOS (ADICIONADA)
+        public List<AntibioticResponse>? AntibioticsList { get; set; }
+
+        // ✅ REGISTRATION DO CIRURGIÃO E ASSISTENTE (ADICIONADOS)
+        public string? SurgeonRegistration { get; set; }
+        public string? AssistantRegistration { get; set; }
+
+        // ✅ PROCEDURES CUSTOMIZED (ADICIONADO)
+        public bool ProceduresCustomized { get; set; }
+
+        // Campos existentes
         public bool? PatientIdentifiedBeforeInduction { get; set; }
         public bool? AnestheticConsentSigned { get; set; }
         public bool? AnesthesiaEquipmentChecked { get; set; }
-
         public string? SafetyObservations { get; set; }
-
         public bool? PreAnestheticMedication { get; set; }
         public bool? ProphylacticAntibioticUsed { get; set; }
-
         public string? BloodPressure { get; set; }
-
         public int? RespiratoryRate { get; set; }
         public decimal? Temperature { get; set; }
         public int? OxygenSaturation { get; set; }
         public decimal? WeightKg { get; set; }
-
         public AsaClassificationEnum? AsaClassification { get; set; }
-
         public TimeOnly? RoomEntryTime { get; set; }
         public TimeOnly? AnesthesiaStartTime { get; set; }
         public TimeOnly? SurgeryEndTime { get; set; }
         public TimeOnly? AnesthesiaEndTime { get; set; }
-
         public string? PreOperativeDiagnosis { get; set; }
-
         public SurgicalPositionEnum? SurgicalPosition { get; set; }
-
         public bool? UsesCushions { get; set; }
-
         public VenousAccessTypeEnum? VenousAccessType { get; set; }
-
         public string? VenousAccessLocation { get; set; }
-
         public bool? DifficultVenousPuncture { get; set; }
-
         public bool? GeneralAnesthesia { get; set; }
-
         public RespirationModeEnum? RespirationMode { get; set; }
-
         public ControlledVentilationModeEnum? ControlledVentilationMode { get; set; }
-
         public bool? Co2AbsorberCircuit { get; set; }
-
         public AirwayDeviceTypeEnum? AirwayDeviceType { get; set; }
-
         public string? AirwayDeviceNumber { get; set; }
-
         public bool? OralTube { get; set; }
         public bool? NasalTube { get; set; }
-
         public IntubationDifficultyEnum? IntubationDifficulty { get; set; }
-
         public AirwayTypeEnum? AirwayType { get; set; }
-
         public string? OtherAirwayTypeDescription { get; set; }
-
         public bool? Laryngoscopy { get; set; }
         public bool? RetrogradeTechnique { get; set; }
         public bool? VideoLaryngoscopy { get; set; }
         public bool? Bronchofibroscopy { get; set; }
         public bool? Tracheostomy { get; set; }
-
         public string? OtherAirwayTechnique { get; set; }
-
         public bool? SpinalBlockPerformed { get; set; }
         public bool? SedationPerformed { get; set; }
         public bool? OxygenSupplementation { get; set; }
         public bool? PlexusBlockPerformed { get; set; }
-
         public string? SurgeryPerformed { get; set; }
         public string? PostOperativeDiagnosis { get; set; }
-
         public int? ConsciousnessScore { get; set; }
         public int? ActivityScore { get; set; }
         public int? CirculationScore { get; set; }
         public int? RespirationScore { get; set; }
         public int? OxygenSaturationScore { get; set; }
-
         public int? TotalAldreteKroulikScore { get; set; }
-
         public ClinicalDischargeConditionEnum? ClinicalDischargeCondition { get; set; }
-
         public PatientDestinationEnum? Destination { get; set; }
-
         public bool? HasPain { get; set; }
-
         public int? FirstAnesthesiologistId { get; set; }
         public string? FirstAnesthesiologistName { get; set; }
-
         public int? SecondAnesthesiologistId { get; set; }
         public string? SecondAnesthesiologistName { get; set; }
-
         public int? SurgeonId { get; set; }
         public string? SurgeonName { get; set; }
-
         public int? AssistantId { get; set; }
         public string? AssistantName { get; set; }
-
-
         public string ExternalPatientId { get; set; } = string.Empty;
-
         public DateOnly RecordDate { get; set; }
         public DateTime SurgeryDate { get; set; }
-
         public DateTime CreatedAt { get; set; }
-
         public DateTime? LastUpdate { get; set; }
-
         public SurgeryStatusEnum Status { get; set; }
-
 
         public static AnesthesiaRecordResponse ToResponse(AnesthesiaRecord anesthesiaRecord, PatientDetailDto patientDetail)
         {
@@ -139,6 +117,26 @@ namespace UFF.FichaAnestesica.Domain.Response
                 },
                 SurgeryId = anesthesiaRecord.Id,
                 ExternalPatientId = anesthesiaRecord.PatientId,
+
+                // ✅ Mapeamento dos campos da medicação pré-anestésica
+                PreAnestheticMedicationId = anesthesiaRecord.PreAnestheticMedicationId,
+                PreAnestheticMedicationName = anesthesiaRecord.PreAnestheticMedicationName,
+                PreAnestheticMedicationDose = anesthesiaRecord.PreAnestheticMedicationDose,
+                PreAnestheticMedicationRoute = anesthesiaRecord.PreAnestheticMedicationRoute,
+                PreAnestheticMedicationOtherRoute = anesthesiaRecord.PreAnestheticMedicationOtherRoute,
+                PreAnestheticMedicationTime = anesthesiaRecord.PreAnestheticMedicationTime,
+
+                // ✅ Mapeamento da lista de antibióticos
+                AntibioticsList = anesthesiaRecord.Antibiotics?.Select(MapAntibiotic).ToList() ?? new List<AntibioticResponse>(),
+
+                // ✅ Mapeamento do registration
+                SurgeonRegistration = anesthesiaRecord.Surgeon?.Registration,
+                AssistantRegistration = anesthesiaRecord.Assistant?.Registration,
+
+                // ✅ Mapeamento do ProceduresCustomized
+                ProceduresCustomized = anesthesiaRecord.ProceduresCustomized,
+
+                // Campos existentes
                 PatientIdentifiedBeforeInduction = anesthesiaRecord.PatientIdentifiedBeforeInduction,
                 AnestheticConsentSigned = anesthesiaRecord.AnestheticConsentSigned,
                 AnesthesiaEquipmentChecked = anesthesiaRecord.AnesthesiaEquipmentChecked,
@@ -209,6 +207,35 @@ namespace UFF.FichaAnestesica.Domain.Response
             };
         }
 
+        // ✅ MÉTODO PARA MAPEAR ANTIBIÓTICOS
+        private static AntibioticResponse MapAntibiotic(AnesthesiaRecordAntibiotic antibiotic)
+        {
+            return new AntibioticResponse
+            {
+                MedicationId = antibiotic.MedicationId,
+                MedicationName = antibiotic.MedicationName,
+                Name = antibiotic.MedicationName,
+                Dose = antibiotic.Dose,
+                Route = antibiotic.Route,
+                Time = antibiotic.Time,
+                HasBooster = antibiotic.HasBooster,
+                Boosters = antibiotic.Boosters?.Select(MapBooster).ToList() ?? new List<BoosterResponse>()
+            };
+        }
+
+        // ✅ MÉTODO PARA MAPEAR BOOSTERS
+        private static BoosterResponse MapBooster(AnesthesiaRecordAntibioticBooster booster)
+        {
+            return new BoosterResponse
+            {
+                MedicationId = booster.MedicationId,
+                MedicationName = booster.MedicationName,
+                Name = booster.MedicationName,
+                Dose = booster.Dose,
+                Route = booster.Route,
+                Time = booster.Time
+            };
+        }
 
         private static PatientLocationResponse? MapLocation(CurrentLocationDto? location)
         {
@@ -257,7 +284,6 @@ namespace UFF.FichaAnestesica.Domain.Response
                                 Description = surgery.Location.SurgicalCenter.Description
                             }
                     },
-
                 Procedures = surgery.Procedures?
                     .Select(p => new ProcedureResponse
                     {
@@ -270,9 +296,9 @@ namespace UFF.FichaAnestesica.Domain.Response
             };
         }
 
-        private static Domain.Response.ListAllergyDto MapAllergy(Domain.Dto.ListAllergyDto allergy)
+        private static ListAllergyDto MapAllergy(Domain.Dto.ListAllergyDto allergy)
         {
-            return new Domain.Response.ListAllergyDto
+            return new ListAllergyDto
             {
                 RegisterDate = allergy.RegisterDate,
                 Description = allergy.Description,

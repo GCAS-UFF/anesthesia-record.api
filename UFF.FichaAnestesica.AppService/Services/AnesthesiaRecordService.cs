@@ -38,9 +38,9 @@ public class AnesthesiaRecordService : IAnesthesiaRecordService
     }
 
     public async Task<CommandResult> Create(AnesthesiaRecordCommand command)
-    {
-        var anesthesiaRecord = AnesthesiaRecord.Create(command);
+    {        
         var patient = await _hospitalApiRepository.GetFromHospitalByPatientIdAndSurgeryIdAsync(command.PatientId, command.SurgeryId);
+        var anesthesiaRecord = AnesthesiaRecord.Create(command, patient.SurgeryDate);
 
         try
         {

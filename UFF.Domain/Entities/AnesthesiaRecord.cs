@@ -91,7 +91,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
         public DateTime LastUpdate { get; protected set; }
         public List<AnesthesiaRecordProcedure> Procedures { get; protected set; } = [];
 
-        public static AnesthesiaRecord Create(AnesthesiaRecordCommand command)
+        public static AnesthesiaRecord Create(AnesthesiaRecordCommand command, DateTime surgeryDate)
         {
             var entity = new AnesthesiaRecord();
             entity.Id = command.SurgeryId;
@@ -101,6 +101,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
             entity.Status = SurgeryStatusEnum.Scheduled;
             entity.SetValues(command);
             entity.CreatedAt = DateTime.UtcNow;
+            entity.SurgeryDate = surgeryDate;
             entity.LastUpdate = DateTime.UtcNow;
             entity.Status = SurgeryStatusEnum.Scheduled;
 
@@ -236,7 +237,6 @@ namespace UFF.FichaAnestesica.Domain.Entities
             SecondAnesthesiologistId = command.SecondAnesthesiologistId;
 
             PatientId = command.PatientId;
-            SurgeryDate = command.SurgeryDate;
 
             PreAnestheticMedicationId = command.PreAnestheticMedicationId;
             PreAnestheticMedicationName = command.PreAnestheticMedicationName;

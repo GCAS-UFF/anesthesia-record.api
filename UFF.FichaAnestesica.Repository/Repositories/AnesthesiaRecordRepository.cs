@@ -23,6 +23,8 @@ namespace UFF.FichaAnestesica.Infra.Repositories
                             .Include(x => x.SecondAnesthesiologist)
                             .Include(x => x.Surgeon)
                             .Include(x => x.Assistant)
+                            .Include(x => x.Antibiotics)
+                              .ThenInclude(x => x.Boosters)
                             .Include(x => x.MonitoringRecord)
                             .FirstOrDefaultAsync(x => x.Id == id);
         }
@@ -41,8 +43,8 @@ namespace UFF.FichaAnestesica.Infra.Repositories
         {
             return await _context.AnesthesiaRecords
                 .AnyAsync(x => x.FirstAnesthesiologistId == id
-                && (x.Status == Domain.Enums.SurgeryStatusEnum.InProgress || x.Status == Domain.Enums.SurgeryStatusEnum.Scheduled
-                || x.Status == Domain.Enums.SurgeryStatusEnum.Preparing));
+                && (x.Status == SurgeryStatusEnum.InProgress || x.Status == SurgeryStatusEnum.Scheduled
+                || x.Status ==SurgeryStatusEnum.Preparing));
         }
 
         public async Task<IEnumerable<AnesthesiaRecord>> GetByDoctorAndDateAsync(int doctorId, DateTime? date)
