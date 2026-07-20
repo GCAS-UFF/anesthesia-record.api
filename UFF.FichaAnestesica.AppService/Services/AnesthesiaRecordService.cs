@@ -75,6 +75,7 @@ public class AnesthesiaRecordService : IAnesthesiaRecordService
             anesthesiaRecord.MarkProceduresCustomized();
 
             _anesthesiaRecordRepository.Update(anesthesiaRecord);
+
             await _anesthesiaRecordRepository.SaveChangesAsync();
         }
         catch (Exception ex)
