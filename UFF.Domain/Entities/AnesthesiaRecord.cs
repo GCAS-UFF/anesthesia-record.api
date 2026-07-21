@@ -162,6 +162,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
 
         private void SetValues(AnesthesiaRecordCommand command)
         {
+            ProceduresCustomized = true;
             PatientIdentifiedBeforeInduction = command.PatientIdentifiedBeforeInduction;
             AnestheticConsentSigned = command.AnestheticConsentSigned;
             AnesthesiaEquipmentChecked = command.AnesthesiaEquipmentChecked;

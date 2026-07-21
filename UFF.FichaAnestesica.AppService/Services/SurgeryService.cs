@@ -54,7 +54,7 @@ namespace UFF.FichaAnestesica.Service.Services
             await AssociateSurgeryProcedures(hospitalData, recordsBySurgeryId);
             await _anesthesiaRecordRepository.SaveChangesAsync();
 
-            var responseData = PatientResponseMapper.Map(hospitalData.Data);
+            var responseData = PatientResponseMapper.Map(hospitalData.Data, recordsBySurgeryId);
             var recordsByPatientId = anesthesiaRecords.GroupBy(x => x.Id).ToDictionary(x => x.Key, x => x.First());
 
             var canAssumePatient = await _anesthesiaRecordRepository.CanAssumePatientsAsync(doctorId);
@@ -217,7 +217,7 @@ namespace UFF.FichaAnestesica.Service.Services
 
             SetSurgeryStatus(hospitalData, recordsBySurgeryId);
 
-            var responseData = PatientResponseMapper.Map(hospitalData.Data);
+            var responseData = PatientResponseMapper.Map(hospitalData.Data, recordsBySurgeryId);
 
             foreach (var patient in responseData)
             {

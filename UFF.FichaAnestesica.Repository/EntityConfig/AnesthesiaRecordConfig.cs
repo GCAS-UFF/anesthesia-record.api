@@ -93,7 +93,8 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
 
             builder.Property(x => x.CushionsAccessLocation)
               .HasColumnName("cushions_access_location")
-              .HasColumnType("varchar(100)");
+              .HasColumnType("varchar(100)")
+              .IsRequired(false);
 
             builder.Property(x => x.DifficultVenousPuncture)
                 .HasColumnName("difficult_venous_puncture");
@@ -216,10 +217,6 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .HasColumnType("varchar(100)")
                 .IsRequired();
 
-            builder.Property(x => x.RecordDate)
-                .HasColumnName("record_date")
-                .HasColumnType("date")
-                .IsRequired();
 
             builder.Property(x => x.SurgeryDate)
               .HasColumnName("surgery_date")

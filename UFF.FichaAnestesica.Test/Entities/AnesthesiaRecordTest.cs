@@ -33,7 +33,6 @@ namespace UFF.FichaAnestesica.Test.Entities
             Assert.Equal(new TimeOnly(8, 15), record.AnesthesiaStartTime);
             Assert.Equal("Apendicite", record.PreOperativeDiagnosis);
             Assert.Equal(SurgicalPositionEnum.Supine, record.SurgicalPosition);
-            Assert.Equal(new DateOnly(2025, 6, 1), record.RecordDate);
             Assert.Equal("123", record.PatientId);
             Assert.Equal(SurgeryStatusEnum.Scheduled, record.Status);
             Assert.NotEqual(default, record.CreatedAt);

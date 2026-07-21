@@ -48,6 +48,8 @@ namespace UFF.FichaAnestesica.Infra.Repositories
                 .Include(x => x.FirstAnesthesiologist)
                 .Include(x => x.SecondAnesthesiologist)
                 .Include(x => x.Surgeries)
+                                .ThenInclude(x => x.Procedure)
+                .Include(x => x.Surgeries)
                 .Where(x => ids.Contains(x.PatientId))
                 .ToListAsync();
         }

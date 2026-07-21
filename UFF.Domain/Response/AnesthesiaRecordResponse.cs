@@ -202,7 +202,6 @@ namespace UFF.FichaAnestesica.Domain.Response
                 SurgeonName = anesthesiaRecord.Surgeon?.Name,
                 AssistantId = anesthesiaRecord.AssistantId,
                 AssistantName = anesthesiaRecord.Assistant?.Name,
-                RecordDate = anesthesiaRecord.RecordDate,
                 SurgeryDate = anesthesiaRecord.SurgeryDate,
                 CreatedAt = anesthesiaRecord.CreatedAt,
                 LastUpdate = anesthesiaRecord.LastUpdate,

@@ -21,10 +21,10 @@ namespace UFF.FichaAnestesica.Service.Mappers
                 MedicalRecordNumber = patient.MedicalRecordNumber,
                 FullName = patient.FullName,
                 BirthDate = patient.BirthDate,
-                Age = CalculateAge(patient.BirthDate),                
+                Age = CalculateAge(patient.BirthDate),
                 ExpectedAt = patient.ExpectedAt,
-                Room = patient.Room,                
-                Status = user != null && SurgeryStatusEnumMapping.Parse(patient.Status) != SurgeryStatusEnum.Completed ? SurgeryStatusEnum.InProgress : SurgeryStatusEnumMapping.Parse(patient.Status),
+                Room = patient.Room,
+                Status = SurgeryStatusEnumMapping.Parse(patient.Status) != SurgeryStatusEnum.Completed ? SurgeryStatusEnum.InProgress : SurgeryStatusEnumMapping.Parse(patient.Status),
                 Procedures = patient.Procedures?
                     .Select(p => new ProcedureResponse
                     {
@@ -35,20 +35,53 @@ namespace UFF.FichaAnestesica.Service.Mappers
                 Allergies = patient.Allergies?
                     .Select(MapAllergy)
                     .ToList() ?? new List<Domain.Response.ListAllergyDto>(),
-                FirstAnesthesiologist =  null,
+                FirstAnesthesiologist = null,
                 SecondAnesthesiologist = null
             };
         }
 
-        public static List<PatientSurgeryResponse> Map(IEnumerable<PatientDetailDto> patients)
+        public static List<PatientSurgeryResponse> Map(IEnumerable<PatientDetailDto> patients, Dictionary<int, AnesthesiaRecord> recordsBySurgeryId)
         {
             if (patients == null || !patients.Any())
-                return null;
+                return [];
 
             var patientsList = new List<PatientSurgeryResponse>();
 
             foreach (var patient in patients)
             {
+                recordsBySurgeryId.TryGetValue(patient.SurgeryId, out var record);
+
+                List<ProcedureResponse> procedures;
+
+                if (record != null && record.Surgeries.Any() && record.ProceduresCustomized)
+                {
+                    procedures = record.Surgeries
+                        .OrderByDescending(x => x.IsPrimary)
+                        .Select(s =>
+                        {
+                            return new ProcedureResponse
+                            {
+                                Id = s.ProcedureId.ToString(),
+                                Description = record.Surgeries.FirstOrDefault(x => x.ProcedureId == s.ProcedureId).Procedure.Description,
+                                Cid = record.Surgeries.FirstOrDefault(x => x.ProcedureId == s.ProcedureId).Procedure.Cid,
+                                IsPrimary = record.Surgeries.FirstOrDefault(x => x.ProcedureId == s.ProcedureId).IsPrimary
+                            };
+                        })
+                        .ToList();
+                }
+                else
+                {
+                    procedures = patient.Procedures?
+                        .Select(p => new ProcedureResponse
+                        {
+                            Id = p.ExternalId.ToString(),
+                            Description = p.Description,
+                            IsPrimary = p.IsPrimary,
+                            Cid = p.Cid
+                        })
+                        .ToList() ?? [];
+                }
+
                 patientsList.Add(new PatientSurgeryResponse
                 {
                     SurgeryId = patient.SurgeryId,
@@ -64,16 +97,10 @@ namespace UFF.FichaAnestesica.Service.Mappers
                     Age = CalculateAge(patient.BirthDate),
                     ExpectedAt = patient.ExpectedAt,
                     Room = patient.Room,
-                    Procedures = patient.Procedures?
-                   .Select(p => new ProcedureResponse
-                   {
-                       Id = p.ExternalId.ToString(),
-                       Description = p.Description,
-                       IsPrimary = p.IsPrimary,
-                       Cid = p.Cid
-                   }).ToList() ?? new List<ProcedureResponse>(),
+                    Procedures = procedures,
                     Allergies = patient.Allergies?
-                   .Select(MapAllergy).ToList() ?? new List<Domain.Response.ListAllergyDto>(),
+                        .Select(MapAllergy)
+                        .ToList() ?? [],
                     FirstAnesthesiologist = null,
                     SecondAnesthesiologist = null
                 });
@@ -99,7 +126,7 @@ namespace UFF.FichaAnestesica.Service.Mappers
                 Gender = patient.Gender,
                 Status = firstAnesthesiologist != null && SurgeryStatusEnumMapping.Parse(patient.Status) != SurgeryStatusEnum.Completed ? SurgeryStatusEnum.InProgress : SurgeryStatusEnumMapping.Parse(patient.Status),
                 WeightKg = patient.WeightKg,
-                HeightCm = patient.HeightCm,                
+                HeightCm = patient.HeightCm,
                 CurrentLocation = MapLocation(patient.CurrentLocation),
                 Allergies = patient.Allergies?
                     .Select(MapAllergy)
