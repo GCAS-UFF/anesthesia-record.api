@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <None Remove="Commands\AnesthesiaRecord\AnesthesiaRecordCommand.cs~RF46a311a.TMP" />
+    <None Remove="Commands\AnesthesiaRecord\AnesthesiaRecordCommand.cs~RF7456f48.TMP" />
     <None Remove="Commands\AnesthesiaRecord\MonitoringRecordCommand.cs~RF10973372.TMP" />
     <None Remove="Dto\DrugDto.cs~RF2a1863d.TMP" />
     <None Remove="Dto\DrugDto.cs~RF33d28a6.TMP" />

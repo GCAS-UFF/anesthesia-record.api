@@ -19,9 +19,9 @@ namespace UFF.FichaAnestesica.Infra.Repositories
 
         public async Task RemoveProceduresAsync(int anesthesiaRecordId)
         {
-           var procedures =  await _context.AnesthesiaRecordProcedures
-                .Where(x => x.AnesthesiaRecordId == anesthesiaRecordId)
-                .ToArrayAsync();
+            var procedures = await _context.AnesthesiaRecordProcedures
+                 .Where(x => x.AnesthesiaRecordId == anesthesiaRecordId)
+                 .ToArrayAsync();
 
             _context.RemoveRange(procedures);
             _context.SaveChanges();
@@ -30,16 +30,20 @@ namespace UFF.FichaAnestesica.Infra.Repositories
         public async Task<AnesthesiaRecord> GetByIdAsync(int id)
         {
             return await _context.AnesthesiaRecords
-                            .Include(x => x.FirstAnesthesiologist)
-                            .Include(x => x.SecondAnesthesiologist)
-                            .Include(x => x.Surgeon)
-                            .Include(x => x.Assistant)
-                            .Include(x => x.Surgeries)
-                                .ThenInclude(x => x.Procedure)
-                            .Include(x => x.Antibiotics)
-                              .ThenInclude(x => x.Boosters)
-                            .Include(x => x.MonitoringRecord)
-                            .FirstOrDefaultAsync(x => x.Id == id);
+                .Include(x => x.FirstAnesthesiologist)
+                .Include(x => x.SecondAnesthesiologist)
+                .Include(x => x.Surgeon)
+                .Include(x => x.Assistant)
+                .Include(x => x.Surgeries)
+                    .ThenInclude(x => x.Procedure)
+                .Include(x => x.Antibiotics)
+                    .ThenInclude(x => x.Boosters)
+                .Include(x => x.AirwayDevices) 
+                .Include(x => x.PunctureLevels) 
+                .Include(x => x.OxygenSupplementationTypes)  
+                .Include(x => x.StimulatedNerves) 
+                .Include(x => x.MonitoringRecord)
+                .FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<List<AnesthesiaRecord>> GetByIdsAsync(IEnumerable<string> ids)
@@ -59,7 +63,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories
             return await _context.AnesthesiaRecords
                 .AnyAsync(x => x.FirstAnesthesiologistId == id
                 && (x.Status == SurgeryStatusEnum.InProgress || x.Status == SurgeryStatusEnum.Scheduled
-                || x.Status ==SurgeryStatusEnum.Preparing));
+                || x.Status == SurgeryStatusEnum.Preparing));
         }
 
         public async Task<IEnumerable<AnesthesiaRecord>> GetByDoctorAndDateAsync(int doctorId, DateTime? date)
