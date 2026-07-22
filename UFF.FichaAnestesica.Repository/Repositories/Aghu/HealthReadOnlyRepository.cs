@@ -42,7 +42,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
         {
             try
             {
-                var response = await _httpClient.GetAsync("/saude");
+                var response = await _httpClient.GetAsync("saude");
 
                 if (!response.IsSuccessStatusCode)
                     return false;

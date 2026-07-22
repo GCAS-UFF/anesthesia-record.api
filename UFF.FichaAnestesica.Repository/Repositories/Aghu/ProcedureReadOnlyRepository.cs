@@ -16,7 +16,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
 
         public async Task<ProcedureListDto> GetProceduresFromAGHU()
         {
-            var response = await _httpClient.GetAsync("/procedimentos");
+            var response = await _httpClient.GetAsync("procedimentos");
             response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadFromJsonAsync<ProcedureListDto>() ?? new ProcedureListDto();

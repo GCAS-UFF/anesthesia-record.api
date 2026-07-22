@@ -37,7 +37,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
 
             var queryString = string.Join("&", queryParams);
 
-            var response = await _httpClient.GetAsync($"/cirurgias?{queryString}");
+            var response = await _httpClient.GetAsync($"cirurgias?{queryString}");
 
             response.EnsureSuccessStatusCode();
 
@@ -85,7 +85,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
 
             var queryString = string.Join("&", queryParams);
 
-            var response = await _httpClient.GetAsync($"/cirurgias/por-ids?{queryString}");
+            var response = await _httpClient.GetAsync($"cirurgias/por-ids?{queryString}");
 
             response.EnsureSuccessStatusCode();
 
@@ -112,7 +112,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
             if (string.IsNullOrWhiteSpace(patientId) || surgeryId == default)
                 return null;
 
-            var response = await _httpClient.GetAsync($"/cirurgias/{patientId}/{surgeryId}");
+            var response = await _httpClient.GetAsync($"cirurgias/{patientId}/{surgeryId}");
 
             if (response.StatusCode == HttpStatusCode.NotFound)
                 return null;

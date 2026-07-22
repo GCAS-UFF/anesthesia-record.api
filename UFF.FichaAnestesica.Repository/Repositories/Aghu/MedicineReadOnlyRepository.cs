@@ -16,7 +16,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
 
         public async Task<DrugListDto> GetDrugsFromAGHU()
         {
-            var response = await _httpClient.GetAsync("/medicamentos");
+            var response = await _httpClient.GetAsync("medicamentos");
             response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadFromJsonAsync<DrugListDto>() ?? new DrugListDto();

@@ -42,7 +42,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
 
         public async Task<UserListDto> GetProfessionalsFromAGHU()
         {
-            var response = await _httpClient.GetAsync("/profissionais");
+            var response = await _httpClient.GetAsync("profissionais");
             response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadFromJsonAsync<UserListDto>() ?? new UserListDto();
