@@ -12,12 +12,15 @@ public class AnesthesiaRecordService : IAnesthesiaRecordService
     private readonly IAnesthesiaRecordRepository _anesthesiaRecordRepository;
     private readonly IMonitoringRecordRepository _monitoringRecordRepository;
     private readonly IPatientReadOnlyRepository _hospitalApiRepository;
+    private readonly IProcedureRepository _procedureRepository;
 
-    public AnesthesiaRecordService(IAnesthesiaRecordRepository anesthesiaRecordRepository, IMonitoringRecordRepository monitoringRecordRepository, IPatientReadOnlyRepository hospitalApiRepository)
+    public AnesthesiaRecordService(IAnesthesiaRecordRepository anesthesiaRecordRepository, IMonitoringRecordRepository monitoringRecordRepository, IPatientReadOnlyRepository hospitalApiRepository,
+        IProcedureRepository procedureRepository)
     {
         _anesthesiaRecordRepository = anesthesiaRecordRepository;
         _monitoringRecordRepository = monitoringRecordRepository;
         _hospitalApiRepository = hospitalApiRepository;
+        _procedureRepository = procedureRepository;
     }
 
     public async Task<CommandResult> GetByIdAsync(int id, string extenalPatientId)
@@ -38,7 +41,7 @@ public class AnesthesiaRecordService : IAnesthesiaRecordService
     }
 
     public async Task<CommandResult> Create(AnesthesiaRecordCommand command)
-    {        
+    {
         var patient = await _hospitalApiRepository.GetFromHospitalByPatientIdAndSurgeryIdAsync(command.PatientId, command.SurgeryId);
         var anesthesiaRecord = AnesthesiaRecord.Create(command, patient.SurgeryDate);
 
@@ -71,11 +74,16 @@ public class AnesthesiaRecordService : IAnesthesiaRecordService
 
         try
         {
+            var procedureIds = command.Surgeries.Select(x => x.Id).ToList();
+
+            var procedures = await _procedureRepository.GetByIdsAsync(procedureIds);
+
             anesthesiaRecord.Update(command);
 
             await _anesthesiaRecordRepository.RemoveProceduresAsync(id);
-            
-            anesthesiaRecord.AddProcedures(command.Surgeries);            
+
+            anesthesiaRecord.AddProcedures(command.Surgeries, procedures);
+
             _anesthesiaRecordRepository.Update(anesthesiaRecord);
 
             await _anesthesiaRecordRepository.SaveChangesAsync();
@@ -86,5 +94,5 @@ public class AnesthesiaRecordService : IAnesthesiaRecordService
         }
 
         return CommandResult.Success(AnesthesiaRecordResponse.ToResponse(anesthesiaRecord, patient));
-    }
+    }  
 }

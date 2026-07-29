@@ -14,7 +14,7 @@ namespace UFF.FichaAnestesica.Service.Mappers
             {
                 Description = procedure.Description,
                 Cid = procedure.Cid,                
-                Id = procedure.Id.ToString()                
+                Id = procedure.ExternalId         
             }).ToList();
         }
     }

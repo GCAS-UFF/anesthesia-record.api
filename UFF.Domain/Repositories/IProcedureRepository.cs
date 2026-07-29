@@ -9,6 +9,7 @@ namespace UFF.FichaAnestesica.Domain.Repositories
         Task<List<Procedure>> SearchByNameAsync(string search);
 
         Task<bool> ExistsByNameAsync(string name);
+        Task<List<Procedure>> GetByIdsAsync(IEnumerable<string> ids);
 
         Task<List<Procedure>> GetActivesOnlyAsync();
         Task<DateTime?> GetLastTimeIntegration();

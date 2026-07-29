@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using UFF.FichaAnestesica.Domain.Entities;
 using UFF.FichaAnestesica.Domain.Repositories;
 using UFF.FichaAnestesica.Infra.Context;
@@ -19,6 +20,19 @@ namespace UFF.FichaAnestesica.Infra.Repositories
         {
             return await _context.Procedures
                  .AnyAsync(x => x.Description.ToLower() == name.ToLower());
+        }
+
+        public async Task<List<Procedure>> GetByIdsAsync(IEnumerable<string> ids)
+        {
+            var idList = ids.Distinct().ToList();
+
+            if (!idList.Any())
+                return new List<Procedure>();
+
+            return await _context.Procedures
+                .Where(x => idList.Contains(x.ExternalId))
+                .OrderBy(x => x.Description)
+                .ToListAsync();
         }
 
         public async Task<List<Procedure>> GetActivesOnlyAsync()

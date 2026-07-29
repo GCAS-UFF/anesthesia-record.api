@@ -419,7 +419,7 @@ namespace UFF.FichaAnestesica.Domain.Response
                     Procedures = record.Surgeries
                         .Select(p => new ProcedureResponse
                         {
-                            Id = p.ProcedureId.ToString(),
+                            Id = p.Procedure.ExternalId,
                             Description = p.Procedure?.Description,
                             Cid = p.Procedure?.Cid,
                             IsPrimary = p.IsPrimary,

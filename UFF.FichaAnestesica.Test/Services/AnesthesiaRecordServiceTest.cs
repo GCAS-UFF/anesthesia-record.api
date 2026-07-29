@@ -13,17 +13,20 @@ namespace UFF.FichaAnestesica.Test.Services
         private readonly Mock<IAnesthesiaRecordRepository> _anesthesiaRepoMock;
         private readonly Mock<IMonitoringRecordRepository> _monitoringRepoMock;
         private readonly Mock<IPatientReadOnlyRepository> _aghuRepoMock;
+        private readonly Mock<IProcedureRepository> _procedureRepoMock;
         private readonly AnesthesiaRecordService _service;
 
         public AnesthesiaRecordServiceTest()
         {
+            _procedureRepoMock = new Mock<IProcedureRepository>();
             _anesthesiaRepoMock = new Mock<IAnesthesiaRecordRepository>();
             _monitoringRepoMock = new Mock<IMonitoringRecordRepository>();
             _aghuRepoMock = new Mock<IPatientReadOnlyRepository>();
             _service = new AnesthesiaRecordService(
                 _anesthesiaRepoMock.Object,
                 _monitoringRepoMock.Object,
-                _aghuRepoMock.Object);
+                _aghuRepoMock.Object,
+                _procedureRepoMock.Object);
         }
 
         private static AnesthesiaRecordResponse GetData(CommandResult result)

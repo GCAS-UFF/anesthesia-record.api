@@ -157,7 +157,6 @@ namespace UFF.FichaAnestesica.Domain.Entities
 
         public MonitoringRecord? MonitoringRecord { get; private set; }
         public string PatientId { get; private set; } = string.Empty;
-        public DateOnly RecordDate { get; private set; }
         public DateTime SurgeryDate { get; private set; }
         public SurgeryStatusEnum Status { get; private set; }
         public DateTime CreatedAt { get; protected set; }
@@ -384,19 +383,23 @@ namespace UFF.FichaAnestesica.Domain.Entities
             #endregion
 
             PatientId = command.PatientId;
-            this.AddProcedures(command.Surgeries);
         }
 
-        public void AddProcedures(IEnumerable<SurgeryCommand> surgeries)
+        public void AddProcedures(IEnumerable<SurgeryCommand> surgeries, IEnumerable<Procedure> procedures)
         {
             Surgeries.Clear();
 
+            var proceduresByExternalId = procedures.ToDictionary(x => x.ExternalId);
+
             foreach (var surgery in surgeries)
             {
-                if (!int.TryParse(surgery.Id, out var procedureId))
+                if (string.IsNullOrWhiteSpace(surgery.Id))
                     continue;
 
-                Surgeries.Add(AnesthesiaRecordSurgery.Create(Id, procedureId, surgery.IsPrimary, string.IsNullOrWhiteSpace(surgery.Time) ? null : TimeOnly.Parse(surgery.Time)));
+                if (!proceduresByExternalId.TryGetValue(surgery.Id, out var procedure))
+                    throw new Exception($"Procedimento {surgery.Id} não encontrado.");
+
+                Surgeries.Add(AnesthesiaRecordSurgery.Create(Id, procedure.Id, surgery.IsPrimary, string.IsNullOrWhiteSpace(surgery.Time) ? null : TimeOnly.Parse(surgery.Time)));
             }
         }
     }

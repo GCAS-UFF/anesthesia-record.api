@@ -7,8 +7,6 @@ using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
-using PuppeteerSharp;
-using PuppeteerSharp.Media;
 using UFF.FichaAnestesica.Application.Interfaces;
 using UFF.FichaAnestesica.Domain.Repositories;
 

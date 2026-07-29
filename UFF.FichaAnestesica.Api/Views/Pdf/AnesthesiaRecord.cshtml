@@ -1,449 +1,973 @@
-﻿@using UFF.FichaAnestesica.Domain.Entities
-@using System.Globalization
+﻿@model UFF.FichaAnestesica.Domain.Entities.AnesthesiaRecord
 
-@model AnesthesiaRecord
-
-@{
-    string SimNao(bool? value) => value == true ? "Sim" : value == false ? "Não" : "-";
-
-    string EnumFormatado(Enum? valor)
-    {
-        if (valor == null) return "-";
-        return System.Text.RegularExpressions.Regex.Replace(valor.ToString()!, "([a-z])([A-Z])", "$1 $2");
-    }
-
-    var hospitalLogoPath = System.IO.Path.Combine(
-        Directory.GetCurrentDirectory(),
-        "wwwroot",
-        "images",
-        "logo-huap.png"
-    );
-
-    var hospitalLogoBase64 =
-        $"data:image/png;base64,{Convert.ToBase64String(System.IO.File.ReadAllBytes(hospitalLogoPath))}";
-}
-
-<!DOCTYPE html>
-<html lang="pt-br">
+<!doctype html>
+<html lang="pt-BR">
 <head>
     <meta charset="utf-8" />
-    <title>Ficha Anestésica - HUAP</title>
-
+    <title>Ficha Anestésica — {{patient.name}}</title>
     <style>
+        /* ============ PAGE / RESET ============ */
         @@page {
-            size: A4;
-            margin: 5mm; 
+            size: A4 landscape;
+            margin: 6mm 7mm;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 8pt; 
-            color: #111827;
-            margin: 0;
-            padding: 0;
-            line-height: 1.2;
-            background: white;
+            font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+            font-size: 8.2pt;
+            color: #0f172a;
+            line-height: 1.25;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
         }
 
-        /* TABELAS BASE */
-        table {
+        /* ============ TOKENS ============ */
+        :root {
+            --ink: #0f172a;
+            --muted: #64748b;
+            --line: #cbd5e1;
+            --line-strong: #94a3b8;
+            --brand: #1e3a8a;
+            --brand-soft: #eef2ff;
+            --band: #f1f5f9;
+            --danger: #b91c1c;
+            --warn: #b45309;
+            --ok: #166534;
+            --accent: #0369a1;
+        }
+
+        /* ============ PAGE FRAME ============ */
+        .page {
+            width: 100%;
+            min-height: calc(210mm - 12mm);
+            page-break-after: always;
+            display: flex;
+            flex-direction: column;
+        }
+
+            .page:last-child {
+                page-break-after: auto;
+            }
+
+        /* ============ HEADER ============ */
+        .doc-header {
+            display: grid;
+            grid-template-columns: 1fr 1.4fr 1fr auto;
+            gap: 6mm;
+            align-items: center;
+            padding-bottom: 2mm;
+            border-bottom: 1.4pt solid var(--brand);
+            margin-bottom: 3mm;
+        }
+
+            .doc-header .brand {
+                font-weight: 700;
+                color: var(--brand);
+                font-size: 11pt;
+                line-height: 1.15;
+            }
+
+                .doc-header .brand small {
+                    display: block;
+                    color: var(--muted);
+                    font-weight: 500;
+                    font-size: 7pt;
+                }
+
+            .doc-header .title {
+                text-align: center;
+                font-weight: 800;
+                font-size: 13pt;
+                letter-spacing: .5px;
+                color: var(--brand);
+            }
+
+                .doc-header .title small {
+                    display: block;
+                    font-size: 7.5pt;
+                    color: var(--muted);
+                    font-weight: 500;
+                    letter-spacing: 0;
+                }
+
+            .doc-header .patient-mini {
+                font-size: 7.6pt;
+                color: var(--ink);
+            }
+
+                .doc-header .patient-mini b {
+                    color: var(--brand);
+                }
+
+            .doc-header .badge {
+                border: 1pt solid var(--line-strong);
+                border-radius: 2mm;
+                padding: 1.6mm 2.6mm;
+                text-align: center;
+                min-width: 26mm;
+            }
+
+                .doc-header .badge small {
+                    display: block;
+                    color: var(--muted);
+                    font-size: 6.5pt;
+                    letter-spacing: .4px;
+                    text-transform: uppercase;
+                }
+
+                .doc-header .badge b {
+                    font-size: 10pt;
+                }
+
+        /* ============ SECTIONS ============ */
+        .grid {
+            display: grid;
+            gap: 2.4mm;
+        }
+
+        .cols-4 {
+            grid-template-columns: repeat(4, minmax(0,1fr));
+        }
+
+        .cols-3 {
+            grid-template-columns: repeat(3, minmax(0,1fr));
+        }
+
+        .cols-2 {
+            grid-template-columns: repeat(2, minmax(0,1fr));
+        }
+
+        .card {
+            border: 0.6pt solid var(--line);
+            border-radius: 1.6mm;
+            overflow: hidden;
+            background: #fff;
+            break-inside: avoid;
+        }
+
+            .card > header {
+                background: var(--brand-soft);
+                color: var(--brand);
+                font-weight: 700;
+                font-size: 8pt;
+                letter-spacing: .4px;
+                text-transform: uppercase;
+                padding: 1.4mm 2.2mm;
+                display: flex;
+                align-items: center;
+                gap: 2mm;
+                border-bottom: 0.6pt solid var(--line);
+            }
+
+                .card > header .dot {
+                    width: 2.4mm;
+                    height: 2.4mm;
+                    border-radius: 50%;
+                    background: var(--brand);
+                    display: inline-block;
+                }
+
+            .card .body {
+                padding: 2mm 2.4mm;
+            }
+
+        /* key/value list */
+        .kv {
+            display: grid;
+            grid-template-columns: 34% 1fr;
+            row-gap: 0.9mm;
+            column-gap: 2mm;
+            font-size: 7.8pt;
+        }
+
+            .kv dt {
+                color: var(--muted);
+            }
+
+            .kv dd {
+                margin: 0;
+                color: var(--ink);
+                font-weight: 500;
+            }
+
+                .kv dd.strong {
+                    font-weight: 700;
+                }
+
+        /* alert row (allergies etc) */
+        .alerts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.4mm;
+            margin-bottom: 2mm;
+        }
+
+            .alerts .chip {
+                border: 0.6pt solid var(--line-strong);
+                border-radius: 6mm;
+                padding: 1mm 2.4mm;
+                font-size: 7.4pt;
+                font-weight: 600;
+                display: inline-flex;
+                align-items: center;
+                gap: 1.4mm;
+                background: #fff;
+            }
+
+        .chip.danger {
+            color: var(--danger);
+            border-color: #fecaca;
+            background: #fef2f2;
+        }
+
+        .chip.warn {
+            color: var(--warn);
+            border-color: #fed7aa;
+            background: #fffbeb;
+        }
+
+        .chip.ok {
+            color: var(--ok);
+            border-color: #bbf7d0;
+            background: #f0fdf4;
+        }
+
+        .chip.info {
+            color: var(--accent);
+            border-color: #bae6fd;
+            background: #f0f9ff;
+        }
+
+        /* generic table */
+        table.data {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 7.6pt;
+        }
+
+            table.data th, table.data td {
+                border-bottom: 0.4pt solid var(--line);
+                padding: 1.3mm 2mm;
+                text-align: left;
+                vertical-align: top;
+            }
+
+            table.data th {
+                background: var(--band);
+                color: var(--muted);
+                font-weight: 600;
+                font-size: 6.8pt;
+                letter-spacing: .4px;
+                text-transform: uppercase;
+            }
+
+            table.data tr:last-child td {
+                border-bottom: 0;
+            }
+
+        .num {
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .muted {
+            color: var(--muted);
+        }
+
+        /* signatures */
+        .signatures {
+            margin-top: auto;
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 8mm;
+            padding-top: 6mm;
+        }
+
+        .sig {
+            text-align: center;
+            font-size: 7.4pt;
+        }
+
+            .sig .line {
+                border-top: 0.6pt solid var(--ink);
+                margin-bottom: 1mm;
+                height: 0;
+            }
+
+            .sig b {
+                display: block;
+                font-size: 8pt;
+            }
+
+            .sig small {
+                color: var(--muted);
+            }
+
+        /* footer */
+        .doc-footer {
+            margin-top: 3mm;
+            padding-top: 1.6mm;
+            border-top: 0.4pt solid var(--line);
+            display: flex;
+            justify-content: space-between;
+            font-size: 6.8pt;
+            color: var(--muted);
+        }
+
+        /* ============ MONITORING GRID (page 2) ============ */
+        .monitor {
+            border: 0.6pt solid var(--line);
+            border-radius: 1.6mm;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 auto;
+        }
+
+            .monitor > header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                background: var(--brand-soft);
+                color: var(--brand);
+                padding: 1.4mm 2.4mm;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: .4px;
+                font-size: 8pt;
+                border-bottom: 0.6pt solid var(--line);
+            }
+
+                .monitor > header .legend {
+                    display: flex;
+                    gap: 4mm;
+                    font-size: 6.8pt;
+                    color: var(--ink);
+                    font-weight: 500;
+                    text-transform: none;
+                    letter-spacing: 0;
+                }
+
+                    .monitor > header .legend span {
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 1.2mm;
+                    }
+
+        .glyph {
+            display: inline-block;
+            width: 3mm;
+            text-align: center;
+            font-weight: 700;
+            color: var(--brand);
+        }
+
+        table.timegrid {
             width: 100%;
             border-collapse: collapse;
             table-layout: fixed;
-        }
-
-        td, th {
-            border: 1px solid #9ca3af;
-            padding: 1.5mm 2mm;
-            vertical-align: top;
-            word-break: break-word;
-            font-size: 7.5pt;
-        }
-
-      
-        .header table td,
-        .signature-table td {
-            border: none !important;
-        }
-
-      
-        .header {
-            margin-bottom: 1.5mm;
-        }
-
-        .hospital-name {
-            font-size: 12pt;
-            font-weight: bold;
-            color: #1e3a8a;
-            line-height: 1.1;
-        }
-
-        .document-title {
-            font-size: 10pt;
-            font-weight: bold;
-            margin-top: 0.5mm;
-        }
-
-     
-        .section {
-            border: 1px solid #9ca3af;
-            border-radius: 1mm;
-            overflow: hidden;
-            margin-bottom: 2mm;
-            page-break-inside: avoid;
-        }
-
-        .section-title {
-            background: #e5e7eb;
-            color: #1e3a8a;
-            font-weight: bold;
-            font-size: 8.5pt;
-            padding: 1.2mm 2mm;
-            letter-spacing: 0.2px;
-        }
-
-        .section-content {
-            padding: 1mm;
-        }
-
-  
-        .label {
-            display: block;
-            font-size: 6.5pt;
-            font-weight: bold;
-            color: #374151;
-            margin-bottom: 0.3mm;
-            text-transform: uppercase;
-        }
-
-        .yes {
-            color: #166534;
-            font-weight: bold;
-        }
-
-        .no {
-            color: #991b1b;
-            font-weight: bold;
-        }
-
-        .small {
-            font-size: 6pt;
-            color: #4b5563;
-        }
-
-      
-        .signature-area {
-            margin-top: 3mm;
-            page-break-inside: avoid;
-        }
-
-        .signature-line {
-            border-top: 0.5pt solid #111827;
-            width: 80%;
-            margin: 3mm auto 0 auto;
-            padding-top: 1mm;
-            text-align: center;
-            font-size: 7.5pt;
-        }
-
-     
-        footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            text-align: center;
-            font-size: 6pt;
-            color: #6b7280;
-            margin-bottom: 1mm;
-        }
-
-        
-        .page-break {
-            page-break-before: always;
-            margin-top: 2mm;
-        }
-
-       
-        .monitor-table td,
-        .monitor-table th {
-            height: 4mm;
             font-size: 7pt;
-            text-align: center;
-            vertical-align: middle;
-            padding: 1mm 1mm;
         }
 
-       
-        .section, .header, .signature-area {
-            page-break-inside: avoid;
+            table.timegrid col.label {
+                width: 32mm;
+            }
+
+            table.timegrid th, table.timegrid td {
+                border: 0.3pt solid var(--line);
+                padding: 0;
+                height: 4.2mm;
+                vertical-align: middle;
+            }
+
+            table.timegrid thead th {
+                background: var(--band);
+                color: var(--muted);
+                font-weight: 600;
+                font-size: 6.6pt;
+                letter-spacing: .3px;
+                text-align: center;
+                padding: 1mm 0;
+            }
+
+            table.timegrid td.rowlabel {
+                background: #fafafa;
+                padding: 0.6mm 1.8mm;
+                font-weight: 600;
+                color: var(--ink);
+                font-size: 7pt;
+                text-align: left;
+            }
+
+                table.timegrid td.rowlabel small {
+                    display: block;
+                    color: var(--muted);
+                    font-weight: 400;
+                    font-size: 6.2pt;
+                }
+
+            table.timegrid td.cell {
+                text-align: center;
+                font-size: 6.8pt;
+                color: var(--ink);
+            }
+
+                table.timegrid td.cell.filled {
+                    background: #f8fafc;
+                }
+
+            table.timegrid tr.section-break td {
+                background: var(--brand-soft);
+                color: var(--brand);
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: .4px;
+                font-size: 6.6pt;
+                padding: 1mm 2mm;
+                text-align: left;
+                border-top: 0.6pt solid var(--brand);
+            }
+
+            /* pressure / HR plot rows keep the same grid but bigger */
+            table.timegrid tr.plot td {
+                height: 6mm;
+                position: relative;
+            }
+
+            table.timegrid td.plot-y {
+                background: #fafafa;
+                color: var(--muted);
+                font-size: 6.4pt;
+                text-align: right;
+                padding-right: 1.6mm;
+            }
+
+        .marker {
+            display: inline-block;
+            font-weight: 700;
+            line-height: 1;
         }
 
-       
-        .grid-table td, .grid-table th {
-            text-align: center;
+        .m-sys::before {
+            content: "∨";
+            color: #0f172a;
+        }
+
+        .m-dia::before {
+            content: "∧";
+            color: #0f172a;
+        }
+
+        .m-hr::before {
+            content: "●";
+            color: #0f172a;
+            font-size: 6pt;
+        }
+
+        .m-anest::before {
+            content: "✕";
+            color: #0f172a;
+            font-weight: 800;
+        }
+
+        .m-surg::before {
+            content: "○";
+            color: #0f172a;
+            font-weight: 800;
+        }
+
+        /* ============ UTIL ============ */
+        .row-flex {
+            display: flex;
+            gap: 2.4mm;
+        }
+
+        .grow {
+            flex: 1 1 auto;
+        }
+
+        h3.section-title {
+            margin: 0 0 1.4mm;
+            font-size: 8.4pt;
+            color: var(--brand);
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            border-left: 2pt solid var(--brand);
+            padding-left: 2mm;
         }
     </style>
 </head>
-
 <body>
 
-    <!-- CABEÇALHO PRIMEIRA PÁGINA -->
-    <div class="header">
-        <table>
-            <tr>
-                <td style="width: 18mm;">
-                    <img src="@hospitalLogoBase64" style="height: 10mm; width: auto;" alt="Logo HUAP" />
-                </td>
-                <td style="text-align: center;">
-                    <div class="hospital-name">
-                        HOSPITAL UNIVERSITÁRIO ANTÔNIO PEDRO
+    <!-- ==================== PAGE 1 — RESUMO ==================== -->
+    <section class="page">
+        <header class="doc-header">
+            <div class="brand">
+                {{hospital.name}}
+                <small>CNPJ {{hospital.cnpj}} · {{hospital.address}}</small>
+            </div>
+            <div class="title">
+                REGISTRO ANESTÉSICO
+                <small>Ficha Anestésica Trans-operatória</small>
+            </div>
+            <div class="patient-mini">
+                <div><b>Paciente:</b> {{patient.name}}</div>
+                <div><b>Prontuário:</b> {{patient.mrn}} · <b>Nasc.:</b> {{patient.birthDate}} ({{patient.age}}a)</div>
+                <div><b>Convênio:</b> {{patient.insurance}} · <b>Sala:</b> {{procedure.room}}</div>
+            </div>
+            <div class="badge">
+                <small>Atendimento</small>
+                <b>{{procedure.attendanceId}}</b>
+            </div>
+        </header>
+
+        <!-- Alertas em destaque -->
+        <div class="alerts">
+            <span class="chip ok"><b>ASA {{assessment.asa}}</b></span>
+            <span class="chip danger">⚠ Alergias: {{assessment.allergies}}</span>
+            <span class="chip warn">IOT difícil: {{assessment.difficultIntubation}}</span>
+            <span class="chip info">Risco TEV: {{assessment.tevRisk}}</span>
+            <span class="chip">Mallampati {{assessment.mallampati}}</span>
+            <span class="chip">Jejum sól. {{assessment.fastSolids}}h · líq. {{assessment.fastLiquids}}h</span>
+        </div>
+
+        <!-- Linha 1: Identificação | Procedimento | Equipe -->
+        <div class="grid cols-3">
+            <div class="card">
+                <header><span class="dot"></span> Identificação do Paciente</header>
+                <div class="body">
+                    <dl class="kv">
+                        <dt>Nome</dt>
+                        <dd class="strong">{{patient.name}}</dd>
+                        <dt>CPF</dt>
+                        <dd>{{patient.cpf}}</dd>
+                        <dt>Data nasc.</dt>
+                        <dd>{{patient.birthDate}} ({{patient.age}} anos)</dd>
+                        <dt>Gênero</dt>
+                        <dd>{{patient.gender}}</dd>
+                        <dt>ASA</dt>
+                        <dd class="strong">{{assessment.asa}}</dd>
+                        <dt>Peso / Altura</dt>
+                        <dd>{{patient.weight}} kg · {{patient.height}} cm</dd>
+                        <dt>IMC</dt>
+                        <dd>{{patient.bmi}}</dd>
+                        <dt>Peso ideal</dt>
+                        <dd>{{patient.idealWeight}} kg · corr. {{patient.correctedWeight}} kg</dd>
+                        <dt>Telefone</dt>
+                        <dd>{{patient.phone}}</dd>
+                        <dt>Endereço</dt>
+                        <dd>{{patient.address}}</dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="card">
+                <header><span class="dot"></span> Procedimento</header>
+                <div class="body">
+                    <dl class="kv">
+                        <dt>Cirurgia(s)</dt>
+                        <dd class="strong">
+                            {{#each procedure.surgeries}}
+                            {{code}} — {{name}}{{#unless }}<br>{{/unless}}
+                            {{/each}}
+                        </dd>
+                        <dt>Tipo</dt>
+                        <dd>{{procedure.type}}</dd>
+                        <dt>Centro cirúrgico</dt>
+                        <dd>{{procedure.center}} · Sala {{procedure.room}}</dd>
+                        <dt>Data cirurgia</dt>
+                        <dd>{{procedure.date}}</dd>
+                        <dt>Início / Fim cirurgia</dt>
+                        <dd>{{procedure.surgeryStart}} → {{procedure.surgeryEnd}} <span class="muted">({{procedure.surgeryDuration}})</span></dd>
+                        <dt>Início / Fim anestesia</dt>
+                        <dd>{{procedure.anesthesiaStart}} → {{procedure.anesthesiaEnd}} <span class="muted">({{procedure.anesthesiaDuration}})</span></dd>
+                        <dt>Aviso cirurgia</dt>
+                        <dd>{{procedure.noticeId}}</dd>
+                        <dt>Convênio</dt>
+                        <dd>{{patient.insurance}}</dd>
+                        <dt>Destino</dt>
+                        <dd>{{procedure.destination}}</dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="card">
+                <header><span class="dot"></span> Equipe / Pré-procedimento</header>
+                <div class="body">
+                    <div class="muted" style="font-size:6.8pt; text-transform:uppercase; letter-spacing:.4px; margin-bottom:.8mm;">Anestesiologistas</div>
+                    {{#each professionals.anesthesiologists}}
+                    <div style="margin-bottom:1.2mm;">
+                        <b>{{name}}</b> — CRM {{crm}}
+                        {{#if hours}}<br><small class="muted">Tempo em sala: {{hours}}</small>{{/if}}
                     </div>
-                    <div class="document-title">
-                        FICHA ANESTÉSICA
+                    {{/each}}
+                    <div class="muted" style="font-size:6.8pt; text-transform:uppercase; letter-spacing:.4px; margin:1.6mm 0 .8mm;">Cirurgiões</div>
+                    {{#each professionals.surgeons}}
+                    <div><b>{{name}}</b> — CRM {{crm}} <span class="muted">({{role}})</span></div>
+                    {{/each}}
+                    {{#if professionals.auxiliary}}
+                    <div class="muted" style="font-size:6.8pt; text-transform:uppercase; letter-spacing:.4px; margin:1.6mm 0 .8mm;">Equipe auxiliar</div>
+                    {{#each professionals.auxiliary}}<div>{{this}}</div>{{/each}}
+                    {{/if}}
+                </div>
+            </div>
+        </div>
+
+        <div style="height:2.4mm;"></div>
+
+        <!-- Linha 2: Segurança/Pré-indução | Técnica Anestésica | Monitorização + Materiais -->
+        <div class="grid cols-3">
+            <div class="card">
+                <header><span class="dot"></span> Segurança / Pré-indução</header>
+                <div class="body">
+                    <dl class="kv">
+                        <dt>ATB profilático</dt>
+                        <dd>
+                            <b>{{safety.atb.drug}}</b>
+                            {{#if safety.atb.dose}} · {{safety.atb.dose}}{{/if}}
+                            {{#if safety.atb.time}} · {{safety.atb.time}}{{/if}}
+                            {{#if safety.atb.repique}}
+                            <br><span class="chip warn" style="padding:.3mm 1.4mm; font-size:6.6pt;">
+                                Repique{{#if safety.atb.repiqueTime}} · {{safety.atb.repiqueTime}}{{/if}}{{#if safety.atb.repiqueDose}} · {{safety.atb.repiqueDose}}{{/if}}
+                            </span>
+                            {{/if}}
+                        </dd>
+                        {{#if safety.checklist}}
+                        <dt>Checklist</dt>
+                        <dd>{{safety.checklist}}</dd>{{/if}}
+                        {{#if safety.timeout}}
+                        <dt>Time-out</dt>
+                        <dd>{{safety.timeout}}</dd>{{/if}}
+                        {{#if safety.fasting}}
+                        <dt>Jejum confirmado</dt>
+                        <dd>{{safety.fasting}}</dd>{{/if}}
+                        {{#if safety.tev}}
+                        <dt>Profilaxia TEV</dt>
+                        <dd>{{safety.tev}}</dd>{{/if}}
+                        {{#if safety.notes}}
+                        <dt>Observações</dt>
+                        <dd>{{safety.notes}}</dd>{{/if}}
+                    </dl>
+                </div>
+            </div>
+
+            <div class="card">
+                <header><span class="dot"></span> Técnica Anestésica</header>
+                <div class="body">
+                    {{#if technique.geral}}
+                    <h3 class="section-title" style="font-size:7pt;">Anestesia Geral</h3>
+                    <div style="font-size:7.6pt; margin-bottom:1.4mm;">{{technique.geral}}</div>
+                    {{/if}}
+
+                    {{#if technique.bloqueiosEspinhais}}
+                    <h3 class="section-title" style="font-size:7pt;">Bloqueios Espinhais</h3>
+                    <div style="font-size:7.6pt; margin-bottom:1.4mm;">{{technique.bloqueiosEspinhais}}</div>
+                    {{/if}}
+
+                    {{#if technique.bloqueiosPerifericos}}
+                    <h3 class="section-title" style="font-size:7pt;">Bloqueios Periféricos</h3>
+                    <div style="font-size:7.6pt; margin-bottom:1.4mm;">
+                        {{technique.bloqueiosPerifericos}}
+                        {{#if technique.neuroestimulador}} · <b>Neuroestimulador:</b> {{technique.neuroestimulador}}{{/if}}
                     </div>
-                </td>
-                <td style="width: 25mm; text-align: right;">
-                    <strong>Data:</strong> @DateTime.Now.ToString("dd/MM/yyyy")<br />
-                    <strong>ASA:</strong>
-                    <span style="border: 1px solid #9ca3af; padding: 0px 4px; border-radius: 3px; display: inline-block; margin-top: 0.5mm;">
-                        III
-                    </span>
-                </td>
-            </tr>
-        </table>
-    </div>
+                    {{/if}}
 
-    <!-- IDENTIFICAÇÃO -->
-    <div class="section">
-        <div class="section-title">IDENTIFICAÇÃO</div>
-        <div class="section-content">
-            <table>
-                <tr>
-                    <td style="width: 34%"><span class="label">Paciente</span>João Silva Santos</td>
-                    <td style="width: 16%"><span class="label">Registro</span>456789</td>
-                    <td style="width: 18%"><span class="label">Nascimento</span>15/03/1968</td>
-                    <td style="width: 12%"><span class="label">Sexo</span>Masculino</td>
-                    <td style="width: 20%"><span class="label">Leito</span>405 - 4º Andar</td>
-                </tr>
-            </table>
-        </div>
-    </div>
+                    {{#if technique.sedacao}}
+                    <h3 class="section-title" style="font-size:7pt;">Sedação</h3>
+                    <div style="font-size:7.6pt; margin-bottom:1.4mm;">{{technique.sedacao}}</div>
+                    {{/if}}
 
-    <!-- SEGURANÇA -->
-    <div class="section">
-        <div class="section-title">SEGURANÇA / PRÉ-INDUÇÃO</div>
-        <div class="section-content">
-            <table>
-                <tr>
-                    <td>Paciente identificado: <span class="yes">Sim</span></td>
-                    <td>Consentimento: <span class="yes">Sim</span></td>
-                    <td>Equipamentos: <span class="yes">Sim</span></td>
-                    <td>Repique: <span class="no">Não</span></td>
-                </tr>
-                <tr>
-                    <td colspan="2"><span class="label">ATB Profilático</span>Cefazolina 2g - 08:10</td>
-                    <td colspan="2"><span class="label">Pré-Anestésica</span>Midazolam 3mg IV - 08:05</td>
-                </tr>
-                <tr>
-                    <td colspan="4"><span class="label">Atenção</span>Hipertenso controlado, sem alergias conhecidas.</td>
-                </tr>
-            </table>
-        </div>
-    </div>
+                    {{#if technique.suplementacaoO2}}
+                    <h3 class="section-title" style="font-size:7pt;">Suplementação de O₂</h3>
+                    <div style="font-size:7.6pt; margin-bottom:1.4mm;">{{technique.suplementacaoO2}}</div>
+                    {{/if}}
 
-    <!-- DADOS VITAIS -->
-    <div class="section">
-        <div class="section-title">DADOS VITAIS</div>
-        <div class="section-content">
-            <table class="grid-table">
-                <tr>
-                    <td><span class="label">Entrada</span>08:00</td>
-                    <td><span class="label">PA</span>138/82</td>
-                    <td><span class="label">FR</span>16</td>
-                    <td><span class="label">T°C</span>36.7</td>
-                    <td><span class="label">SpO₂</span>97%</td>
-                    <td><span class="label">Peso</span>78kg</td>
-                    <td><span class="label">ASA</span>III</td>
-                </tr>
-            </table>
-        </div>
-    </div>
-
-    <!-- EQUIPE -->
-    <div class="section">
-        <div class="section-title">EQUIPE / PRÉ-PROCEDIMENTO</div>
-        <div class="section-content">
-            <table>
-                <tr>
-                    <td><span class="label">Cirurgião</span>Dr. Carlos Mendes</td>
-                    <td><span class="label">Auxiliar</span>Dra. Ana Beatriz</td>
-                    <td><span class="label">1º Anestesista</span>Dr. Rafael Costa</td>
-                    <td><span class="label">2º Anestesista</span>Dra. Juliana Mendes</td>
-                </tr>
-                <tr>
-                    <td><span class="label">Início Anestesia</span>08:15</td>
-                    <td><span class="label">Posição</span>Supina</td>
-                    <td><span class="label">Coxins</span>Sim</td>
-                    <td><span class="label">Punção Difícil</span>Não</td>
-                </tr>
-                <tr>
-                    <td colspan="2"><span class="label">Acesso Venoso</span>Periférico - Veia Cefálica MSD</td>
-                    <td colspan="2"><span class="label">Diagnóstico Pré-Op</span>Colelitíase sintomática</td>
-                </tr>
-            </table>
-        </div>
-    </div>
-
-    <!-- TÉCNICA ANESTÉSICA -->
-    <div class="section">
-        <div class="section-title">TÉCNICA ANESTÉSICA</div>
-        <div class="section-content">
-            <table>
-                <tr>
-                    <td>AG: <span class="yes">Sim</span></td>
-                    <td>Raqui: <span class="no">Não</span></td>
-                    <td>Sedação: <span class="no">Não</span></td>
-                    <td>O₂: <span class="yes">Máscara</span></td>
-                </tr>
-                <tr>
-                    <td>Assistida: <span class="no">Não</span></td>
-                    <td>Controlada: <span class="yes">Volume</span></td>
-                    <td>Absorvedor CO₂: <span class="yes">Sim</span></td>
-                    <td>Laringoscopia: <span class="yes">Sim</span></td>
-                </tr>
-                <tr>
-                    <td colspan="2"><span class="label">Via Aérea</span>TOT 7.5 - Fácil</td>
-                    <td>Fibroscopia: <span class="no">Não</span></td>
-                    <td>Videolaringo: <span class="no">Não</span></td>
-                </tr>
-                <tr>
-                    <td>Plexo: <span class="no">Não</span></td>
-                    <td colspan="3"><span class="label">Neuroestimulador</span>Femoral - Agulha Stimuplex</td>
-                </tr>
-            </table>
-        </div>
-    </div>
-
-    <!-- PÓS-PROCEDIMENTO -->
-    <div class="section">
-        <div class="section-title">PÓS-PROCEDIMENTO</div>
-        <div class="section-content">
-            <table>
-                <tr>
-                    <td><span class="label">Cirurgia</span>Colecistectomia videolaparoscópica</td>
-                    <td><span class="label">Fim Cirurgia</span>09:55</td>
-                    <td><span class="label">Fim Anestesia</span>10:05</td>
-                </tr>
-                <tr>
-                    <td colspan="3"><span class="label">Diagnóstico Pós-Op</span>Colelitíase com colecistite crônica</td>
-                </tr>
-            </table>
-        </div>
-    </div>
-
-    <!-- ALDERETE E KROULIK -->
-    <div class="section">
-        <div class="section-title">ALDERETE E KROULIK</div>
-        <div class="section-content">
-            <table class="grid-table">
-                <tr><th>Cons.</th><th>Ativ.</th><th>Circ.</th><th>Resp.</th><th>Sat.</th><th>Total</th></tr>
-                <tr><td>2</td><td>2</td><td>2</td><td>2</td><td>2</td><td><strong>10</strong></td></tr>
-            </table>
-            <table style="margin-top: 1mm;">
-                <tr>
-                    <td><span class="label">Alta</span>Acordado</td>
-                    <td><span class="label">Destino</span>Quarto</td>
-                    <td><span class="label">Hora</span>10:20</td>
-                </tr>
-            </table>
-        </div>
-    </div>
-
-    <!-- CONDIÇÕES FINAIS -->
-    <div class="section">
-        <div class="section-title">CONDIÇÕES FINAIS</div>
-        <div class="section-content">
-            <table>
-                <tr>
-                    <td style="width: 25%"><span class="label">Dor</span><span class="no">Não</span></td>
-                    <td><span class="label">Escalas / Conduta</span>ENV: - | PAINAD: - | BPS: - | Conduta: -</td>
-                </tr>
-            </table>
-        </div>
-    </div>
-
-    <!-- ASSINATURAS -->
-    <div class="signature-area">
-        <table class="signature-table">
-            <tr>
-                <td style="width: 50%; text-align: center;">
-                    <div class="signature-line">
-                        Dr. Rafael Costa<br />
-                        <span class="small">1º Anestesista</span>
+                    {{#if technique.respiracao}}
+                    <h3 class="section-title" style="font-size:7pt;">Respiração</h3>
+                    <div style="font-size:7.6pt; margin-bottom:1.4mm;">
+                        {{#each technique.respiracao}}<span class="chip info" style="padding:.3mm 1.4mm; font-size:6.8pt; margin:0 .8mm .8mm 0;">{{this}}</span>{{/each}}
                     </div>
-                </td>
-                <td style="width: 50%; text-align: center;">
-                    <div class="signature-line">
-                        Dra. Juliana Mendes<br />
-                        <span class="small">2º Anestesista</span>
+                    {{/if}}
+
+                    {{#if technique.viaAerea}}
+                    <h3 class="section-title" style="font-size:7pt;">Via Aérea</h3>
+                    <div style="font-size:7.6pt; margin-bottom:1.4mm;">
+                        {{#each technique.viaAerea}}<span class="chip info" style="padding:.3mm 1.4mm; font-size:6.8pt; margin:0 .8mm .8mm 0;">{{this}}</span>{{/each}}
                     </div>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2" style="text-align: center; padding-top: 2mm;">
-                    <strong>Data:</strong> @DateTime.Now.ToString("dd/MM/yyyy")
-                </td>
-            </tr>
-        </table>
-    </div>
+                    {{/if}}
 
-    <!-- ========================================= -->
-    <!-- QUEBRA DE PÁGINA – MONITORIZAÇÃO          -->
-    <!-- ========================================= -->
-    <div class="page-break"></div>
+                    {{#if technique.posicao}}
+                    <h3 class="section-title" style="font-size:7pt;">Posição / Coxins</h3>
+                    <div style="font-size:7.6pt; margin-bottom:1.4mm;">
+                        {{technique.posicao}}{{#if technique.coxins}} · <b>Coxins:</b> {{technique.coxins}}{{/if}}
+                    </div>
+                    {{/if}}
 
-    <!-- CABEÇALHO DA SEGUNDA PÁGINA -->
-    <div class="header">
-        <div style="text-align: center;">
-            <strong>MONITORIZAÇÃO INTRAOPERATÓRIA</strong><br />
-            <small>Paciente: João Silva Santos | @DateTime.Now.ToString("dd/MM/yyyy")</small>
+                    {{#if technique.acessoVenoso}}
+                    <h3 class="section-title" style="font-size:7pt;">Acesso Venoso</h3>
+                    <div style="font-size:7.6pt; margin-bottom:1.4mm;">
+                        {{technique.acessoVenoso}}
+                        {{#if technique.puncaoDificil}} · <span class="chip warn" style="padding:.3mm 1.4mm; font-size:6.6pt;">Punção difícil: {{technique.puncaoDificil}}</span>{{/if}}
+                    </div>
+                    {{/if}}
+                </div>
+            </div>
+
+            <div class="card">
+                <header><span class="dot"></span> Monitorização · Materiais</header>
+                <div class="body">
+                    <h3 class="section-title" style="font-size:7pt;">Monitorização</h3>
+                    <div style="font-size:7.6pt; margin-bottom:1.8mm;">
+                        {{#each monitoring.used}}<span class="chip info" style="padding:.3mm 1.4mm; font-size:6.8pt; margin:0 .8mm .8mm 0;">{{this}}</span>{{/each}}
+                    </div>
+                    <h3 class="section-title" style="font-size:7pt;">Materiais</h3>
+                    <div style="font-size:7.6pt;">{{materials}}</div>
+                </div>
+            </div>
         </div>
-    </div>
 
-    <!-- TABELA DE MONITORIZAÇÃO (COMPACTA, CABE EM UMA PÁGINA) -->
-    <div class="section">
-        <div class="section-content">
-            <table class="grid-table monitor-table">
+        <div style="height:2.4mm;"></div>
+
+        <!-- Linha 3: Fármacos | Balanço Hídrico | Pós-procedimento -->
+        <div class="grid cols-3">
+            <div class="card">
+                <header><span class="dot"></span> Fármacos utilizados</header>
+                <div class="body" style="padding:0;">
+                    <table class="data">
+                        <thead><tr><th>Fármaco</th><th>Apresentação</th><th class="num">Consumo</th><th>Via</th></tr></thead>
+                        <tbody>
+                            {{#each drugs}}
+                            <tr>
+                                <td><b>{{name}}</b></td>
+                                <td class="muted">{{presentation}}</td>
+                                <td class="num">{{dose}}</td>
+                                <td>{{route}}</td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <header><span class="dot"></span> Balanço Hídrico</header>
+                <div class="body" style="padding:0;">
+                    <table class="data">
+                        <thead><tr><th>Tipo</th><th>Item</th><th class="num">Volume</th><th>Horário</th></tr></thead>
+                        <tbody>
+                            {{#each balance}}
+                            <tr>
+                                <td><span class="chip {{#if isGain}}ok{{else}}warn{{/if}}" style="padding:.3mm 1.4mm; font-size:6.6pt;">{{typeLabel}}</span></td>
+                                <td>{{item}}</td>
+                                <td class="num">{{volumeMl}} ml</td>
+                                <td class="muted">{{time}}</td>
+                            </tr>
+                            {{/each}}
+                            <tr><td colspan="2" class="num"><b>Total ganhos</b></td><td class="num"><b>{{totals.gainsMl}} ml</b></td><td></td></tr>
+                            <tr><td colspan="2" class="num"><b>Total perdas</b></td><td class="num"><b>{{totals.lossesMl}} ml</b></td><td></td></tr>
+                            <tr><td colspan="2" class="num"><b>Volume final</b></td><td class="num"><b>{{totals.netMl}} ml</b></td><td></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <header><span class="dot"></span> Pós-procedimento</header>
+                <div class="body">
+                    <dl class="kv">
+                        <dt>Cirurgia Realizada</dt>
+                        <dd class="strong">
+                            {{#each postProcedure.surgeriesPerformed}}
+                            {{code}} — {{name}}{{#unless }}<br>{{/unless}}
+                            {{/each}}
+                        </dd>
+                        {{#if postProcedure.intercorrencias}}
+                        <dt>Intercorrências</dt>
+                        <dd>{{postProcedure.intercorrencias}}</dd>{{/if}}
+                        {{#if postProcedure.destino}}
+                        <dt>Destino</dt>
+                        <dd>{{postProcedure.destino}}</dd>{{/if}}
+                        {{#if postProcedure.condicoesSaida}}
+                        <dt>Condições de saída</dt>
+                        <dd>{{postProcedure.condicoesSaida}}</dd>{{/if}}
+                        {{#if postProcedure.prescricao}}
+                        <dt>Prescrição pós</dt>
+                        <dd>{{postProcedure.prescricao}}</dd>{{/if}}
+                        {{#if postProcedure.observacoes}}
+                        <dt>Observações</dt>
+                        <dd>{{postProcedure.observacoes}}</dd>{{/if}}
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div style="height:2.4mm;"></div>
+
+        <!-- Linha 4: Eventos | Incidentes | Observações -->
+        <div class="grid cols-3">
+            <div class="card">
+                <header><span class="dot"></span> Eventos documentados</header>
+                <div class="body" style="padding:0;">
+                    <table class="data">
+                        <thead><tr><th style="width:14mm;">Hora</th><th>Descrição</th></tr></thead>
+                        <tbody>
+                            {{#each events}}
+                            <tr><td class="muted">{{time}}</td><td><b>{{title}}</b>{{#if description}} — <span class="muted">{{description}}</span>{{/if}}</td></tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <header><span class="dot"></span> Incidentes</header>
+                <div class="body">
+                    {{#if incidents.length}}
+                    {{#each incidents}}<div style="margin-bottom:1mm;"><b>{{time}}</b> — {{description}}</div>{{/each}}
+                    {{else}}
+                    <span class="muted">Sem registros.</span>
+                    {{/if}}
+                </div>
+            </div>
+
+            <div class="card">
+                <header><span class="dot"></span> Observações · Alterações</header>
+                <div class="body">
+                    {{#if observations}}<div style="margin-bottom:1.6mm;">{{observations}}</div>{{/if}}
+                    {{#if changes.length}}
+                    <div class="muted" style="font-size:6.8pt; text-transform:uppercase; letter-spacing:.4px; margin-bottom:.8mm;">Alterações realizadas</div>
+                    {{#each changes}}<div style="font-size:7.4pt; margin-bottom:.8mm;"><b>{{time}}</b> — {{description}}</div>{{/each}}
+                    {{/if}}
+                </div>
+            </div>
+        </div>
+
+        <!-- Assinaturas -->
+        <div class="signatures">
+            {{#each signatures}}
+            <div class="sig">
+                <div class="line"></div>
+                <b>{{name}}</b>
+                <small>{{role}} · CRM {{crm}}</small>
+            </div>
+            {{/each}}
+        </div>
+
+        <footer class="doc-footer">
+            <span>{{hospital.name}} · Ficha Anestésica</span>
+            <span>Emitido em {{meta.printedAt}} · Página 1 de 2</span>
+        </footer>
+    </section>
+
+    <!-- ==================== PAGE 2 — MONITORAMENTO TIMELINE ==================== -->
+    <section class="page">
+        <header class="doc-header">
+            <div class="brand">
+                {{hospital.name}}
+                <small>Registro trans-operatório</small>
+            </div>
+            <div class="title">
+                MONITORAMENTO ANESTÉSICO
+                <small>Linha do tempo · {{procedure.date}}</small>
+            </div>
+            <div class="patient-mini">
+                <div><b>{{patient.name}}</b> · {{patient.age}}a · {{patient.gender}}</div>
+                <div>Sala {{procedure.room}} · ASA {{assessment.asa}} · {{patient.weight}}kg</div>
+            </div>
+            <div class="badge"><small>Atendimento</small><b>{{procedure.attendanceId}}</b></div>
+        </header>
+
+        <div class="monitor">
+            <header>
+                <span>Monitorização Trans-operatória</span>
+                <span class="legend">
+                    <span><span class="glyph">∨</span> PA sistólica</span>
+                    <span><span class="glyph">∧</span> PA diastólica</span>
+                    <span><span class="glyph">●</span> FC</span>
+                    <span><span class="glyph">✕</span> Início/Fim anestesia</span>
+                    <span><span class="glyph">○</span> Início/Fim cirurgia</span>
+                </span>
+            </header>
+
+            <table class="timegrid">
+                <colgroup>
+                    <col class="label" />
+                    {{#each timeline.columns}}
+                    <col />{{/each}}
+                </colgroup>
                 <thead>
                     <tr>
-                        <th style="width: 12%">Horário</th>
-                        <th style="width: 8%">FC</th>
-                        <th style="width: 12%">PA</th>
-                        <th style="width: 8%">SpO₂</th>
-                        <th style="width: 8%">EtCO₂</th>
-                        <th style="width: 8%">T°C</th>
-                        <th style="width: 44%">Observações</th>
+                        <th style="text-align:left; padding-left:2mm;">Tempo</th>
+                        {{#each timeline.columns}}
+                        <th>{{time}}</th>{{/each}}
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td>08:15</td><td>78</td><td>132/78</td><td>98</td><td>38</td><td>36.5</td><td>Indução</td></tr>
-                    <tr><td>08:30</td><td>82</td><td>118/72</td><td>99</td><td>36</td><td>36.4</td><td>Pneumoperitônio</td></tr>
-                    <tr><td>09:00</td><td>75</td><td>125/75</td><td>97</td><td>37</td><td>36.3</td><td></td></tr>
-                    <tr><td>09:30</td><td>80</td><td>110/68</td><td>98</td><td>35</td><td>36.2</td><td></td></tr>
-                    <tr><td>10:00</td><td>72</td><td>128/80</td><td>99</td><td>36</td><td>36.4</td><td>Fim cirurgia</td></tr>
-                    <!-- LINHAS VAZIAS PARA REGISTROS MANUAIS – LIMITADAS PARA CABER NA PÁGINA -->
-                    @for (int i = 0; i < 12; i++)
-                    {
-                        <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-                    }
+                    <!-- Bloco: parâmetros ventilatórios / gasosos -->
+                    {{#each timeline.rows.gases}}
+                    <tr>
+                        <td class="rowlabel">{{label}}<small>{{unit}}</small></td>
+                        {{#each cells}}
+                        <td class="cell {{#if value}}filled{{/if}}">{{value}}</td>{{/each}}
+                    </tr>
+                    {{/each}}
+
+                    <tr class="section-break"><td colspan="{{timeline.colspan}}">Balanço hídrico</td></tr>
+                    {{#each timeline.rows.fluids}}
+                    <tr>
+                        <td class="rowlabel">{{label}}</td>
+                        {{#each cells}}
+                        <td class="cell {{#if value}}filled{{/if}}">{{value}}</td>{{/each}}
+                    </tr>
+                    {{/each}}
+
+                    <tr class="section-break"><td colspan="{{timeline.colspan}}">Monitorização contínua</td></tr>
+                    {{#each timeline.rows.vitals}}
+                    <tr>
+                        <td class="rowlabel">{{label}}<small>{{unit}}</small></td>
+                        {{#each cells}}
+                        <td class="cell {{#if value}}filled{{/if}}">{{value}}</td>{{/each}}
+                    </tr>
+                    {{/each}}
+
+                    <tr class="section-break"><td colspan="{{timeline.colspan}}">Posição · Fármacos · Eventos · Incidentes · Exames</td></tr>
+                    {{#each timeline.rows.markers}}
+                    <tr>
+                        <td class="rowlabel">{{label}}</td>
+                        {{#each cells}}
+                        <td class="cell {{#if value}}filled{{/if}}">{{value}}</td>{{/each}}
+                    </tr>
+                    {{/each}}
+
+                    <tr class="section-break"><td colspan="{{timeline.colspan}}">Pressão arterial (mmHg) · Frequência cardíaca (bpm)</td></tr>
+                    {{#each timeline.rows.plot}}
+                    <tr class="plot">
+                        <td class="plot-y">{{y}}</td>
+                        {{#each cells}}
+                        <td class="cell">
+                            {{#each markers}}<span class="marker m-{{this}}"></span>{{/each}}
+                        </td>
+                        {{/each}}
+                    </tr>
+                    {{/each}}
                 </tbody>
             </table>
         </div>
-    </div>
 
-    <footer>
-        Documento confidencial • Gerado eletronicamente pelo sistema SIGA • HUAP - UFF • @DateTime.Now.ToString("dd/MM/yyyy HH:mm")
-    </footer>
+        <footer class="doc-footer">
+            <span>Legenda: ∨ PA sistólica · ∧ PA diastólica · ● FC · ✕ Anestesia · ○ Cirurgia</span>
+            <span>Emitido em {{meta.printedAt}} · Página 2 de 2</span>
+        </footer>
+    </section>
+
 </body>
 </html>
