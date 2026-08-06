@@ -4,28 +4,35 @@ namespace UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord
 {
     public class MonitoringRecordCommand
     {
-
         public MonitoringRecordCommand(int surgeryId)
         {
-           SurgeryId = surgeryId;
-           AnesthesiaRecordId = surgeryId;
+            SurgeryId = surgeryId;
+            AnesthesiaRecordId = surgeryId;
         }
 
         public int AnesthesiaRecordId { get; set; }
         public int SurgeryId { get; set; }
-        public int RecordedByProfessionalId { get; set; }
+        public int RecordedByProfessionalId { get; set; }        
         public DateTime StartedAt { get; set; }
-        public DateTime? EndedAt { get; set; }
+        public DateTime? EndedAt { get; set; }        
+        public DateTime? SurgeryStartedAt { get; set; }
+        public DateTime? SurgeryEndedAt { get; set; }        
+        public bool IsMonitoringDraft { get; set; }
+        public DateTime? MonitoringUpdatedAt { get; set; }
         public List<VitalSignRecordCommand> VitalSigns { get; set; } = new();
         public List<AdministeredAgentCommand> AdministeredAgents { get; set; } = new();
         public List<ClinicalEventCommand> ClinicalEvents { get; set; } = new();
         public List<FluidBalanceCommand> FluidBalances { get; set; } = new();
+        public List<PatientPositionCommand> Positions { get; set; } = new();
+        public string? CurrentPosition { get; set; }
+
         public SurgeryStatusEnum Status { get; private set; }
     }
 
     public class VitalSignRecordCommand
     {
         public DateTime Timestamp { get; set; }
+
         public int? SystolicBloodPressure { get; set; }
         public int? DiastolicBloodPressure { get; set; }
         public int? MeanArterialPressure { get; set; }
@@ -35,7 +42,7 @@ namespace UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord
         public decimal? Temperature { get; set; }
         public int? Bis { get; set; }
         public decimal? Pvc { get; set; }
-        public decimal? Pcap { get; set; }
+        public decimal? Pcap { get; set; }        
         public List<CustomFieldCommand> CustomFields { get; set; } = new();
     }
 
@@ -49,19 +56,25 @@ namespace UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord
     {
         public DateTime Timestamp { get; set; }
         public decimal Dose { get; set; }
-        public string Unit { get; set; }
+        public string Unit { get; set; } = string.Empty;
         public AdministrationRouteEnum Route { get; set; }
         public string Presentation { get; set; } = string.Empty;
-        public int DrugId { get; internal set; }
+        public int DrugId { get; set; }
     }
 
     public class ClinicalEventCommand
     {
         public DateTime Timestamp { get; set; }
         public ClinicalEventTypeEnum EventType { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         public string? Observations { get; set; }
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
+    }
+
+    public class PatientPositionCommand
+    {
+        public DateTime Timestamp { get; set; }
+        public string Position { get; set; } = string.Empty;
     }
 
     public class FluidBalanceCommand
