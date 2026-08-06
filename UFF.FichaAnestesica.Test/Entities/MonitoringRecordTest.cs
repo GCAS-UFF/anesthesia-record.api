@@ -40,7 +40,7 @@ namespace UFF.FichaAnestesica.Test.Entities
                     new ClinicalEventCommand
                     {
                         Timestamp = new DateTime(2025, 6, 1, 8, 15, 0),
-                        EventType = ClinicalEventTypeEnum.CardiovascularEvent,
+                        EventType = ClinicalEventTypeEnum.Clinical,
                         Name = "Hipotensão",
                         Observations = "Pressão baixa",
                         Description = "Paciente apresentou hipotensão"

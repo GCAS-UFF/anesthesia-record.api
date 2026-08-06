@@ -12,7 +12,7 @@ namespace UFF.FichaAnestesica.Test.Entities
             var command = new ClinicalEventCommand
             {
                 Timestamp = new DateTime(2025, 6, 1, 14, 30, 0),
-                EventType = ClinicalEventTypeEnum.CardiovascularEvent,
+                EventType = ClinicalEventTypeEnum.Clinical,
                 Name = "Hipotensão",
                 Description = "Paciente apresentou queda de pressão",
                 Observations = "PA 80x50"
@@ -21,7 +21,7 @@ namespace UFF.FichaAnestesica.Test.Entities
             var clinicalEvent = ClinicalEvent.Create(command);
 
             Assert.Equal(command.Timestamp, clinicalEvent.Timestamp);
-            Assert.Equal(ClinicalEventTypeEnum.CardiovascularEvent, clinicalEvent.EventType);
+            Assert.Equal(ClinicalEventTypeEnum.Clinical, clinicalEvent.EventType);
             Assert.Equal(command.Description, clinicalEvent.Description);
             Assert.Equal(command.Observations, clinicalEvent.Observations);
             Assert.NotEqual(default, clinicalEvent.CreatedAt);
@@ -33,7 +33,7 @@ namespace UFF.FichaAnestesica.Test.Entities
             var createCommand = new ClinicalEventCommand
             {
                 Timestamp = new DateTime(2025, 6, 1, 14, 30, 0),
-                EventType = ClinicalEventTypeEnum.Procedure,
+                EventType = ClinicalEventTypeEnum.Clinical,
                 Description = "Evento inicial",
                 Observations = null
             };
@@ -42,7 +42,7 @@ namespace UFF.FichaAnestesica.Test.Entities
             var updateCommand = new ClinicalEventCommand
             {
                 Timestamp = new DateTime(2025, 6, 1, 15, 0, 0),
-                EventType = ClinicalEventTypeEnum.RespiratoryEvent,
+                EventType = ClinicalEventTypeEnum.Clinical,
                 Description = "Evento atualizado",
                 Observations = "Observação nova"
             };
@@ -50,7 +50,7 @@ namespace UFF.FichaAnestesica.Test.Entities
             clinicalEvent.Update(updateCommand);
 
             Assert.Equal(updateCommand.Timestamp, clinicalEvent.Timestamp);
-            Assert.Equal(ClinicalEventTypeEnum.RespiratoryEvent, clinicalEvent.EventType);
+            Assert.Equal(ClinicalEventTypeEnum.Clinical, clinicalEvent.EventType);
             Assert.Equal(updateCommand.Description, clinicalEvent.Description);
             Assert.Equal(updateCommand.Observations, clinicalEvent.Observations);
         }

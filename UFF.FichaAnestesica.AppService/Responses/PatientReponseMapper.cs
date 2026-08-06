@@ -86,7 +86,7 @@ namespace UFF.FichaAnestesica.Service.Mappers
                 {
                     SurgeryId = patient.SurgeryId,
                     PatientId = patient.PatientId,
-                    SurgeryDate = patient.SurgeryDate,
+                    SurgeryDate = (DateTime)(patient.ExpectedAt != DateTime.MinValue ? patient.ExpectedAt : patient.SurgeryDate),
                     MedicalRecordNumber = patient.MedicalRecordNumber,
                     FullName = patient.FullName,
                     BirthDate = patient.BirthDate,

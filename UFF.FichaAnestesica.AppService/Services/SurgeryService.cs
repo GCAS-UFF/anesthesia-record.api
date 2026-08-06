@@ -189,7 +189,7 @@ namespace UFF.FichaAnestesica.Service.Services
                     Data = [],
                     Page = page,
                     PageSize = size,
-                    TotalItems = 0
+                    TotalItems = anesthesiaRecords.Count()
                 });
             }
 
