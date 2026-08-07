@@ -24,6 +24,11 @@ namespace UFF.FichaAnestesica.Domain.Entities
             };
         }
 
+        public void SetMonitoringRecord(MonitoringRecord monitoringRecord)
+        {
+            MonitoringRecord = monitoringRecord;
+        }
+
         public void Update(ClinicalEventCommand command)
         {
             Timestamp = command.Timestamp;

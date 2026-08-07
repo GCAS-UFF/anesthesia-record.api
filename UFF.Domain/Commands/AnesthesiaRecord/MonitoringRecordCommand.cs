@@ -23,8 +23,7 @@ namespace UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord
         public List<AdministeredAgentCommand> AdministeredAgents { get; set; } = new();
         public List<ClinicalEventCommand> ClinicalEvents { get; set; } = new();
         public List<FluidBalanceCommand> FluidBalances { get; set; } = new();
-        public List<PatientPositionCommand> Positions { get; set; } = new();
-        public string? CurrentPosition { get; set; }
+        public List<PatientPositionCommand> Positions { get; set; } = new();       
 
         public SurgeryStatusEnum Status { get; private set; }
     }

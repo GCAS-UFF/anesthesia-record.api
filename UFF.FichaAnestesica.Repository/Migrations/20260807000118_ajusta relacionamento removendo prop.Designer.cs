@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using UFF.FichaAnestesica.Infra.Context;
@@ -11,9 +12,11 @@ using UFF.FichaAnestesica.Infra.Context;
 namespace UFF.FichaAnestesica.Infra.Migrations
 {
     [DbContext(typeof(SigaDbCtx))]
-    partial class SigaDbCtxModelSnapshot : ModelSnapshot
+    [Migration("20260807000118_ajusta relacionamento removendo prop")]
+    partial class ajustarelacionamentoremovendoprop
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -739,6 +742,9 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .HasColumnType("timestamptz")
                         .HasColumnName("timestamp");
 
+                    b.Property<int>("monitoring_record_id")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasIndex("EventType");
@@ -747,7 +753,13 @@ namespace UFF.FichaAnestesica.Infra.Migrations
 
                     b.HasIndex("Timestamp");
 
-                    b.ToTable("clinical_events", "siga_db");
+                    b.HasIndex("monitoring_record_id");
+
+                    b.ToTable("clinical_events", "siga_db", t =>
+                        {
+                            t.Property("monitoring_record_id")
+                                .HasColumnName("monitoring_record_id1");
+                        });
                 });
 
             modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.CustomField", b =>
@@ -877,6 +889,9 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .HasColumnType("numeric(10,2)")
                         .HasColumnName("volume_ml");
 
+                    b.Property<int>("monitoring_record_id")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Category");
@@ -887,7 +902,13 @@ namespace UFF.FichaAnestesica.Infra.Migrations
 
                     b.HasIndex("Type");
 
-                    b.ToTable("fluid_balances", "siga_db");
+                    b.HasIndex("monitoring_record_id");
+
+                    b.ToTable("fluid_balances", "siga_db", t =>
+                        {
+                            t.Property("monitoring_record_id")
+                                .HasColumnName("monitoring_record_id1");
+                        });
                 });
 
             modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.MonitoringRecord", b =>
@@ -1479,13 +1500,20 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .HasColumnType("timestamptz")
                         .HasColumnName("timestamp");
 
+                    b.Property<int>("monitoring_record_id")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasIndex("MonitoringRecordId");
 
                     b.HasIndex("Timestamp");
 
-                    b.ToTable("vital_sign_records", "siga_db");
+                    b.ToTable("vital_sign_records", "siga_db", t =>
+                        {
+                            t.Property("monitoring_record_id")
+                                .HasColumnName("monitoring_record_id1");
+                        });
                 });
 
             modelBuilder.Entity("AdministeredAgent", b =>
@@ -1640,8 +1668,14 @@ namespace UFF.FichaAnestesica.Infra.Migrations
             modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.ClinicalEvent", b =>
                 {
                     b.HasOne("UFF.FichaAnestesica.Domain.Entities.MonitoringRecord", "MonitoringRecord")
-                        .WithMany("ClinicalEvents")
+                        .WithMany()
                         .HasForeignKey("MonitoringRecordId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("UFF.FichaAnestesica.Domain.Entities.MonitoringRecord", null)
+                        .WithMany("ClinicalEvents")
+                        .HasForeignKey("monitoring_record_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("f_k_clinical_events__monitoring_records_monitoring_record_id");
@@ -1661,8 +1695,14 @@ namespace UFF.FichaAnestesica.Infra.Migrations
             modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.FluidBalance", b =>
                 {
                     b.HasOne("UFF.FichaAnestesica.Domain.Entities.MonitoringRecord", "MonitoringRecord")
-                        .WithMany("FluidBalances")
+                        .WithMany()
                         .HasForeignKey("MonitoringRecordId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("UFF.FichaAnestesica.Domain.Entities.MonitoringRecord", null)
+                        .WithMany("FluidBalances")
+                        .HasForeignKey("monitoring_record_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("f_k_fluid_balances__monitoring_records_monitoring_record_id");

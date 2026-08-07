@@ -17,6 +17,7 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .UseIdentityColumn()
                 .IsRequired();
 
+
             builder.Property(x => x.AnesthesiaRecordId)
                 .HasColumnName("anesthesia_record_id")
                 .IsRequired();
@@ -26,52 +27,94 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .HasForeignKey<MonitoringRecord>(x => x.AnesthesiaRecordId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+
             builder.Property(x => x.RecordedByProfessionalId)
                 .HasColumnName("recorded_by_professional_id")
                 .IsRequired();
+
 
             builder.Property(x => x.StartedAt)
                 .HasColumnName("started_at")
                 .HasColumnType("timestamptz")
                 .IsRequired();
 
+
+            builder.Property(x => x.EndedAt)
+                .HasColumnName("ended_at")
+                .HasColumnType("timestamptz");
+
+
+            builder.Property(x => x.SurgeryStartedAt)
+                .HasColumnName("surgery_started_at")
+                .HasColumnType("timestamptz");
+
+
+            builder.Property(x => x.SurgeryEndedAt)
+                .HasColumnName("surgery_ended_at")
+                .HasColumnType("timestamptz");
+
+
+            builder.Property(x => x.IsMonitoringDraft)
+                .HasColumnName("is_monitoring_draft")
+                .IsRequired();
+
+
+            builder.Property(x => x.MonitoringUpdatedAt)
+                .HasColumnName("monitoring_updated_at")
+                .HasColumnType("timestamptz");
+
+
             builder.Property(x => x.Status)
                 .HasColumnName("status")
                 .HasConversion<int>()
                 .IsRequired();
 
-            builder.Property(x => x.EndedAt)
-                .HasColumnName("ended_at")
-                .HasColumnType("timestamptz");
 
             builder.Property(x => x.CreatedAt)
                 .HasColumnName("created_at")
                 .HasColumnType("timestamptz")
                 .IsRequired();
 
+
             builder.Property(x => x.LastUpdate)
                 .HasColumnName("last_update")
                 .HasColumnType("timestamptz");
 
+
+            /*
+             * Relacionamentos filhos
+             */
+
             builder.HasMany(x => x.VitalSigns)
-                .WithOne()
-                .HasForeignKey("monitoring_record_id")
+                .WithOne(x => x.MonitoringRecord)
+                .HasForeignKey(x => x.MonitoringRecordId)
                 .OnDelete(DeleteBehavior.Cascade);
+
 
             builder.HasMany(x => x.AdministeredAgents)
-                .WithOne()
-                .HasForeignKey("monitoring_record_id")
+                .WithOne(x => x.MonitoringRecord)
+                .HasForeignKey(x => x.MonitoringRecordId)
                 .OnDelete(DeleteBehavior.Cascade);
+
 
             builder.HasMany(x => x.ClinicalEvents)
-                .WithOne()
-                .HasForeignKey("monitoring_record_id")
+                .WithOne(x => x.MonitoringRecord)
+                .HasForeignKey(x => x.MonitoringRecordId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+
             builder.HasMany(x => x.FluidBalances)
-                .WithOne()
-                .HasForeignKey("monitoring_record_id")
+                .WithOne(x => x.MonitoringRecord)
+                .HasForeignKey(x => x.MonitoringRecordId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+
+            builder.HasMany(x => x.Positions)
+                .WithOne(x => x.MonitoringRecord)
+                .HasForeignKey(x => x.MonitoringRecordId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+
 
             builder.HasIndex(x => x.AnesthesiaRecordId);
             builder.HasIndex(x => x.RecordedByProfessionalId);

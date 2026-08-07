@@ -28,7 +28,6 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
 
             builder.Property(x => x.Unit)
                 .HasColumnName("unit")
-                .HasConversion<int>()
                 .IsRequired();
 
             builder.Property(x => x.Route)
@@ -66,9 +65,7 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasIndex(x => x.Timestamp);
-
             builder.HasIndex(x => x.DrugId);
-
             builder.HasIndex(x => x.MonitoringRecordId);
         }
     }

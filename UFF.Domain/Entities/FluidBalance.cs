@@ -26,6 +26,11 @@ namespace UFF.FichaAnestesica.Domain.Entities
             };
         }
 
+        public void SetMonitoringRecord(MonitoringRecord monitoringRecord)
+        {
+            MonitoringRecord = monitoringRecord;
+        }
+
         public void Update(FluidBalanceCommand command)
         {
             Timestamp = command.Timestamp;

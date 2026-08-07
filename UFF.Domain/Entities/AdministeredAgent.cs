@@ -12,8 +12,6 @@ public class AdministeredAgent : Base
     public AdministrationRouteEnum Route { get; private set; }
     public int MonitoringRecordId { get; private set; }
     public MonitoringRecord MonitoringRecord { get; private set; }
-    public int AnesthesiaRecordId { get; set; }
-    public AnesthesiaRecord AnesthesiaRecord { get; set; }
 
     public static AdministeredAgent Create(AdministeredAgentCommand command) => new AdministeredAgent
     {
@@ -24,6 +22,11 @@ public class AdministeredAgent : Base
         Route = command.Route,
         CreatedAt = DateTime.UtcNow
     };
+
+    public void SetMonitoringRecord(MonitoringRecord monitoringRecord)
+    {
+        MonitoringRecord = monitoringRecord;
+    }
 
     public void Update(AdministeredAgentCommand command)
     {

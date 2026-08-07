@@ -49,6 +49,11 @@ namespace UFF.FichaAnestesica.Domain.Entities
             return vitalSignRecord;
         }
 
+        public void SetMonitoringRecord(MonitoringRecord monitoringRecord)
+        {
+            MonitoringRecord = monitoringRecord;
+        }
+
         public void Update(VitalSignRecordCommand command)
         {
             Timestamp = command.Timestamp;
