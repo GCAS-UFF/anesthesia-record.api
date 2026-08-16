@@ -27,17 +27,13 @@ namespace UFF.FichaAnestesica.Domain.Entities
             {
                 AnesthesiaRecordId = command.AnesthesiaRecordId,
                 RecordedByProfessionalId = command.RecordedByProfessionalId,
-
                 StartedAt = command.StartedAt,
                 EndedAt = command.EndedAt,
-
                 SurgeryStartedAt = command.SurgeryStartedAt,
                 SurgeryEndedAt = command.SurgeryEndedAt,
-
                 IsMonitoringDraft = command.IsMonitoringDraft,
                 MonitoringUpdatedAt = command.MonitoringUpdatedAt,
-
-                Status = SurgeryStatusEnum.InProgress,
+                Status = command.Status,
                 CreatedAt = DateTime.UtcNow
             };
 

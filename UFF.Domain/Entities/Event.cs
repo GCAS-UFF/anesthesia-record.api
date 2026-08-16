@@ -11,7 +11,6 @@ namespace UFF.FichaAnestesica.Domain.Entities
         public TimeSpan Time { get; set; }
         public DateTime Date { get; set; }
         public string Observations { get; private set; }
-        public int MonitoringRecordId { get; private set; }
         public MonitoringRecord MonitoringRecord { get; private set; }
 
         public static Event Create(ClinicalEventCommand command)
@@ -21,7 +20,6 @@ namespace UFF.FichaAnestesica.Domain.Entities
                 Date = command.Date,
                 Time = command.Time,
                 Observations = command.Observations,
-                MonitoringRecordId = command.MonitoringRecordId,
                 Type = command.EventType,
                 LastUpdate = DateTime.UtcNow,
                 CreatedAt = DateTime.UtcNow,
