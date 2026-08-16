@@ -14,7 +14,7 @@ namespace UFF.FichaAnestesica.CrossCutting.Mappings
                 "concluida" => SurgeryStatusEnum.Completed,
                 "cancelada" => SurgeryStatusEnum.Canceled,
 
-                _ => throw new ArgumentException($"Status inválido: {status}")
+                _ => SurgeryStatusEnum.Scheduled
             };
         }
     }
