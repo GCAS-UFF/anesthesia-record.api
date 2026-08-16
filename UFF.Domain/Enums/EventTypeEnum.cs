@@ -4,19 +4,23 @@ namespace UFF.FichaAnestesica.Domain.Enums
 {
     public enum ClinicalEventTypeEnum
     {
+        [Description("Intubação")]
+        Intubation = 1,
+        [Description("Extubação")]
+        Extubation = 2,
+        [Description("Incisão")]
+        Incision = 3,
+        [Description("Bloqueio")]
+        Block = 4,
+        [Description("Garrote ON")]
+        TourniquetOn = 5,
+        [Description("Garrote OFF")]
+        TourniquetOff = 6,
         [Description("Posição")]
-        Position = 1,
-        [Description("Via aérea")]
-        Airway = 2,
-        [Description("Cirúrgico")]
-        Surgical = 3,
-        [Description("Clínico")]
-        Clinical = 4,
-        [Description("Medicação")]
-        Medication = 5,
-        [Description("Anestesia")]
-        Anesthesia = 6,
+        Position = 7,
+        [Description("Complicação")]
+        Complication = 8,
         [Description("Outro")]
-        Other = 7
+        Other = 9
     }
 }

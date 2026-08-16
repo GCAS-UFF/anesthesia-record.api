@@ -22,7 +22,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories
         {
             return await _context.FluidBalances
                 .Where(x => x.MonitoringRecordId == monitoringRecordId)
-                .OrderBy(x => x.Timestamp)
+                .OrderBy(x => x.Time)
                 .ToListAsync();
         }
 
@@ -30,7 +30,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories
         {
             return await _context.FluidBalances
                 .Where(x => x.Type == type)
-                .OrderByDescending(x => x.Timestamp)
+                .OrderByDescending(x => x.Time)
                 .ToListAsync();
         }
 
@@ -38,15 +38,15 @@ namespace UFF.FichaAnestesica.Infra.Repositories
         {
             return await _context.FluidBalances
                 .Where(x => x.Category == category)
-                .OrderByDescending(x => x.Timestamp)
+                .OrderByDescending(x => x.Time)
                 .ToListAsync();
         }
 
         public async Task<List<FluidBalance>> GetByPeriodAsync(DateTime start, DateTime end)
         {
             return await _context.FluidBalances
-                .Where(x => x.Timestamp >= start && x.Timestamp <= end)
-                .OrderBy(x => x.Timestamp)
+                .Where(x => x.Date >= start && x.Date <= end)
+                .OrderBy(x => x.Time)
                 .ToListAsync();
         }
 

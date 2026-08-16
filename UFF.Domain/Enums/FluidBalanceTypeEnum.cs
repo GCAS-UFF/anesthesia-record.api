@@ -2,7 +2,7 @@
 {
     public enum FluidBalanceTypeEnum
     {
-        Gain,
-        Loss
+        Gain = 1,
+        Loss = 2
     }
 }

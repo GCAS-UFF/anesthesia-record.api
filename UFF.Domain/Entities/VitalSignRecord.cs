@@ -4,7 +4,8 @@ namespace UFF.FichaAnestesica.Domain.Entities
 {
     public class VitalSignRecord : Base
     {
-        public DateTime Timestamp { get; private set; }
+        public DateTime Date { get; private set; }
+        public TimeSpan Time { get; private set; }
         public int? SystolicBloodPressure { get; private set; }
         public int? DiastolicBloodPressure { get; private set; }
         public int? MeanArterialPressure { get; private set; }
@@ -24,7 +25,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
         {
             var vitalSignRecord = new VitalSignRecord
             {
-                Timestamp = command.Timestamp,
+                Time = command.Time,
                 SystolicBloodPressure = command.SystolicBloodPressure,
                 DiastolicBloodPressure = command.DiastolicBloodPressure,
                 MeanArterialPressure = command.MeanArterialPressure,
@@ -56,7 +57,8 @@ namespace UFF.FichaAnestesica.Domain.Entities
 
         public void Update(VitalSignRecordCommand command)
         {
-            Timestamp = command.Timestamp;
+            Date = command.Date;
+            Time = command.Time;
             SystolicBloodPressure = command.SystolicBloodPressure;
             DiastolicBloodPressure = command.DiastolicBloodPressure;
             MeanArterialPressure = command.MeanArterialPressure;

@@ -3,34 +3,34 @@ using UFF.FichaAnestesica.Domain.Enums;
 
 namespace UFF.FichaAnestesica.Domain.Entities
 {
-    public class PatientPosition : Base
+    public class Event : Base
     {
+        protected Event() { }
+
+        public ClinicalEventTypeEnum Type { get; private set; }
         public TimeSpan Time { get; set; }
         public DateTime Date { get; set; }
-        public SurgicalPositionEnum Position { get; private set; }
+        public string Observations { get; private set; }
         public int MonitoringRecordId { get; private set; }
         public MonitoringRecord MonitoringRecord { get; private set; }
 
-        public static PatientPosition Create(PatientPositionCommand command)
+        public static Event Create(ClinicalEventCommand command)
         {
-            return new PatientPosition
+            return new Event
             {
-                Time = command.Time,
                 Date = command.Date,
-                CreatedAt = DateTime.UtcNow
+                Time = command.Time,
+                Observations = command.Observations,
+                MonitoringRecordId = command.MonitoringRecordId,
+                Type = command.EventType,
+                LastUpdate = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow,
             };
         }
 
         public void SetMonitoringRecord(MonitoringRecord monitoringRecord)
         {
             MonitoringRecord = monitoringRecord;
-        }
-        public void Update(PatientPositionCommand command)
-        {
-            Time = command.Time;
-            Date = command.Date;
-            Position = command.Position;
-            LastUpdate = DateTime.UtcNow;
         }
     }
 }

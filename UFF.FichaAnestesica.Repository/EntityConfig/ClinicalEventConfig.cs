@@ -17,19 +17,19 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .UseIdentityColumn()
                 .IsRequired();
 
-            builder.Property(x => x.Timestamp)
-                .HasColumnName("timestamp")
-                .HasColumnType("timestamptz")
+            builder.Property(x => x.Date)
+               .HasColumnName("timestamp")
+               .HasColumnType("timestamptz")
+               .IsRequired();
+
+            builder.Property(x => x.Time)
+                .HasColumnName("time")
+                .HasColumnType("time without time zone")
                 .IsRequired();
 
             builder.Property(x => x.EventType)
                 .HasColumnName("event_type")
                 .HasConversion<int>()
-                .IsRequired();
-
-            builder.Property(x => x.Description)
-                .HasColumnName("description")
-                .HasColumnType("varchar(500)")
                 .IsRequired();
 
             builder.Property(x => x.Observations)
@@ -54,7 +54,7 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .HasColumnName("last_update")
                 .HasColumnType("timestamptz");
 
-            builder.HasIndex(x => x.Timestamp);
+            builder.HasIndex(x => x.Date);
 
             builder.HasIndex(x => x.EventType);
         }

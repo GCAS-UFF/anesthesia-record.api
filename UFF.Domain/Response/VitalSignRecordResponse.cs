@@ -5,8 +5,8 @@ namespace UFF.FichaAnestesica.Domain.Response
     public class VitalSignRecordResponse
     {
         public int Id { get; set; }
-
-        public DateTime Timestamp { get; set; }
+        public DateTime Date { get; private set; }
+        public TimeSpan Time { get; private set; }
 
         public int? SystolicBloodPressure { get; set; }
 
@@ -35,7 +35,7 @@ namespace UFF.FichaAnestesica.Domain.Response
             return new VitalSignRecordResponse
             {
                 Id = entity.Id,
-                Timestamp = entity.Timestamp,
+                Time = entity.Time,
                 SystolicBloodPressure = entity.SystolicBloodPressure,
                 DiastolicBloodPressure = entity.DiastolicBloodPressure,
                 MeanArterialPressure = entity.MeanArterialPressure,

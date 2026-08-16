@@ -21,7 +21,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories
             return await _context.AdministeredAgents
                 .Include(x => x.Drug)
                 .Where(x => x.MonitoringRecordId == monitoringRecordId)
-                .OrderBy(x => x.Timestamp)
+                .OrderBy(x => x.Time)
                 .ToListAsync();
         }
 
@@ -30,7 +30,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories
             return await _context.AdministeredAgents
                 .Include(x => x.Drug)
                 .Where(x => x.DrugId == drugId)
-                .OrderByDescending(x => x.Timestamp)
+                .OrderByDescending(x => x.Time)
                 .ToListAsync();
         }
 
@@ -38,8 +38,8 @@ namespace UFF.FichaAnestesica.Infra.Repositories
         {
             return await _context.AdministeredAgents
                 .Include(x => x.Drug)
-                .Where(x => x.Timestamp >= start && x.Timestamp <= end)
-                .OrderBy(x => x.Timestamp)
+                .Where(x => x.Date >= start && x.Date <= end)
+                .OrderBy(x => x.Time)
                 .ToListAsync();
         }
 

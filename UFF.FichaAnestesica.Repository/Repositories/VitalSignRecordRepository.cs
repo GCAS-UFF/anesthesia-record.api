@@ -21,16 +21,16 @@ namespace UFF.FichaAnestesica.Infra.Repositories
         {
             return await _context.VitalSignRecords
                 .Where(x => x.MonitoringRecordId == monitoringRecordId)
-                .OrderBy(x => x.Timestamp)
+                .OrderBy(x => x.Time)
                 .ToListAsync();
         }
 
         public async Task<List<VitalSignRecord>> GetByPeriodAsync(DateTime start, DateTime end)
         {
             return await _context.VitalSignRecords
-                .Where(x => x.Timestamp >= start &&
-                            x.Timestamp <= end)
-                .OrderBy(x => x.Timestamp)
+                .Where(x => x.Date >= start &&
+                            x.Date <= end)
+                .OrderBy(x => x.Time)
                 .ToListAsync();
         }
 
@@ -38,7 +38,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories
         {
             return await _context.VitalSignRecords
                 .Where(x => x.MonitoringRecordId == monitoringRecordId)
-                .OrderByDescending(x => x.Timestamp)
+                .OrderByDescending(x => x.Time)
                 .FirstOrDefaultAsync();
         }
 
@@ -46,7 +46,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories
         {
             return await _context.VitalSignRecords
                 .Where(x => x.MonitoringRecordId == monitoringRecordId)
-                .OrderByDescending(x => x.Timestamp)
+                .OrderByDescending(x => x.Time)
                 .Take(quantity)
                 .ToListAsync();
         }
@@ -57,7 +57,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories
             return await _context.VitalSignRecords
                 .Include(x => x.CustomFields)
                 .Where(x => x.MonitoringRecordId == monitoringRecordId)
-                .OrderBy(x => x.Timestamp)
+                .OrderBy(x => x.Time)
                 .ToListAsync();
         }
     }

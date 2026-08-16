@@ -20,6 +20,7 @@
     <None Remove="Entities\AnesthesiaRecord.cs~RF4a0de5a.TMP" />
     <None Remove="Entities\AnesthesiaRecord.cs~RFc19c74.TMP" />
     <None Remove="Entities\Drug.cs~RF813a85.TMP" />
+    <None Remove="Entities\Event.cs~RF167bee5f.TMP" />
     <None Remove="Entities\FluidBalance.cs~RF290373.TMP" />
     <None Remove="Entities\FluidBalance.cs~RF2a29f2.TMP" />
     <None Remove="Entities\FluidBalance.cs~RF511718.TMP" />
@@ -45,6 +46,7 @@
     <None Remove="Enums\SectorEnum.cs~RF5bda3a9.TMP" />
     <None Remove="Enums\SurgeryStatusEnum.cs~RF4f6d0ac.TMP" />
     <None Remove="Enums\SurgeryStatusEnum.cs~RF4fdf0a6.TMP" />
+    <None Remove="Enums\UnitEnum.cs~RF16cf756d.TMP" />
     <None Remove="Repositories\Aghu\IPatientReadOnlyRepository.cs~RF28182af.TMP" />
     <None Remove="Repositories\IAnesthesiaRecordRepository.cs~RF4815b56.TMP" />
     <None Remove="Repositories\IAnesthesiaRecordRepository.cs~RFe51439.TMP" />

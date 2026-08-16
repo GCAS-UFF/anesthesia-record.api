@@ -2,12 +2,13 @@
 {
     public enum FluidCategoryEnum
     {
-        Crystalloid,
-        Colloid,
-        BloodProduct,
-        Diuresis,
-        Bleeding,
-        Drain,
-        GastricLoss
+        Crystalloid = 1,
+        Colloid = 2,
+        BloodProduct = 3,
+        Diuresis = 4,
+        Bleeding = 5,
+        Drain = 6,
+        GastricLoss = 7,
+        Other = 8
     }
 }

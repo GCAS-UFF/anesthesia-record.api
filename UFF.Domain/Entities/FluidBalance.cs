@@ -5,10 +5,10 @@ namespace UFF.FichaAnestesica.Domain.Entities
 {
     public class FluidBalance : Base
     {
-        public DateTime Timestamp { get; private set; }
+        public TimeSpan Time { get; private set; }
+        public DateTime Date { get; private set; }
         public FluidBalanceTypeEnum Type { get; private set; }
         public FluidCategoryEnum Category { get; private set; }
-        public string Name { get; private set; } = string.Empty;
         public decimal VolumeMl { get; private set; }
         public int MonitoringRecordId { get; private set; }
         public MonitoringRecord MonitoringRecord { get; private set; }
@@ -17,10 +17,8 @@ namespace UFF.FichaAnestesica.Domain.Entities
         {
             return new FluidBalance
             {
-                Timestamp = command.Timestamp,
                 Type = command.Type,
                 Category = command.Category,
-                Name = command.Description,
                 VolumeMl = command.VolumeMl,
                 CreatedAt = DateTime.UtcNow
             };
@@ -33,12 +31,9 @@ namespace UFF.FichaAnestesica.Domain.Entities
 
         public void Update(FluidBalanceCommand command)
         {
-            Timestamp = command.Timestamp;
             Type = command.Type;
             Category = command.Category;
-            Name = command.Description;
             VolumeMl = command.VolumeMl;
-
             LastUpdate = DateTime.UtcNow;
         }
     }

@@ -5,19 +5,18 @@ namespace UFF.FichaAnestesica.Domain.Response
 {
     public class ClinicalEventResponse
     {
-        public DateTime Timestamp { get; private set; }
+        public TimeSpan Time { get; set; }
+        public DateTime Date { get; set; }
         public ClinicalEventTypeEnum EventType { get; private set; }
-        public string Description { get; private set; }
         public string? Observations { get; private set; }
 
         public static ClinicalEventResponse ToResponse(ClinicalEvent entity)
         {
             return new ClinicalEventResponse
             {
-               Description = entity.Description,
-               EventType = entity.EventType,
-               Timestamp = entity.Timestamp,
-               Observations = entity.Observations
+                EventType = entity.EventType,
+                Time = entity.Time,
+                Observations = entity.Observations
             };
         }
     }

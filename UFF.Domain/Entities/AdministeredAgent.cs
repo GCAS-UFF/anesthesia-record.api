@@ -4,18 +4,20 @@ using UFF.FichaAnestesica.Domain.Enums;
 
 public class AdministeredAgent : Base
 {
-    public DateTime Timestamp { get; private set; }
+    public TimeSpan Time { get; set; }
+    public DateTime Date { get; set; }
     public int DrugId { get; private set; }
     public Drug Drug { get; private set; } = null!;
     public decimal Dose { get; private set; }
-    public string Unit { get; private set; }
+    public MedicationUnitEnum Unit { get; private set; }
     public AdministrationRouteEnum Route { get; private set; }
     public int MonitoringRecordId { get; private set; }
     public MonitoringRecord MonitoringRecord { get; private set; }
 
     public static AdministeredAgent Create(AdministeredAgentCommand command) => new AdministeredAgent
     {
-        Timestamp = command.Timestamp,
+        Date = command.Date,
+        Time = command.Time,
         DrugId = command.DrugId,
         Dose = command.Dose,
         Unit = command.Unit,
@@ -30,7 +32,8 @@ public class AdministeredAgent : Base
 
     public void Update(AdministeredAgentCommand command)
     {
-        Timestamp = command.Timestamp;
+        Time = command.Time;
+        Date = command.Date;
         DrugId = command.DrugId;
         Dose = command.Dose;
         Unit = command.Unit;

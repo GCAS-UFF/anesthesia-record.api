@@ -12,11 +12,10 @@ namespace UFF.FichaAnestesica.Test.Entities
         {
             var administeredAgentCommand = new AdministeredAgentCommand
             {
-                Timestamp = new DateTime(2025, 6, 1, 8, 10, 0),
+                Date = new DateTime(2025, 6, 1, 8, 10, 0),
                 Dose = 10,
-                Unit = "mg",
-                Route = AdministrationRouteEnum.IV,
-                Presentation = "Ampola"
+                Unit = MedicationUnitEnum.Milligram,
+                Route = AdministrationRouteEnum.IV
             };
 
             var command = new MonitoringRecordCommand(1)
@@ -29,7 +28,7 @@ namespace UFF.FichaAnestesica.Test.Entities
                 {
                     new VitalSignRecordCommand
                     {
-                        Timestamp = new DateTime(2025, 6, 1, 8, 5, 0),
+                        Date = new DateTime(2025, 6, 1, 8, 5, 0),
                         HeartRate = 80,
                         Spo2 = 98
                     }
@@ -37,23 +36,23 @@ namespace UFF.FichaAnestesica.Test.Entities
                 AdministeredAgents = new List<AdministeredAgentCommand> { administeredAgentCommand },
                 ClinicalEvents = new List<ClinicalEventCommand>
                 {
-                    new ClinicalEventCommand
-                    {
-                        Timestamp = new DateTime(2025, 6, 1, 8, 15, 0),
-                        EventType = ClinicalEventTypeEnum.Clinical,
-                        Name = "Hipotensão",
-                        Observations = "Pressão baixa",
-                        Description = "Paciente apresentou hipotensão"
-                    }
+                    //new ClinicalEventCommand
+                    //{
+                    //    Timestamp = new DateTime(2025, 6, 1, 8, 15, 0),
+                    //    EventType = ClinicalEventTypeEnum.Clinical,
+                    //    Name = "Hipotensão",
+                    //    Observations = "Pressão baixa",
+                    //    Description = "Paciente apresentou hipotensão"
+                    //}
                 },
                 FluidBalances = new List<FluidBalanceCommand>
                 {
                     new FluidBalanceCommand
                     {
-                        Timestamp = new DateTime(2025, 6, 1, 8, 20, 0),
+                        Date = new DateTime(2025, 6, 1, 8, 20, 0),
                         Type = FluidBalanceTypeEnum.Gain,
                         Category = FluidCategoryEnum.Crystalloid,
-                        Description = "Soro",
+                        Details = "Soro",
                         VolumeMl = 500
                     }
                 }
@@ -63,7 +62,7 @@ namespace UFF.FichaAnestesica.Test.Entities
 
             Assert.Equal(10, monitoring.AnesthesiaRecordId);
             Assert.Equal(5, monitoring.RecordedByProfessionalId);
-            Assert.NotEqual(default, monitoring.StartedAt); // <-- CORRIGIDO
+            Assert.NotEqual(default, monitoring.StartedAt);
             Assert.Null(monitoring.EndedAt);
             Assert.Equal(SurgeryStatusEnum.InProgress, monitoring.Status);
             Assert.NotEqual(default, monitoring.CreatedAt);
@@ -72,7 +71,7 @@ namespace UFF.FichaAnestesica.Test.Entities
             Assert.Equal(80, monitoring.VitalSigns[0].HeartRate);
             Assert.Single(monitoring.AdministeredAgents);
             Assert.Single(monitoring.ClinicalEvents);
-            Assert.Equal("Paciente apresentou hipotensão", monitoring.ClinicalEvents[0].Description);
+            Assert.Equal("Paciente apresentou hipotensão", monitoring.ClinicalEvents[0].Observations);
             Assert.Single(monitoring.FluidBalances);
             Assert.Equal(500, monitoring.FluidBalances[0].VolumeMl);
         }

@@ -7,7 +7,8 @@ namespace UFF.FichaAnestesica.Domain.Response
     {
         public int Id { get; set; }
 
-        public DateTime Timestamp { get; set; }
+        public DateTime Date { get; set; }
+        public TimeSpan Time { get; set; }
 
         public FluidBalanceTypeEnum Type { get; set; }
 
@@ -22,10 +23,8 @@ namespace UFF.FichaAnestesica.Domain.Response
             return new FluidBalanceResponse
             {
                 Id = entity.Id,
-                Timestamp = entity.Timestamp,
                 Type = entity.Type,
                 Category = entity.Category,
-                Name = entity.Name,
                 VolumeMl = entity.VolumeMl
             };
         }

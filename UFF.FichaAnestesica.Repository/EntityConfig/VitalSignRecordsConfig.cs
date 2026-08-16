@@ -17,9 +17,14 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .UseIdentityColumn()
                 .IsRequired();
 
-            builder.Property(x => x.Timestamp)
+            builder.Property(x => x.Date)
                 .HasColumnName("timestamp")
                 .HasColumnType("timestamptz")
+                .IsRequired();
+
+            builder.Property(x => x.Time)
+                .HasColumnName("time")
+                .HasColumnType("time without time zone")
                 .IsRequired();
 
             builder.Property(x => x.SystolicBloodPressure)
@@ -79,7 +84,7 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .HasForeignKey("vital_sign_record_id")
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasIndex(x => x.Timestamp);
+            builder.HasIndex(x => x.Date);
         }
     }
 }

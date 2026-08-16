@@ -5,9 +5,9 @@ namespace UFF.FichaAnestesica.Domain.Entities
 {
     public class ClinicalEvent : Base
     {
-        public DateTime Timestamp { get; private set; }
+        public DateTime Date { get; private set; }
+        public TimeSpan Time { get; private set; }
         public ClinicalEventTypeEnum EventType { get; private set; }
-        public string Description { get; private set; }
         public string? Observations { get; private set; }
         public int MonitoringRecordId { get; private set; }
         public MonitoringRecord MonitoringRecord { get; private set; }         
@@ -16,9 +16,9 @@ namespace UFF.FichaAnestesica.Domain.Entities
         {
             return new ClinicalEvent
             {
-                Timestamp = command.Timestamp,
-                EventType = command.EventType,
-                Description = command.Description,
+                //Timestamp = command.Timestamp,
+                //EventType = command.EventType,
+                //Description = command.Description,
                 Observations = command.Observations,
                 CreatedAt = DateTime.UtcNow
             };
@@ -31,9 +31,9 @@ namespace UFF.FichaAnestesica.Domain.Entities
 
         public void Update(ClinicalEventCommand command)
         {
-            Timestamp = command.Timestamp;
-            EventType = command.EventType;
-            Description = command.Description;
+            //Timestamp = command.Timestamp;
+            //EventType = command.EventType;
+            //Description = command.Description;
             Observations = command.Observations;
 
             LastUpdate = DateTime.UtcNow;

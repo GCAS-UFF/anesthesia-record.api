@@ -16,9 +16,14 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .HasColumnName("id")
                 .UseIdentityColumn();
 
-            builder.Property(x => x.Timestamp)
+            builder.Property(x => x.Date)
                 .HasColumnName("timestamp")
                 .HasColumnType("timestamptz")
+                .IsRequired();
+
+            builder.Property(x => x.Time)
+                .HasColumnName("time")
+                .HasColumnType("time without time zone")
                 .IsRequired();
 
             builder.Property(x => x.Position)
@@ -45,7 +50,7 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasIndex(x => x.MonitoringRecordId);
-            builder.HasIndex(x => x.Timestamp);
+            builder.HasIndex(x => x.Date);
         }
     }
 }

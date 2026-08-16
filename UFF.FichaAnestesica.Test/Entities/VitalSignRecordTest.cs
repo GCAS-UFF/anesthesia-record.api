@@ -10,7 +10,7 @@ namespace UFF.FichaAnestesica.Test.Entities
         {
             var command = new VitalSignRecordCommand
             {
-                Timestamp = new DateTime(2025, 6, 1, 14, 30, 0),
+                Date = new DateTime(2025, 6, 1, 14, 30, 0),
                 SystolicBloodPressure = 120,
                 DiastolicBloodPressure = 80,
                 MeanArterialPressure = 93,
@@ -29,7 +29,7 @@ namespace UFF.FichaAnestesica.Test.Entities
 
             var vitalSign = VitalSignRecord.Create(command);
 
-            Assert.Equal(command.Timestamp, vitalSign.Timestamp);
+            Assert.Equal(command.Date, vitalSign.Date);
             Assert.Equal(120, vitalSign.SystolicBloodPressure);
             Assert.Equal(80, vitalSign.DiastolicBloodPressure);
             Assert.Equal(93, vitalSign.MeanArterialPressure);
@@ -51,7 +51,7 @@ namespace UFF.FichaAnestesica.Test.Entities
         {
             var command = new VitalSignRecordCommand
             {
-                Timestamp = new DateTime(2025, 6, 1, 14, 30, 0),
+                Date = new DateTime(2025, 6, 1, 14, 30, 0),
                 SystolicBloodPressure = null,
                 DiastolicBloodPressure = null,
                 HeartRate = null,
@@ -71,7 +71,7 @@ namespace UFF.FichaAnestesica.Test.Entities
         {
             var command = new VitalSignRecordCommand
             {
-                Timestamp = new DateTime(2025, 6, 1, 14, 30, 0),
+                Date = new DateTime(2025, 6, 1, 14, 30, 0),
                 CustomFields = null
             };
 
@@ -86,7 +86,7 @@ namespace UFF.FichaAnestesica.Test.Entities
         {
             var initialCommand = new VitalSignRecordCommand
             {
-                Timestamp = new DateTime(2025, 6, 1, 14, 30, 0),
+                Date = new DateTime(2025, 6, 1, 14, 30, 0),
                 SystolicBloodPressure = 100,
                 DiastolicBloodPressure = 60,
                 HeartRate = 80,
@@ -100,7 +100,7 @@ namespace UFF.FichaAnestesica.Test.Entities
 
             var updateCommand = new VitalSignRecordCommand
             {
-                Timestamp = new DateTime(2025, 6, 1, 15, 0, 0),
+                Date = new DateTime(2025, 6, 1, 15, 0, 0),
                 SystolicBloodPressure = 130,
                 DiastolicBloodPressure = 85,
                 MeanArterialPressure = 100,
@@ -119,7 +119,7 @@ namespace UFF.FichaAnestesica.Test.Entities
 
             vitalSign.Update(updateCommand);
 
-            Assert.Equal(updateCommand.Timestamp, vitalSign.Timestamp);
+            Assert.Equal(updateCommand.Date, vitalSign.Date);
             Assert.Equal(130, vitalSign.SystolicBloodPressure);
             Assert.Equal(85, vitalSign.DiastolicBloodPressure);
             Assert.Equal(100, vitalSign.MeanArterialPressure);
@@ -140,7 +140,7 @@ namespace UFF.FichaAnestesica.Test.Entities
         {
             var initialCommand = new VitalSignRecordCommand
             {
-                Timestamp = new DateTime(2025, 6, 1, 14, 30, 0),
+                Date = new DateTime(2025, 6, 1, 14, 30, 0),
                 CustomFields = new List<CustomFieldCommand>
                 {
                     new CustomFieldCommand { Name = "Campo", Value = "Valor" }
@@ -150,7 +150,7 @@ namespace UFF.FichaAnestesica.Test.Entities
 
             var updateCommand = new VitalSignRecordCommand
             {
-                Timestamp = new DateTime(2025, 6, 1, 15, 0, 0),
+                Date = new DateTime(2025, 6, 1, 15, 0, 0),
                 CustomFields = new List<CustomFieldCommand>()
             };
 
@@ -165,7 +165,7 @@ namespace UFF.FichaAnestesica.Test.Entities
         {
             var initialCommand = new VitalSignRecordCommand
             {
-                Timestamp = new DateTime(2025, 6, 1, 14, 30, 0),
+                Date = new DateTime(2025, 6, 1, 14, 30, 0),
                 CustomFields = new List<CustomFieldCommand>
                 {
                     new CustomFieldCommand { Name = "Campo", Value = "Valor" }
@@ -175,7 +175,7 @@ namespace UFF.FichaAnestesica.Test.Entities
 
             var updateCommand = new VitalSignRecordCommand
             {
-                Timestamp = new DateTime(2025, 6, 1, 15, 0, 0),
+                Date = new DateTime(2025, 6, 1, 15, 0, 0),
                 CustomFields = null
             };
 

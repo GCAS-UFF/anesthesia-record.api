@@ -6,7 +6,8 @@ namespace UFF.FichaAnestesica.Domain.Response
     {
         public int Id { get; set; }
 
-        public DateTime Timestamp { get; set; }
+        public TimeSpan Time { get; set; }
+        public DateTime Date { get; set; }
 
         public int DrugId { get; set; }
 
@@ -23,7 +24,7 @@ namespace UFF.FichaAnestesica.Domain.Response
             return new AdministeredAgentResponse
             {
                 Id = entity.Id,
-                Timestamp = entity.Timestamp,
+                Time = entity.Time,
                 DrugId = entity.DrugId,
                 DrugName = entity.Drug?.Description ?? string.Empty,
                 Dose = entity.Dose,

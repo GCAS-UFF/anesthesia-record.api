@@ -30,7 +30,8 @@ namespace UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord
 
     public class VitalSignRecordCommand
     {
-        public DateTime Timestamp { get; set; }
+        public TimeSpan Time { get; set; }
+        public DateTime Date { get; set; }
 
         public int? SystolicBloodPressure { get; set; }
         public int? DiastolicBloodPressure { get; set; }
@@ -53,35 +54,36 @@ namespace UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord
 
     public class AdministeredAgentCommand
     {
-        public DateTime Timestamp { get; set; }
+        public TimeSpan Time { get; set; }
+        public DateTime Date { get; set; }
         public decimal Dose { get; set; }
-        public string Unit { get; set; } = string.Empty;
+        public MedicationUnitEnum Unit { get; set; }
         public AdministrationRouteEnum Route { get; set; }
-        public string Presentation { get; set; } = string.Empty;
         public int DrugId { get; set; }
     }
 
     public class ClinicalEventCommand
     {
-        public DateTime Timestamp { get; set; }
+        public TimeSpan Time { get; set; }
+        public DateTime Date { get; set; }
         public ClinicalEventTypeEnum EventType { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public string? Observations { get; set; }
-        public string Description { get; set; } = string.Empty;
+        public string Observations { get; set; }
     }
 
     public class PatientPositionCommand
     {
-        public DateTime Timestamp { get; set; }
-        public string Position { get; set; } = string.Empty;
+        public TimeSpan Time { get; set; }
+        public DateTime Date { get; set; }
+        public SurgicalPositionEnum Position { get; set; }
     }
 
     public class FluidBalanceCommand
     {
-        public DateTime Timestamp { get; set; }
+        public TimeSpan Time { get; set; }
+        public DateTime Date { get; set; }
         public FluidCategoryEnum Category { get; set; }
-        public string Description { get; set; } = string.Empty;
-        public int VolumeMl { get; set; }
+        public string Details { get; set; } = string.Empty;
+        public decimal VolumeMl { get; set; }
         public FluidBalanceTypeEnum Type { get; set; }
     }
 }
