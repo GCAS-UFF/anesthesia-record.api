@@ -10,6 +10,8 @@ namespace UFF.FichaAnestesica.Domain.Entities
         public string Name { get; protected set; }
         public string Registration { get; protected set; }
         public SectorEnum? Sector { get; protected set; }
+        public bool IsAdmin { get; protected set; }
+        public string Password {get; protected set;}
         public string Login { get; protected set; }
         public string Email { get; protected set; }
         public bool CanLogIn { get; protected set; }
@@ -52,6 +54,11 @@ namespace UFF.FichaAnestesica.Domain.Entities
         {
             Status = UserStatusEnum.Disabled;
             LastSyncAt = DateTime.UtcNow;
+        }
+
+        public void RegisterLogin()
+        {
+            LastLoginAt = DateTime.UtcNow;
         }
     }
 }

@@ -1,6 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Net.Http.Json;
-using UFF.FichaAnestesica.Domain.Dto;
 using UFF.FichaAnestesica.Domain.Entities;
 using UFF.FichaAnestesica.Domain.Repositories;
 using UFF.FichaAnestesica.Infra.Context;
@@ -23,6 +21,6 @@ namespace UFF.FichaAnestesica.Infra.Repositories
             => await _context.Users.FirstOrDefaultAsync(p => p.Id == id);
 
         public async Task<User> GetUserByLoginAsync(string login)
-            => await _context.Users.FirstOrDefaultAsync(p => p.Login.ToLower() == login.ToLower());       
+            => await _context.Users.FirstOrDefaultAsync(p => p.Login.ToLower() == login.ToLower());
     }
 }

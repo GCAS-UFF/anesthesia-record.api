@@ -109,7 +109,7 @@ namespace UFF.FichaAnestesica.Service.Mappers
             return patientsList;
         }
 
-        public static PatientSurgeryResponse MapDetail(PatientDetailDto patient, User? firstAnesthesiologist, User? secondAnesthesiologist, User? surgeon, User? assistant)
+        public static PatientSurgeryResponse MapDetail(PatientDetailDto patient, User? firstAnesthesiologist, User? secondAnesthesiologist, User? surgeon, User? assistant, bool isPreAnesthesiaRecordDone)
         {
             if (patient == null)
                 return null;
@@ -122,18 +122,28 @@ namespace UFF.FichaAnestesica.Service.Mappers
                 MedicalRecordNumber = patient.MedicalRecordNumber,
                 FullName = patient.FullName,
                 BirthDate = patient.BirthDate,
+
+                IsPreAnesthesiaRecordDone = isPreAnesthesiaRecordDone,
+
                 Age = CalculateAge(patient.BirthDate),
                 Gender = patient.Gender,
-                Status = firstAnesthesiologist != null && SurgeryStatusEnumMapping.Parse(patient.Status) != SurgeryStatusEnum.Completed ? SurgeryStatusEnum.InProgress : SurgeryStatusEnumMapping.Parse(patient.Status),
+                Status = firstAnesthesiologist != null &&
+                         SurgeryStatusEnumMapping.Parse(patient.Status) != SurgeryStatusEnum.Completed
+                    ? SurgeryStatusEnum.InProgress
+                    : SurgeryStatusEnumMapping.Parse(patient.Status),
+
                 WeightKg = patient.WeightKg,
                 HeightCm = patient.HeightCm,
                 CurrentLocation = MapLocation(patient.CurrentLocation),
+
                 Allergies = patient.Allergies?
                     .Select(MapAllergy)
                     .ToList() ?? new List<Domain.Response.ListAllergyDto>(),
+
                 Surgeries = patient.Surgeries?
                     .Select(MapSurgery)
                     .ToList() ?? new List<SurgeryResponse>(),
+
                 FirstAnesthesiologist = MapResponsible(firstAnesthesiologist),
                 SecondAnesthesiologist = MapResponsible(secondAnesthesiologist),
                 Surgeon = MapResponsible(surgeon),

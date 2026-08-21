@@ -16,6 +16,7 @@ namespace UFF.FichaAnestesica.Test.Services
         private readonly Mock<IPatientReadOnlyRepository> _hospitalApiRepoMock;
         private readonly Mock<IAnesthesiaRecordRepository> _anesthesiaRepoMock;
         private readonly Mock<IMonitoringRecordRepository> _monitoringRepoMock;
+        private readonly Mock<IPreAnesthesiaRecordRepository> _preAnesthesiaRepoMock;
         private readonly SurgeryService _service;
 
         public SurgeryServiceTest()
@@ -24,14 +25,15 @@ namespace UFF.FichaAnestesica.Test.Services
             _hospitalApiRepoMock = new Mock<IPatientReadOnlyRepository>();
             _anesthesiaRepoMock = new Mock<IAnesthesiaRecordRepository>();
             _monitoringRepoMock = new Mock<IMonitoringRecordRepository>();
+            _preAnesthesiaRepoMock = new Mock<IPreAnesthesiaRecordRepository>();
             _service = new SurgeryService(
                 _userRepoMock.Object,
                 _hospitalApiRepoMock.Object,
                 _anesthesiaRepoMock.Object,
-                _monitoringRepoMock.Object);
+                _monitoringRepoMock.Object,
+                _preAnesthesiaRepoMock.Object);
         }
 
-        // ========== GetPatientsWithSurgeriesAsync ==========
         [Fact]
         public async Task GetPatientsWithSurgeriesAsync_Should_Return_Empty_When_No_Hospital_Data()
         {
@@ -66,7 +68,6 @@ namespace UFF.FichaAnestesica.Test.Services
             Assert.Null(patient.FirstAnesthesiologist);
         }
 
-        // ========== GetPatientAnesthesiaRecordByIdAsync ==========
         [Fact]
         public async Task GetPatientAnesthesiaRecordByIdAsync_Should_Return_Null_When_Patient_Not_Found()
         {
@@ -100,7 +101,6 @@ namespace UFF.FichaAnestesica.Test.Services
             Assert.True(result.Valid);
         }
 
-        // ========== AssumePatientAsync ==========
         [Fact]
         public async Task AssumePatientAsync_Should_Throw_When_Patient_Not_Found()
         {

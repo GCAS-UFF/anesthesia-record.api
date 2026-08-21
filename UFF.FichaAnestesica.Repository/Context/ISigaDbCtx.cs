@@ -22,6 +22,11 @@ namespace UFF.FichaAnestesica.Infra.Context
         public DbSet<AnesthesiaRecordPunctureLevel> AnesthesiaRecordPunctureLevels { get; }
         public DbSet<AnesthesiaRecordOxygenSupplementation> AnesthesiaRecordOxygenSupplementations { get; }
         public DbSet<AnesthesiaRecordStimulatedNerve> AnesthesiaRecordStimulatedNerves { get; }
+        public DbSet<PreAnesthesiaSurgery> PreAnesthesiaSurgeries { get; }
+        public DbSet<PreAnesthesiaComorbidity> PreAnesthesiaComorbidities { get; }
+        public DbSet<PreAnesthesiaPhysicalExamArea> PreAnesthesiaPhysicalExamAreas { get; }
+        public DbSet<PreAnesthesiaMedication> PreAnesthesiaMedications { get; }
+        public DbSet<PreAnesthesiaReport> PreAnesthesiaReports { get; }
 
         EntityEntry Entry(object entity);
         int SaveChanges();

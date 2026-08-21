@@ -27,6 +27,11 @@ namespace UFF.FichaAnestesica.Infra.Context
         public DbSet<AnesthesiaRecordPunctureLevel> AnesthesiaRecordPunctureLevels { get; set; }
         public DbSet<AnesthesiaRecordOxygenSupplementation> AnesthesiaRecordOxygenSupplementations { get; set; }
         public DbSet<AnesthesiaRecordStimulatedNerve> AnesthesiaRecordStimulatedNerves { get; set; }
+        public DbSet<PreAnesthesiaSurgery> PreAnesthesiaSurgeries { get; set; }
+        public DbSet<PreAnesthesiaComorbidity> PreAnesthesiaComorbidities { get; set; }
+        public DbSet<PreAnesthesiaPhysicalExamArea> PreAnesthesiaPhysicalExamAreas { get; set; }
+        public DbSet<PreAnesthesiaMedication> PreAnesthesiaMedications { get; set; }
+        public DbSet<PreAnesthesiaReport> PreAnesthesiaReports { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

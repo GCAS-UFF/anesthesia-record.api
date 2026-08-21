@@ -4,7 +4,7 @@ using UFF.FichaAnestesica.Domain.Entities;
 
 namespace UFF.FichaAnestesica.Infra.EntityConfig
 {
-    public class PreAnesthesiaRecordCponfig : IEntityTypeConfiguration<PreAnesthesiaRecord>
+    public class PreAnesthesiaRecordConfig : IEntityTypeConfiguration<PreAnesthesiaRecord>
     {
         public void Configure(EntityTypeBuilder<PreAnesthesiaRecord> builder)
         {
@@ -14,279 +14,167 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
 
             builder.Property(x => x.Id)
                 .HasColumnName("id")
+                .UseIdentityColumn()
                 .IsRequired();
 
-            builder.Property(x => x.PatientIdentifiedBeforeInduction)
-                .HasColumnName("patient_identified_before_induction")
+            builder.Property(x => x.AnesthesiaRecordId)
+                .HasColumnName("anesthesia_record_id")
                 .IsRequired();
 
-            builder.Property(x => x.AnestheticConsentSigned)
-                .HasColumnName("anesthetic_consent_signed")
-                .IsRequired();
-
-            builder.Property(x => x.AnesthesiaEquipmentChecked)
-                .HasColumnName("anesthesia_equipment_checked")
-                .IsRequired();
-
-            builder.Property(x => x.SafetyObservations)
-                .HasColumnName("safety_observations")
-                .HasColumnType("text");
-
-            builder.Property(x => x.PreAnestheticMedication)
-                .HasColumnName("pre_anesthetic_medication")
-                .IsRequired();
-
-            builder.Property(x => x.ProphylacticAntibioticUsed)
-                .HasColumnName("prophylactic_antibiotic_used")
-                .IsRequired();
-
-            builder.Property(x => x.BloodPressure)
-                .HasColumnName("blood_pressure")
-                .HasColumnType("varchar(20)")
-                .IsRequired();
-
-            builder.Property(x => x.RespiratoryRate)
-                .HasColumnName("respiratory_rate")
-                .IsRequired();
-
-            builder.Property(x => x.Temperature)
-                .HasColumnName("temperature")
-                .HasColumnType("numeric(5,2)")
-                .IsRequired();
-
-            builder.Property(x => x.OxygenSaturation)
-                .HasColumnName("oxygen_saturation")
-                .IsRequired();
-
-            builder.Property(x => x.WeightKg)
-                .HasColumnName("weight_kg")
-                .HasColumnType("numeric(6,2)")
-                .IsRequired();
-
-            builder.Property(x => x.AsaClassification)
-                .HasColumnName("asa_classification")
-                .HasConversion<int>()
-                .IsRequired();
-
-            builder.Property(x => x.RoomEntryTime)
-                .HasColumnName("room_entry_time")
-                .HasColumnType("time")
-                .IsRequired();
-
-            builder.Property(x => x.AnesthesiaStartTime)
-                .HasColumnName("anesthesia_start_time")
-                .HasColumnType("time")
-                .IsRequired();
-
-            builder.Property(x => x.SurgeryEndTime)
-                .HasColumnName("surgery_end_time")
-                .HasColumnType("time")
-                .IsRequired();
-
-            builder.Property(x => x.AnesthesiaEndTime)
-                .HasColumnName("anesthesia_end_time")
-                .HasColumnType("time")
-                .IsRequired();
-
-            builder.Property(x => x.Surgeon)
-                .HasColumnName("surgeon")
-                .HasColumnType("varchar(150)")
-                .IsRequired();
-
-            builder.Property(x => x.Assistant)
-                .HasColumnName("assistant")
-                .HasColumnType("varchar(150)");
-
-            builder.Property(x => x.PreOperativeDiagnosis)
-                .HasColumnName("pre_operative_diagnosis")
-                .HasColumnType("text")
-                .IsRequired();
-
-            builder.Property(x => x.SurgicalPosition)
-                .HasColumnName("surgical_position")
-                .HasConversion<int>()
-                .IsRequired();
-
-            builder.Property(x => x.UsesCushions)
-                .HasColumnName("uses_cushions")
-                .IsRequired();
-
-            builder.Property(x => x.VenousAccessType)
-                .HasColumnName("venous_access_type")
-                .HasConversion<int>()
-                .IsRequired();
-
-            builder.Property(x => x.VenousAccessLocation)
-                .HasColumnName("venous_access_location")
-                .HasColumnType("varchar(100)")
-                .IsRequired();
-
-            builder.Property(x => x.DifficultVenousPuncture)
-                .HasColumnName("difficult_venous_puncture")
-                .IsRequired();
-
-            builder.Property(x => x.GeneralAnesthesia)
-                .HasColumnName("general_anesthesia")
-                .IsRequired();
-
-            builder.Property(x => x.RespirationMode)
-                .HasColumnName("respiration_mode")
-                .HasConversion<int>()
-                .IsRequired();
-
-            builder.Property(x => x.ControlledVentilationMode)
-                .HasColumnName("controlled_ventilation_mode")
-                .HasConversion<int>();
-
-            builder.Property(x => x.Co2AbsorberCircuit)
-                .HasColumnName("co2_absorber_circuit")
-                .IsRequired();
-
-            builder.Property(x => x.AirwayDeviceType)
-                .HasColumnName("airway_device_type")
-                .HasConversion<int>();
-
-            builder.Property(x => x.AirwayDeviceNumber)
-                .HasColumnName("airway_device_number")
-                .HasColumnType("varchar(20)");
-
-            builder.Property(x => x.OralTube)
-                .HasColumnName("oral_tube")
-                .IsRequired();
-
-            builder.Property(x => x.NasalTube)
-                .HasColumnName("nasal_tube")
-                .IsRequired();
-
-            builder.Property(x => x.IntubationDifficulty)
-                .HasColumnName("intubation_difficulty")
-                .HasConversion<int>();
-
-            builder.Property(x => x.AirwayType)
-                .HasColumnName("airway_type")
-                .HasConversion<int>();
-
-            builder.Property(x => x.OtherAirwayTypeDescription)
-                .HasColumnName("other_airway_type_description")
-                .HasColumnType("varchar(200)");
-
-            builder.Property(x => x.Laryngoscopy)
-                .HasColumnName("laryngoscopy")
-                .IsRequired();
-
-            builder.Property(x => x.RetrogradeTechnique)
-                .HasColumnName("retrograde_technique")
-                .IsRequired();
-
-            builder.Property(x => x.VideoLaryngoscopy)
-                .HasColumnName("video_laryngoscopy")
-                .IsRequired();
-
-            builder.Property(x => x.Bronchofibroscopy)
-                .HasColumnName("bronchofibroscopy")
-                .IsRequired();
-
-            builder.Property(x => x.Tracheostomy)
-                .HasColumnName("tracheostomy")
-                .IsRequired();
-
-            builder.Property(x => x.OtherAirwayTechnique)
-                .HasColumnName("other_airway_technique")
-                .HasColumnType("varchar(200)");
-
-            builder.Property(x => x.SpinalBlockPerformed)
-                .HasColumnName("spinal_block_performed")
-                .IsRequired();
-
-            builder.Property(x => x.SedationPerformed)
-                .HasColumnName("sedation_performed")
-                .IsRequired();
-
-            builder.Property(x => x.OxygenSupplementation)
-                .HasColumnName("oxygen_supplementation")
-                .IsRequired();
-
-            builder.Property(x => x.PlexusBlockPerformed)
-                .HasColumnName("plexus_block_performed")
-                .IsRequired();
-
-            builder.Property(x => x.SurgeryPerformed)
-                .HasColumnName("surgery_performed")
-                .HasColumnType("text")
-                .IsRequired();
-
-            builder.Property(x => x.PostOperativeDiagnosis)
-                .HasColumnName("post_operative_diagnosis")
-                .HasColumnType("text")
-                .IsRequired();
-
-            builder.Property(x => x.ConsciousnessScore)
-                .HasColumnName("consciousness_score")
-                .IsRequired();
-
-            builder.Property(x => x.ActivityScore)
-                .HasColumnName("activity_score")
-                .IsRequired();
-
-            builder.Property(x => x.CirculationScore)
-                .HasColumnName("circulation_score")
-                .IsRequired();
-
-            builder.Property(x => x.RespirationScore)
-                .HasColumnName("respiration_score")
-                .IsRequired();
-
-            builder.Property(x => x.OxygenSaturationScore)
-                .HasColumnName("oxygen_saturation_score")
-                .IsRequired();
-
-            builder.Property(x => x.TotalAldreteKroulikScore)
-                .HasColumnName("total_aldrete_kroulik_score")
-                .IsRequired();
-
-            builder.Property(x => x.ClinicalDischargeCondition)
-                .HasColumnName("clinical_discharge_condition")
-                .HasConversion<int>()
-                .IsRequired();
-
-            builder.Property(x => x.Destination)
-                .HasColumnName("destination")
-                .HasConversion<int>()
-                .IsRequired();
-
-            builder.Property(x => x.HasPain)
-                .HasColumnName("has_pain")
-                .IsRequired();
-
-            builder.Property(p => p.FirstAnesthesiologistId)
-                .HasColumnName("first_anesthesiologist_id");
-
-            builder.HasOne(x => x.FirstAnesthesiologist)
+            builder.HasOne(x => x.AnesthesiaRecord)
                 .WithMany()
-                .HasForeignKey("first_anesthesiologist_id")
-                .OnDelete(DeleteBehavior.Restrict);
+                .HasForeignKey(x => x.AnesthesiaRecordId)
+                .OnDelete(DeleteBehavior.Cascade)               
+                .HasConstraintName("fk_pre_anesthesia_records_anesthesia_record");
 
-            builder.Property(p => p.SecondAnesthesiologistId)
-                .HasColumnName("second_anesthesiologist_id");
+           
+            builder.HasIndex(x => x.AnesthesiaRecordId).IsUnique();
 
-            builder.HasOne(x => x.SecondAnesthesiologist)
+            #region Procedimento
+            builder.Property(x => x.Laterality).HasColumnName("laterality").HasConversion<int>();
+            builder.Property(x => x.PreOperativeDiagnosis).HasColumnName("pre_operative_diagnosis").HasColumnType("text");
+            builder.Property(x => x.ConsultationDate).HasColumnName("consultation_date").HasColumnType("date");
+            builder.Property(x => x.ProcedureObservation).HasColumnName("procedure_observation").HasColumnType("text");
+            #endregion
+
+            #region Antropometria
+            builder.Property(x => x.WeightKg).HasColumnName("weight_kg").HasColumnType("numeric(6,2)");
+            builder.Property(x => x.HeightCm).HasColumnName("height_cm").HasColumnType("numeric(5,2)");
+            builder.Property(x => x.Bmi).HasColumnName("bmi").HasColumnType("numeric(5,2)");
+            builder.Property(x => x.HeartRate).HasColumnName("heart_rate");
+            builder.Property(x => x.SystolicBloodPressure).HasColumnName("systolic_blood_pressure");
+            builder.Property(x => x.DiastolicBloodPressure).HasColumnName("diastolic_blood_pressure");
+            builder.Property(x => x.Spo2).HasColumnName("spo2");
+            builder.Property(x => x.Temperature).HasColumnName("temperature").HasColumnType("numeric(5,2)");
+            builder.Property(x => x.FastingSolidsHours).HasColumnName("fasting_solids_hours").HasColumnType("numeric(4,1)");
+            builder.Property(x => x.FastingLiquidsHours).HasColumnName("fasting_liquids_hours").HasColumnType("numeric(4,1)");
+            #endregion
+
+            #region Comorbidades
+            builder.Property(x => x.ComorbiditiesOtherDescription).HasColumnName("comorbidities_other_description").HasColumnType("text");
+            builder.Property(x => x.FamilyHistory).HasColumnName("family_history").HasColumnType("text");
+
+            builder.HasMany(x => x.Comorbidities)
+                .WithOne(x => x.PreAnesthesiaRecord)
+                .HasForeignKey(x => x.PreAnesthesiaRecordId)
+                .OnDelete(DeleteBehavior.Cascade);
+            #endregion
+
+            #region Hábitos
+            builder.Property(x => x.IllicitDrugUse).HasColumnName("illicit_drug_use");
+            builder.Property(x => x.DrugTypes).HasColumnName("drug_types").HasColumnType("text[]");
+            builder.Property(x => x.DrugsOtherDescription).HasColumnName("drugs_other_description").HasColumnType("text");
+            builder.Property(x => x.Smoker).HasColumnName("smoker");
+            builder.Property(x => x.SmokingLoad).HasColumnName("smoking_load").HasColumnType("text");
+            builder.Property(x => x.AlcoholUse).HasColumnName("alcohol_use");
+            builder.Property(x => x.AlcoholGramsPerDay).HasColumnName("alcohol_grams_per_day").HasColumnType("text");
+            #endregion
+
+            #region Alergias
+            builder.Property(x => x.HasAllergy).HasColumnName("has_allergy");
+            builder.Property(x => x.AllergySubstances).HasColumnName("allergy_substances").HasColumnType("text[]");
+            builder.Property(x => x.AllergyOtherDescription).HasColumnName("allergy_other_description").HasColumnType("text");
+            builder.Property(x => x.AllergyReactionType).HasColumnName("allergy_reaction_type").HasColumnType("text");
+            builder.Property(x => x.AnestheticHistory).HasColumnName("anesthetic_history").HasColumnType("text");
+            #endregion
+
+            #region Medicações em uso
+            builder.Property(x => x.UsesMedication).HasColumnName("uses_medication");
+
+            builder.HasMany(x => x.Medications)
+                .WithOne(x => x.PreAnesthesiaRecord)
+                .HasForeignKey(x => x.PreAnesthesiaRecordId)
+                .OnDelete(DeleteBehavior.Cascade);
+            #endregion
+
+            #region Exame físico / via aérea
+            builder.HasMany(x => x.PhysicalExamAreas)
+                .WithOne(x => x.PreAnesthesiaRecord)
+                .HasForeignKey(x => x.PreAnesthesiaRecordId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Property(x => x.AirwayMucosa).HasColumnName("airway_mucosa").HasColumnType("text[]");
+            builder.Property(x => x.Dentition).HasColumnName("dentition").HasConversion<int>();
+            builder.Property(x => x.InterIncisorDistance).HasColumnName("inter_incisor_distance").HasConversion<int>();
+            builder.Property(x => x.UpperIncisorLength).HasColumnName("upper_incisor_length").HasConversion<int>();
+            builder.Property(x => x.MallampatiClass).HasColumnName("mallampati_class");
+            builder.Property(x => x.IncisorRelation).HasColumnName("incisor_relation").HasConversion<int>();
+            builder.Property(x => x.Palate).HasColumnName("palate").HasConversion<int>();
+            builder.Property(x => x.MandibleProtrusion).HasColumnName("mandible_protrusion").HasConversion<int>();
+            builder.Property(x => x.NeckLength).HasColumnName("neck_length").HasConversion<int>();
+            builder.Property(x => x.NeckWidth).HasColumnName("neck_width").HasConversion<int>();
+            builder.Property(x => x.SternomentalDistance).HasColumnName("sternomental_distance").HasConversion<int>();
+            builder.Property(x => x.ThyromentalDistance).HasColumnName("thyromental_distance").HasConversion<int>();
+            builder.Property(x => x.NeckFlexion).HasColumnName("neck_flexion").HasConversion<int>();
+            builder.Property(x => x.NeckExtension).HasColumnName("neck_extension").HasConversion<int>();
+            builder.Property(x => x.MandibularSpaceCompliance).HasColumnName("mandibular_space_compliance").HasConversion<int>();
+            builder.Property(x => x.AirwayObservations).HasColumnName("airway_observations").HasColumnType("text");
+            builder.Property(x => x.ThoracicCageAbnormality).HasColumnName("thoracic_cage_abnormality");
+            builder.Property(x => x.ThoracicCageAbnormalityDescription).HasColumnName("thoracic_cage_abnormality_description").HasColumnType("text");
+            builder.Property(x => x.DifficultIntubationPrediction).HasColumnName("difficult_intubation_prediction");
+            #endregion
+
+            #region Exames laboratoriais
+            builder.Property(x => x.Hemoglobin).HasColumnName("hemoglobin").HasColumnType("numeric(10,2)");
+            builder.Property(x => x.Hematocrit).HasColumnName("hematocrit").HasColumnType("numeric(10,2)");
+            builder.Property(x => x.Leukocytes).HasColumnName("leukocytes").HasColumnType("numeric(10,2)");
+            builder.Property(x => x.Platelets).HasColumnName("platelets").HasColumnType("numeric(10,2)");
+            builder.Property(x => x.TapInr).HasColumnName("tap_inr").HasColumnType("numeric(10,2)");
+            builder.Property(x => x.Aptt).HasColumnName("aptt").HasColumnType("numeric(10,2)");
+            builder.Property(x => x.Glucose).HasColumnName("glucose").HasColumnType("numeric(10,2)");
+            builder.Property(x => x.Urea).HasColumnName("urea").HasColumnType("numeric(10,2)");
+            builder.Property(x => x.Creatinine).HasColumnName("creatinine").HasColumnType("numeric(10,2)");
+            builder.Property(x => x.Sodium).HasColumnName("sodium").HasColumnType("numeric(10,2)");
+            builder.Property(x => x.Potassium).HasColumnName("potassium").HasColumnType("numeric(10,2)");
+            builder.Property(x => x.Tp).HasColumnName("tp").HasColumnType("text");
+            builder.Property(x => x.Urinalysis).HasColumnName("urinalysis").HasColumnType("text");
+            builder.Property(x => x.LiverFunctionTests).HasColumnName("liver_function_tests").HasColumnType("text");
+            builder.Property(x => x.PregnancyTest).HasColumnName("pregnancy_test").HasColumnType("text");
+            #endregion
+
+            #region Exames de imagem
+            builder.Property(x => x.Ecg).HasColumnName("ecg").HasColumnType("text");
+            builder.Property(x => x.ChestXRay).HasColumnName("chest_x_ray").HasColumnType("text");
+            builder.Property(x => x.Echocardiogram).HasColumnName("echocardiogram").HasColumnType("text");
+            builder.Property(x => x.PulmonaryFunctionTest).HasColumnName("pulmonary_function_test").HasColumnType("text");
+            builder.Property(x => x.OtherImaging).HasColumnName("other_imaging").HasColumnType("text");
+            #endregion
+
+            builder.HasMany(x => x.Reports)
+                .WithOne(x => x.PreAnesthesiaRecord)
+                .HasForeignKey(x => x.PreAnesthesiaRecordId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            #region Conduta
+            builder.Property(x => x.AsaClassification).HasColumnName("asa_classification").HasConversion<int>();
+            builder.Property(x => x.IsEmergency).HasColumnName("is_emergency").IsRequired();
+            builder.Property(x => x.NotCleared).HasColumnName("not_cleared").IsRequired();
+            builder.Property(x => x.NotClearedReason).HasColumnName("not_cleared_reason").HasColumnType("text");
+            builder.Property(x => x.ConductActions).HasColumnName("conduct_actions").HasColumnType("text[]");
+            builder.Property(x => x.ConductNotes).HasColumnName("conduct_notes").HasColumnType("text");
+            #endregion
+
+            #region Assinatura
+            builder.Property(x => x.SignedByProfessionalId).HasColumnName("signed_by_professional_id");
+
+            builder.HasOne(x => x.SignedByProfessional)
                 .WithMany()
-                .HasForeignKey("second_anesthesiologist_id")
-                .OnDelete(DeleteBehavior.Restrict);
+                .HasForeignKey(x => x.SignedByProfessionalId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("fk_pre_anesthesia_records_signed_by_professional");
 
-            builder.Property(x => x.RecordDate)
-                .HasColumnName("record_date")
-                .HasColumnType("date")
-                .IsRequired();
+            builder.Property(x => x.SignedByName).HasColumnName("signed_by_name").HasColumnType("text");
+            builder.Property(x => x.SignedAt).HasColumnName("signed_at").HasColumnType("timestamptz");
+            #endregion
 
             builder.Property(x => x.CreatedAt)
                 .HasColumnName("created_at")
-                .HasColumnType("timestamptz");
+                .HasColumnType("timestamptz")
+                .IsRequired();
 
             builder.Property(x => x.LastUpdate)
                 .HasColumnName("last_update")
                 .HasColumnType("timestamptz");
-        
         }
     }
 }

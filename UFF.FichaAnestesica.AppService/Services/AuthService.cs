@@ -3,7 +3,6 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using UFF.FichaAnestesica.CrossCutting.Extensions;
 using UFF.FichaAnestesica.Domain.Commands;
 using UFF.FichaAnestesica.Domain.Entities;
 using UFF.FichaAnestesica.Domain.Enums;
@@ -34,31 +33,50 @@ namespace UFF.FichaAnestesica.Service.Services
             if (string.IsNullOrWhiteSpace(login) || string.IsNullOrWhiteSpace(password))
                 return CommandResult.Fail("Usuário e senha precisam ser preenchidos");
 
-            var hospitalUser = await _authRepository.LoginAGHU(login, password);
-
-            if (hospitalUser is null)
-                return CommandResult.Fail("Usuário ou senha inválidos");
-
             var user = await _userRepository.GetUserByLoginAsync(login);
 
-            if (user is null)
+            if (login.Equals("admin", StringComparison.OrdinalIgnoreCase))
             {
-                user = User.Create(
-                    externalId: hospitalUser.Id,
-                    name: hospitalUser.Name,
-                    email: hospitalUser.Email,
-                    login: hospitalUser.Login,
-                    registration: hospitalUser.Registration,
-                    medicalSpecialty: MedicalSpecialtyExtensions.ParseToEnum(hospitalUser.MedicalSpecialty),
-                    sector: SectorExtensions.ParseToEnum(hospitalUser.Sector)
-                );
+                if (user is null || !user.IsAdmin)
+                    return CommandResult.Fail("Usuário ou senha inválidos");
 
-                await _userRepository.AddAsync(user);
-                await _userRepository.SaveChangesAsync();
+                if (user.Password != password)
+                    return CommandResult.Fail("Usuário ou senha inválidos");
+
+                if (!user.CanLogIn || user.Status != UserStatusEnum.Enabled)
+                    return CommandResult.Fail("Usuário sem permissão");
+            }
+            else
+            {
+                var hospitalUser = await _authRepository.LoginAGHU(login, password);
+
+                if (hospitalUser is null)
+                    return CommandResult.Fail("Usuário ou senha inválidos");
+
+                if (user is null)
+                {
+                    user = User.Create(
+                        externalId: hospitalUser.Id,
+                        name: hospitalUser.Name,
+                        email: hospitalUser.Email,
+                        login: hospitalUser.Login,
+                        registration: hospitalUser.Registration,
+                        medicalSpecialty: MedicalSpecialtyExtensions.ParseToEnum(
+                            hospitalUser.MedicalSpecialty
+                        ),
+                        sector: SectorExtensions.ParseToEnum(
+                            hospitalUser.Sector
+                        )
+                    );
+
+                    await _userRepository.AddAsync(user);
+                    await _userRepository.SaveChangesAsync();
+                }
             }
 
-            if (user.Status != UserStatusEnum.Enabled)
-                return CommandResult.Fail("Usuário sem permissão");
+            user.RegisterLogin();
+
+            await _userRepository.SaveChangesAsync();
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
@@ -68,8 +86,9 @@ namespace UFF.FichaAnestesica.Service.Services
                 new Claim("user_id", user.Id.ToString()),
                 new Claim("login", user.Login),
                 new Claim("name", user.Name),
-                new Claim("email", user.Email ?? "")
-            };
+                new Claim("email", user.Email ?? ""),
+                new Claim("is_admin", user.IsAdmin.ToString().ToLower())
+    };
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -93,8 +112,9 @@ namespace UFF.FichaAnestesica.Service.Services
                     nome = user.Name,
                     email = user.Email,
                     login = user.Login,
-                    role = user.MedicalSpecialty.GetDescription(),
-                    sector = hospitalUser.Sector
+                    isAdmin = user.IsAdmin,
+                    role = user.IsAdmin ? null : user.MedicalSpecialty.GetDescription(),
+                    sector = user.IsAdmin ? SectorEnum.Admin.ToString() : user.Sector?.ToString()
                 }
             });
         }

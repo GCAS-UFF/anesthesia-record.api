@@ -18,13 +18,15 @@ namespace UFF.FichaAnestesica.Service.Services
         private readonly IPatientReadOnlyRepository _hospitalApiRepository;
         private readonly IAnesthesiaRecordRepository _anesthesiaRecordRepository;
         private readonly IMonitoringRecordRepository _monitoringRecordRepository;
+        private readonly IPreAnesthesiaRecordRepository _preAnesthesiaRecordRepository;
 
-        public SurgeryService(IUserRepository userRepository, IPatientReadOnlyRepository hospitalApiRepository, IAnesthesiaRecordRepository anesthesiaRecordRepository, IMonitoringRecordRepository monitoringRecordRepository)
+        public SurgeryService(IUserRepository userRepository, IPatientReadOnlyRepository hospitalApiRepository, IAnesthesiaRecordRepository anesthesiaRecordRepository, IMonitoringRecordRepository monitoringRecordRepository, IPreAnesthesiaRecordRepository preAnesthesiaRecordRepository)
         {
             _userRepository = userRepository;
             _hospitalApiRepository = hospitalApiRepository;
             _anesthesiaRecordRepository = anesthesiaRecordRepository;
             _monitoringRecordRepository = monitoringRecordRepository;
+            _preAnesthesiaRecordRepository = preAnesthesiaRecordRepository;
         }
 
         public async Task<CommandResult> GetPatientsWithSurgeriesAsync(int doctorId, DateTime? date, string term, SurgeryStatusEnum? status, int page = 1, int size = 10)
@@ -47,12 +49,18 @@ namespace UFF.FichaAnestesica.Service.Services
 
             var patientIds = hospitalData.Data.Select(x => x.PatientId).ToArray();
             var anesthesiaRecords = await _anesthesiaRecordRepository.GetByIdsAsync(patientIds);
+            var anesthesiaRecordIds = anesthesiaRecords.Select(x => x.Id).ToArray();
+            var completedPreAnesthesiaRecordIds = _preAnesthesiaRecordRepository.GetCompletedAnesthesiaRecordIds(anesthesiaRecordIds);
+
+ 
+
             var recordsBySurgeryId = anesthesiaRecords.GroupBy(x => x.Id).ToDictionary(x => x.Key, x => x.First());
 
             SetSurgeryStatus(hospitalData, recordsBySurgeryId);
 
             await AssociateSurgeryProcedures(hospitalData, recordsBySurgeryId);
             await _anesthesiaRecordRepository.SaveChangesAsync();
+
 
             var responseData = PatientResponseMapper.Map(hospitalData.Data, recordsBySurgeryId);
             var recordsByPatientId = anesthesiaRecords.GroupBy(x => x.Id).ToDictionary(x => x.Key, x => x.First());
@@ -61,6 +69,8 @@ namespace UFF.FichaAnestesica.Service.Services
 
             foreach (var patient in responseData)
             {
+                patient.IsPreAnesthesiaRecordDone = completedPreAnesthesiaRecordIds.Contains(patient.SurgeryId);
+
                 if (!recordsByPatientId.TryGetValue(patient.SurgeryId, out var record))
                 {
                     patient.FirstAnesthesiologist = null;
@@ -277,14 +287,20 @@ namespace UFF.FichaAnestesica.Service.Services
 
         public async Task<CommandResult> GetPatientAnesthesiaRecordByIdAsync(string patientId, int surgeryId)
         {
-            var patient = await _hospitalApiRepository.GetFromHospitalByPatientIdAndSurgeryIdAsync(patientId, surgeryId);
+            var patient = await _hospitalApiRepository
+                .GetFromHospitalByPatientIdAndSurgeryIdAsync(patientId, surgeryId);
 
             if (patient == null)
                 return null;
 
             var anesthesiaRecord = await _anesthesiaRecordRepository.GetByIdAsync(surgeryId);
 
-            return CommandResult.Success(PatientResponseMapper.MapDetail(patient, anesthesiaRecord?.FirstAnesthesiologist, anesthesiaRecord?.SecondAnesthesiologist, anesthesiaRecord?.Surgeon, anesthesiaRecord?.Assistant));
+            var isPreAnesthesiaRecordDone =
+                await _preAnesthesiaRecordRepository
+                    .ExistsByAnesthesiaRecordIdAsync(surgeryId);
+
+            return CommandResult.Success(PatientResponseMapper.MapDetail(patient, anesthesiaRecord?.FirstAnesthesiologist, anesthesiaRecord?.SecondAnesthesiologist,
+                 anesthesiaRecord?.Surgeon, anesthesiaRecord?.Assistant, isPreAnesthesiaRecordDone));
         }
 
         public async Task<CommandResult> AssumePatientAsync(string patientId, int surgeryId, int? responsibleAnesthesiologistId)
@@ -331,7 +347,7 @@ namespace UFF.FichaAnestesica.Service.Services
 
                 await _anesthesiaRecordRepository.SaveChangesAsync();
 
-                return CommandResult.Success(PatientResponseMapper.MapDetail(patient, responsibleAnesthesiologist, null, null, null));
+                return CommandResult.Success(PatientResponseMapper.MapDetail(patient, responsibleAnesthesiologist, null, null, null, true));
             }
             catch (Exception ex)
             {

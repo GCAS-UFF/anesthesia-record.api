@@ -44,6 +44,15 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .HasColumnType("varchar(150)")
                 .IsRequired();
 
+            builder.Property(u => u.Password)
+                .HasColumnName("password")
+                .HasColumnType("varchar(150)")
+                .IsRequired();
+
+            builder.Property(u => u.IsAdmin)
+               .HasColumnName("is_admin")
+               .HasDefaultValue(false);
+
             builder.Property(u => u.CanLogIn)
                 .HasColumnName("can_login")
                 .HasDefaultValue(false);
