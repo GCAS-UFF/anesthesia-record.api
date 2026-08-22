@@ -16,10 +16,10 @@ namespace UFF.FichaAnestesica.Api.Controllers
         }
 
         /// <summary>
-        /// Obtém um registro de monitorização por ID
+        /// Obtï¿½m um registro de monitorizaï¿½ï¿½o por ID
         /// </summary>
-        /// <param name="id">ID do registro de monitorização</param>
-        /// <returns>Registro de monitorização encontrado</returns>
+        /// <param name="id">ID do registro de monitorizaï¿½ï¿½o</param>
+        /// <returns>Registro de monitorizaï¿½ï¿½o encontrado</returns>
         [HttpGet("{id}")]
         // [Authorize]
         public async Task<IActionResult> GetById([FromRoute] int id)
@@ -33,9 +33,9 @@ namespace UFF.FichaAnestesica.Api.Controllers
         }
 
         /// <summary>
-        /// Cria um novo registro de monitorização
+        /// Cria um novo registro de monitorizaï¿½ï¿½o
         /// </summary>
-        /// <param name="command">Dados do registro de monitorização</param>
+        /// <param name="command">Dados do registro de monitorizaï¿½ï¿½o</param>
         /// <returns>Registro criado</returns>
         [HttpPost]
         // [Authorize]
@@ -50,7 +50,7 @@ namespace UFF.FichaAnestesica.Api.Controllers
         }
 
         /// <summary>
-        /// Atualiza um registro de monitorização existente
+        /// Atualiza um registro de monitorizaï¿½ï¿½o existente
         /// </summary>
         /// <param name="id">ID do registro a ser atualizado</param>
         /// <param name="command">Dados atualizados</param>
@@ -78,9 +78,9 @@ namespace UFF.FichaAnestesica.Api.Controllers
         /// <returns>Registro atualizado</returns>
         [HttpPatch("{id}")]
         // [Authorize]
-        public async Task<IActionResult> FinalizePatientAsync([FromRoute] int id)
+        public async Task<IActionResult> FinalizePatientAsync([FromRoute] int id, [FromBody] MonitoringRecordCommand? command)
         {
-            var result = await _monitoringRecordService.FinalizePatientAsync(id);
+            var result = await _monitoringRecordService.FinalizePatientAsync(id, command);
 
             if (!result.Valid)
                 return BadRequest(result);

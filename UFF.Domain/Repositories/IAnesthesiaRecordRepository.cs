@@ -1,4 +1,5 @@
 ﻿using UFF.FichaAnestesica.Domain.Entities;
+using UFF.FichaAnestesica.Domain.Enums;
 
 namespace UFF.FichaAnestesica.Domain.Repositories
 {
@@ -8,6 +9,7 @@ namespace UFF.FichaAnestesica.Domain.Repositories
         Task<List<AnesthesiaRecord>> GetByIdsAsync(IEnumerable<string> ids);
         Task<AnesthesiaRecord> GetByExternalPatientIdAsync(string id);
         Task<IEnumerable<AnesthesiaRecord>> GetByDoctorAndDateAsync(int doctorId, DateTime? date);
+        Task<IEnumerable<AnesthesiaRecord>> GetByStatusAndDateAsync(SurgeryStatusEnum status, DateTime? date);
         Task<bool> CanAssumePatientsAsync(int id);
         Task RemoveProceduresAsync(int anesthesiaRecordId);
     }

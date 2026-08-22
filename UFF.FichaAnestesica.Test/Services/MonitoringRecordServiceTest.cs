@@ -163,35 +163,34 @@ namespace UFF.FichaAnestesica.Test.Services
             Assert.Contains("Erro de atualização", result.Message);
         }
 
-        // ========== FinalizePatientAsync ==========
-
         [Fact]
-        public async Task FinalizePatientAsync_Should_Set_Status_Completed_And_Save()
+        public async Task FinalizePatientAsync_Should_Set_Only_Monitoring_Status_Completed_And_Save()
         {
             var anesthesiaRecord = AnesthesiaRecord.Create(new AnesthesiaRecordCommand(), DateTime.MinValue);
             var monitoringRecord = CreateBaseRecord(60, 13);
             monitoringRecord.SetAnesthesiaRecord(anesthesiaRecord);
 
-            _monitoringRepoMock.Setup(r => r.GetByIdAsync(60))
+            _monitoringRepoMock.Setup(r => r.GetCompleteByIdAsync(60))
                                .ReturnsAsync(monitoringRecord);
-            _anesthesiaRepoMock.Setup(r => r.SaveChangesAsync());
+            _monitoringRepoMock.Setup(r => r.SaveChangesAsync());
 
-            var result = await _service.FinalizePatientAsync(60);
+            var result = await _service.FinalizePatientAsync(60, null);
 
             Assert.True(result.Valid);
             Assert.Equal(SurgeryStatusEnum.Completed, monitoringRecord.Status);
-            Assert.Equal(SurgeryStatusEnum.Completed, anesthesiaRecord.Status);
+            // Finalizar o MONITORAMENTO não pode finalizar a FICHA anestésica.
+            Assert.NotEqual(SurgeryStatusEnum.Completed, anesthesiaRecord.Status);
             _monitoringRepoMock.Verify(r => r.Update(monitoringRecord), Times.Once);
-            _anesthesiaRepoMock.Verify(r => r.SaveChangesAsync(), Times.Once);
+            _monitoringRepoMock.Verify(r => r.SaveChangesAsync(), Times.Once);
         }
 
         [Fact]
         public async Task FinalizePatientAsync_Should_Return_Fail_When_Record_Not_Found()
         {
-            _monitoringRepoMock.Setup(r => r.GetByIdAsync(99))
+            _monitoringRepoMock.Setup(r => r.GetCompleteByIdAsync(99))
                                .ReturnsAsync((MonitoringRecord?)null);
 
-            var result = await _service.FinalizePatientAsync(99);
+            var result = await _service.FinalizePatientAsync(99, null);
 
             Assert.False(result.Valid);
             Assert.Null(result.Data);
@@ -204,12 +203,12 @@ namespace UFF.FichaAnestesica.Test.Services
             var anesthesiaRecord = AnesthesiaRecord.Create(new AnesthesiaRecordCommand(), DateTime.MinValue);
             monitoringRecord.SetAnesthesiaRecord(anesthesiaRecord);
 
-            _monitoringRepoMock.Setup(r => r.GetByIdAsync(70))
+            _monitoringRepoMock.Setup(r => r.GetCompleteByIdAsync(70))
                                .ReturnsAsync(monitoringRecord);
-            _anesthesiaRepoMock.Setup(r => r.SaveChangesAsync())
+            _monitoringRepoMock.Setup(r => r.SaveChangesAsync())
                                .ThrowsAsync(new Exception("Falha ao salvar"));
 
-            var result = await _service.FinalizePatientAsync(70);
+            var result = await _service.FinalizePatientAsync(70, null);
 
             Assert.False(result.Valid);
             Assert.Contains("Falha ao salvar", result.Message);

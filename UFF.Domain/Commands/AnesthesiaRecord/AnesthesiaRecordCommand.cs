@@ -9,6 +9,7 @@ namespace UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord
         public string PatientId { get; set; } = default!;
         public DateTime SurgeryDate { get; set; }
         public SurgeryStatusEnum Status { get; set; }
+        public bool Finalize { get; set; }
 
         #region Dor
         public bool? DorUsouENV { get; set; }

@@ -34,7 +34,19 @@ namespace UFF.FichaAnestesica.Service.Services
             if (date.HasValue)
                 date = DateTime.SpecifyKind(date.Value, DateTimeKind.Utc);
 
-            var hospitalData = await _hospitalApiRepository.GetPatientsFromHospitalAsync(date, term, status, page, size);
+            PagedResponse<PatientDetailDto> hospitalData;
+
+            if (status == SurgeryStatusEnum.Completed)
+            {
+                var completedRecords = await _anesthesiaRecordRepository.GetByStatusAndDateAsync(SurgeryStatusEnum.Completed, date);
+                var completedSurgeryIds = completedRecords.Select(x => x.Id).Distinct().ToList();
+
+                hospitalData = await _hospitalApiRepository.GetMyPatientsFromHospitalAsync(completedSurgeryIds, term, page, size);
+            }
+            else
+            {
+                hospitalData = await _hospitalApiRepository.GetPatientsFromHospitalAsync(date, term, status, page, size);
+            }
 
             if (hospitalData.Data == null || !hospitalData.Data.Any())
             {
@@ -51,8 +63,6 @@ namespace UFF.FichaAnestesica.Service.Services
             var anesthesiaRecords = await _anesthesiaRecordRepository.GetByIdsAsync(patientIds);
             var anesthesiaRecordIds = anesthesiaRecords.Select(x => x.Id).ToArray();
             var completedPreAnesthesiaRecordIds = _preAnesthesiaRecordRepository.GetCompletedAnesthesiaRecordIds(anesthesiaRecordIds);
-
- 
 
             var recordsBySurgeryId = anesthesiaRecords.GroupBy(x => x.Id).ToDictionary(x => x.Key, x => x.First());
 

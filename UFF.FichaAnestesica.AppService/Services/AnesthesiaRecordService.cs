@@ -84,6 +84,16 @@ public class AnesthesiaRecordService : IAnesthesiaRecordService
 
             anesthesiaRecord.AddProcedures(command.Surgeries, procedures);
 
+            if (command.Finalize)
+            {
+                var monitoringRecord = await _monitoringRecordRepository.GetByAnesthesiaRecordIdAsync(id);
+
+                if (monitoringRecord == null || monitoringRecord.Status != SurgeryStatusEnum.Completed)
+                    return new CommandResult(false, "O monitoramento ainda não foi finalizado. Finalize a anestesia na tela de Monitoramento antes de concluir a ficha.");
+
+                anesthesiaRecord.SetStatus(SurgeryStatusEnum.Completed);
+            }
+
             _anesthesiaRecordRepository.Update(anesthesiaRecord);
 
             await _anesthesiaRecordRepository.SaveChangesAsync();

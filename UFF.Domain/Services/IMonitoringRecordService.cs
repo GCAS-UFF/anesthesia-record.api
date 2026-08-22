@@ -8,6 +8,6 @@ namespace UFF.FichaAnestesica.Domain.Services
         Task<CommandResult> GetByIdAsync(int id);
         Task<CommandResult> Create(MonitoringRecordCommand command);
         Task<CommandResult> Update(int id, MonitoringRecordCommand command);
-        Task<CommandResult> FinalizePatientAsync(int anesthesiaRecordId);
+        Task<CommandResult> FinalizePatientAsync(int anesthesiaRecordId, MonitoringRecordCommand? command);
     }
 }

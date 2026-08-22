@@ -22,7 +22,7 @@ public class MonitoringRecordService : IMonitoringRecordService
         var monitoring = await _monitoringRepository.GetCompleteByIdAsync(id);
 
         if (monitoring == null)
-            return new CommandResult(false, "Monitorização não encontrada");
+            return new CommandResult(false, "Monitorizaï¿½ï¿½o nï¿½o encontrada");
 
         return CommandResult.Success(MonitoringRecordResponse.ToResponse(monitoring));
     }
@@ -49,7 +49,7 @@ public class MonitoringRecordService : IMonitoringRecordService
         var monitoring = await _monitoringRepository.GetCompleteByIdAsync(id);
 
         if (monitoring == null)
-            return CommandResult.Fail("Monitorização não encontrada");
+            return CommandResult.Fail("Monitorizaï¿½ï¿½o nï¿½o encontrada");
 
         try
         {
@@ -66,25 +66,28 @@ public class MonitoringRecordService : IMonitoringRecordService
         }
     }
 
-    public async Task<CommandResult> FinalizePatientAsync(int anesthesiaRecordId)
+    public async Task<CommandResult> FinalizePatientAsync(int anesthesiaRecordId, MonitoringRecordCommand? command)
     {
         try
         {
-            var monitoringRecord = await _monitoringRepository.GetByIdAsync(anesthesiaRecordId);
+            var monitoringRecord = await _monitoringRepository.GetCompleteByIdAsync(anesthesiaRecordId);
 
             if (monitoringRecord == null)
-                return CommandResult.Fail("Ficha anestésica não encontrada");
+                return CommandResult.Fail("Registro de monitoramento nï¿½o encontrado");
+
+            // Persiste o snapshot final do monitoramento (vitais/agentes/eventos/balanï¿½o/posiï¿½ï¿½es),
+            // se enviado. Nï¿½o altera o status da FICHA anestï¿½sica em nenhuma hipï¿½tese: finalizar o
+            // monitoramento e finalizar a ficha sï¿½o momentos distintos.
+            if (command != null)
+                monitoringRecord.Update(command);
 
             monitoringRecord.SetStatus(SurgeryStatusEnum.Completed);
 
-            if (monitoringRecord.AnesthesiaRecord != null) { }
-                monitoringRecord.AnesthesiaRecord.SetStatus(SurgeryStatusEnum.Completed);
-
             _monitoringRepository.Update(monitoringRecord);
 
-            await _anesthesiaRecordRepository.SaveChangesAsync();
+            await _monitoringRepository.SaveChangesAsync();
 
-            return CommandResult.Success("Finalizado");
+            return CommandResult.Success(MonitoringRecordResponse.ToResponse(monitoringRecord));
 
         }
         catch (Exception ex)

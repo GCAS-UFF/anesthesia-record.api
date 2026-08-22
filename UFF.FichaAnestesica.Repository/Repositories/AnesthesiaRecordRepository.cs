@@ -80,6 +80,15 @@ namespace UFF.FichaAnestesica.Infra.Repositories
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<AnesthesiaRecord>> GetByStatusAndDateAsync(SurgeryStatusEnum status, DateTime? date)
+        {
+            return await _context.AnesthesiaRecords
+                .Include(x => x.FirstAnesthesiologist)
+                .Where(x => x.Status == status && (!date.HasValue || x.SurgeryDate == date))
+                .OrderBy(x => x.SurgeryDate)
+                .ToListAsync();
+        }
+
         public async Task<AnesthesiaRecord> GetByExternalPatientIdAsync(string id)
         {
             return await _context.AnesthesiaRecords

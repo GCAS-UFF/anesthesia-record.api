@@ -1,4 +1,5 @@
 ﻿using UFF.FichaAnestesica.Domain.Entities;
+using UFF.FichaAnestesica.Domain.Enums;
 
 namespace UFF.FichaAnestesica.Domain.Response
 {
@@ -11,6 +12,8 @@ namespace UFF.FichaAnestesica.Domain.Response
         public int SurgeryId { get; set; }
 
         public int RecordedByProfessionalId { get; set; }
+
+        public SurgeryStatusEnum Status { get; set; }
 
         public DateTime StartedAt { get; set; }
 
@@ -30,7 +33,8 @@ namespace UFF.FichaAnestesica.Domain.Response
             return new MonitoringRecordResponse
             {
                 Id = entity.Id,
-                AnesthesiaRecordId = entity.AnesthesiaRecordId,                
+                AnesthesiaRecordId = entity.AnesthesiaRecordId,
+                Status = entity.Status,
                 RecordedByProfessionalId = entity.RecordedByProfessionalId,
                 StartedAt = entity.StartedAt,
                 EndedAt = entity.EndedAt,
