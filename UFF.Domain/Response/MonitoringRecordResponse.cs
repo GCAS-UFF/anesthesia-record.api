@@ -19,6 +19,11 @@ namespace UFF.FichaAnestesica.Domain.Response
 
         public DateTime? EndedAt { get; set; }
 
+
+        public DateTime SurgeryStartedAt { get; set; }
+
+        public DateTime? SurgeryEndedAt { get; set; }
+
         public List<VitalSignRecordResponse> VitalSigns { get; set; } = new();
 
         public List<AdministeredAgentResponse> AdministeredAgents { get; set; } = new();
@@ -41,15 +46,14 @@ namespace UFF.FichaAnestesica.Domain.Response
                 RecordedByProfessionalId = entity.RecordedByProfessionalId,
                 StartedAt = entity.StartedAt,
                 EndedAt = entity.EndedAt,
-
+                SurgeryStartedAt = entity.SurgeryStartedAt ?? default,
+                SurgeryEndedAt = entity.SurgeryEndedAt ?? default,
                 VitalSigns = entity.VitalSigns
                     .Select(VitalSignRecordResponse.ToResponse)
                     .ToList(),
-
                 AdministeredAgents = entity.AdministeredAgents
                     .Select(AdministeredAgentResponse.ToResponse)
                     .ToList(),
-
                 ClinicalEvents = entity.ClinicalEvents
                     .Select(ClinicalEventResponse.ToResponse)
                     .ToList(),

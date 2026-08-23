@@ -22,7 +22,7 @@ public class MonitoringRecordService : IMonitoringRecordService
         var monitoring = await _monitoringRepository.GetCompleteByIdAsync(id);
 
         if (monitoring == null)
-            return new CommandResult(false, "Monitoriza��o n�o encontrada");
+            return new CommandResult(false, "Monitorização não encontrada");
 
         return CommandResult.Success(MonitoringRecordResponse.ToResponse(monitoring));
     }
