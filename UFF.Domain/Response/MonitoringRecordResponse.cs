@@ -27,6 +27,8 @@ namespace UFF.FichaAnestesica.Domain.Response
 
         public List<FluidBalanceResponse> FluidBalances { get; set; } = new();
 
+        public List<PatientPositionResponse> Positions { get; set; } = new();
+
         public static MonitoringRecordResponse ToResponse(
             MonitoringRecord entity)
         {
@@ -34,6 +36,7 @@ namespace UFF.FichaAnestesica.Domain.Response
             {
                 Id = entity.Id,
                 AnesthesiaRecordId = entity.AnesthesiaRecordId,
+                SurgeryId = entity.AnesthesiaRecordId,
                 Status = entity.Status,
                 RecordedByProfessionalId = entity.RecordedByProfessionalId,
                 StartedAt = entity.StartedAt,
@@ -53,6 +56,10 @@ namespace UFF.FichaAnestesica.Domain.Response
 
                 FluidBalances = entity.FluidBalances
                     .Select(FluidBalanceResponse.ToResponse)
+                    .ToList(),
+
+                Positions = entity.Positions
+                    .Select(PatientPositionResponse.ToResponse)
                     .ToList()
             };
         }

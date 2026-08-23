@@ -17,6 +17,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
             {
                 Time = command.Time,
                 Date = command.Date,
+                Position = command.Position,
                 CreatedAt = DateTime.UtcNow
             };
         }

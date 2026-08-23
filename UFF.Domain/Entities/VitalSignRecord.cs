@@ -26,6 +26,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
             var vitalSignRecord = new VitalSignRecord
             {
                 Time = command.Time,
+                Date = command.Date,
                 SystolicBloodPressure = command.SystolicBloodPressure,
                 DiastolicBloodPressure = command.DiastolicBloodPressure,
                 MeanArterialPressure = command.MeanArterialPressure,

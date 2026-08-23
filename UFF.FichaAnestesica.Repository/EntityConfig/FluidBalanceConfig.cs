@@ -37,6 +37,12 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .HasConversion<int>()
                 .IsRequired();
 
+            builder.Property(x => x.Details)
+                .HasColumnName("details")
+                .HasColumnType("text")
+                .HasDefaultValue(string.Empty)
+                .IsRequired(false);
+
             builder.Property(x => x.VolumeMl)
                 .HasColumnName("volume_ml")
                 .HasColumnType("numeric(10,2)")

@@ -1,4 +1,5 @@
 ﻿using UFF.FichaAnestesica.Domain.Enums;
+using UFF.FichaAnestesica.Domain.Extensions;
 
 namespace UFF.FichaAnestesica.Domain.Response
 {
@@ -25,10 +26,11 @@ namespace UFF.FichaAnestesica.Domain.Response
             {
                 Id = entity.Id,
                 Time = entity.Time,
+                Date = entity.Date,
                 DrugId = entity.DrugId,
                 DrugName = entity.Drug?.Description ?? string.Empty,
                 Dose = entity.Dose,
-               // Unit = entity.Unit,
+                Unit = entity.Unit.GetDescription(),
                 Route = entity.Route
             };
         }

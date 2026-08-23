@@ -36,6 +36,7 @@ namespace UFF.FichaAnestesica.Domain.Response
             {
                 Id = entity.Id,
                 Time = entity.Time,
+                Date = entity.Date,
                 SystolicBloodPressure = entity.SystolicBloodPressure,
                 DiastolicBloodPressure = entity.DiastolicBloodPressure,
                 MeanArterialPressure = entity.MeanArterialPressure,

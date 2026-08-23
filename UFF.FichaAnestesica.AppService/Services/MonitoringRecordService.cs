@@ -51,6 +51,9 @@ public class MonitoringRecordService : IMonitoringRecordService
         if (monitoring == null)
             return CommandResult.Fail("Monitoriza��o n�o encontrada");
 
+        if (monitoring.Status == SurgeryStatusEnum.Completed)
+            return CommandResult.Fail("Não é possível alterar uma monitorização depois de finalizada.");
+
         try
         {
             monitoring.Update(command);
@@ -74,6 +77,11 @@ public class MonitoringRecordService : IMonitoringRecordService
 
             if (monitoringRecord == null)
                 return CommandResult.Fail("Registro de monitoramento n�o encontrado");
+
+            // Já finalizada: não sobrescreve os dados de novo (evita reabrir uma monitorização
+            // concluída via reenvio/retry), só devolve o estado atual — idempotente.
+            if (monitoringRecord.Status == SurgeryStatusEnum.Completed)
+                return CommandResult.Success(MonitoringRecordResponse.ToResponse(monitoringRecord));
 
             // Persiste o snapshot final do monitoramento (vitais/agentes/eventos/balan�o/posi��es),
             // se enviado. N�o altera o status da FICHA anest�sica em nenhuma hip�tese: finalizar o

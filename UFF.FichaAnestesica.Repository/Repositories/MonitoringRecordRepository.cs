@@ -26,6 +26,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories
                     .ThenInclude(x => x.Drug)
                 .Include(x => x.ClinicalEvents)
                 .Include(x => x.FluidBalances)
+                .Include(x => x.Positions)
                 .FirstOrDefaultAsync(x => x.AnesthesiaRecordId == id);
         }
 

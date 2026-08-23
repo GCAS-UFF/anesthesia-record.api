@@ -16,9 +16,9 @@ namespace UFF.FichaAnestesica.Domain.Entities
         {
             return new ClinicalEvent
             {
-                //Timestamp = command.Timestamp,
-                //EventType = command.EventType,
-                //Description = command.Description,
+                Time = command.Time,
+                Date = command.Date,
+                EventType = command.EventType,
                 Observations = command.Observations,
                 CreatedAt = DateTime.UtcNow
             };
@@ -31,9 +31,9 @@ namespace UFF.FichaAnestesica.Domain.Entities
 
         public void Update(ClinicalEventCommand command)
         {
-            //Timestamp = command.Timestamp;
-            //EventType = command.EventType;
-            //Description = command.Description;
+            Time = command.Time;
+            Date = command.Date;
+            EventType = command.EventType;
             Observations = command.Observations;
 
             LastUpdate = DateTime.UtcNow;

@@ -16,6 +16,7 @@ namespace UFF.FichaAnestesica.Domain.Response
             {
                 EventType = entity.EventType,
                 Time = entity.Time,
+                Date = entity.Date,
                 Observations = entity.Observations
             };
         }
