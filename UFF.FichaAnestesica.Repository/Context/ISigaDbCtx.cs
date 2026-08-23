@@ -27,6 +27,8 @@ namespace UFF.FichaAnestesica.Infra.Context
         public DbSet<PreAnesthesiaPhysicalExamArea> PreAnesthesiaPhysicalExamAreas { get; }
         public DbSet<PreAnesthesiaMedication> PreAnesthesiaMedications { get; }
         public DbSet<PreAnesthesiaReport> PreAnesthesiaReports { get; }
+        public DbSet<UserSettings> UserSettings { get; }
+        public DbSet<InstitutionSettings> InstitutionSettings { get; }
 
         EntityEntry Entry(object entity);
         int SaveChanges();

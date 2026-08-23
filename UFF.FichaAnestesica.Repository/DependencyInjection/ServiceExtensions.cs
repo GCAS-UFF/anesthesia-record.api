@@ -53,7 +53,12 @@ namespace UFF.FichaAnestesica.Infra.DependencyInjection
             services.AddScoped<ISurgeryService, SurgeryService>();
             services.AddScoped<IAuthService, AuthService>();
 
-            services.AddHttpContextAccessor();         
+            services.AddScoped<IUserSettingsRepository, UserSettingsRepository>();
+            services.AddScoped<IInstitutionSettingsRepository, InstitutionSettingsRepository>();
+            services.AddScoped<IUserSettingsService, UserSettingsService>();
+            services.AddScoped<ICurrentUserService, CurrentUserService>();
+
+            services.AddHttpContextAccessor();
 
             var hospitalApiUrl = configuration["HospitalApi:BaseUrl"];
 

@@ -56,6 +56,11 @@ namespace UFF.FichaAnestesica.Domain.Entities
             LastSyncAt = DateTime.UtcNow;
         }
 
+        public void ChangePassword(string newPassword)
+        {
+            Password = newPassword;
+        }
+
         public void RegisterLogin()
         {
             LastLoginAt = DateTime.UtcNow;
