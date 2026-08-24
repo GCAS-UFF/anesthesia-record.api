@@ -1,3 +1,4 @@
+using UFF.FichaAnestesica.CrossCutting.Mappings;
 using UFF.FichaAnestesica.Domain.Commands;
 using UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord;
 using UFF.FichaAnestesica.Domain.Dto;
@@ -149,7 +150,7 @@ namespace UFF.FichaAnestesica.Service.Services
                 if (recordsBySurgeryId.TryGetValue(patient.SurgeryId, out var record))
                 {
                     patient.HaveFirstAnesthesist = record.FirstAnesthesiologist != null;
-                    patient.Status = record.Status.GetDescription();
+                    patient.Status = record.Status == 0 ? SurgeryStatusEnumMapping.Parse(patient.Status).GetDescription() : record.Status.GetDescription();
 
                 }
             }

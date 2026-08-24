@@ -6,14 +6,14 @@ namespace UFF.FichaAnestesica.CrossCutting.Mappings
     {
         public static SurgeryStatusEnum Parse(string status)
         {
-            return status?.ToLower().Trim() switch
+            return status?.ToLower() switch
             {
                 "agendada" => SurgeryStatusEnum.Scheduled,
-                "em_preparo" => SurgeryStatusEnum.Preparing,
                 "em_progresso" => SurgeryStatusEnum.InProgress,
-                "concluida" => SurgeryStatusEnum.Completed,
                 "cancelada" => SurgeryStatusEnum.Canceled,
-
+                "em_preparacao" => SurgeryStatusEnum.Preparing,
+                "em_andamento" => SurgeryStatusEnum.InProgress,
+                "concluida" => SurgeryStatusEnum.Completed,
                 _ => SurgeryStatusEnum.Scheduled
             };
         }

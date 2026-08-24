@@ -204,7 +204,7 @@ namespace UFF.FichaAnestesica.Service.Mappers
             {
                 Id = surgery.Id,
                 SurgeryDate = surgery.SurgeryDate,
-                Status = ParseStatus(surgery.SurgeryStatus),
+                Status = SurgeryStatusEnumMapping.Parse(surgery.SurgeryStatus),
                 Specialty = surgery.Specialty == null
                     ? null
                     : new SpecialtyResponse
@@ -255,20 +255,6 @@ namespace UFF.FichaAnestesica.Service.Mappers
                         Description = allergy.Medication.Description
                     }
             };
-        }
-
-        private static SurgeryStatusEnum ParseStatus(string status)
-        {
-            return status?.ToLower() switch
-            {
-                "agendada" => SurgeryStatusEnum.Scheduled,
-                "em_progresso" => SurgeryStatusEnum.InProgress,
-                "cancelada" => SurgeryStatusEnum.Canceled,
-                "em_preparacao" => SurgeryStatusEnum.Preparing,
-                "em_andamento" => SurgeryStatusEnum.InProgress,
-                "finalizada" => SurgeryStatusEnum.Completed,
-                _ => SurgeryStatusEnum.Scheduled
-            };
-        }
+        }      
     }
 }
