@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UFF.FichaAnestesica.Domain.Commands.PreAnesthesiaRecord;
 using UFF.FichaAnestesica.Domain.Services;
@@ -17,7 +18,7 @@ namespace UFF.FichaAnestesica.Api.Controllers
 
     
         [HttpGet("{id}")]
-        // [Authorize]
+        [Authorize]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
             var result = await _preAnesthesiaRecordService.GetByIdAsync(id);
@@ -27,7 +28,7 @@ namespace UFF.FichaAnestesica.Api.Controllers
         }
 
         [HttpGet("by-anesthesia-record/{anesthesiaRecordId}")]
-        // [Authorize]
+        [Authorize]
         public async Task<IActionResult> GetByAnesthesiaRecordId([FromRoute] int anesthesiaRecordId)
         {
             var result = await _preAnesthesiaRecordService.GetByAnesthesiaRecordIdAsync(anesthesiaRecordId);
@@ -38,7 +39,7 @@ namespace UFF.FichaAnestesica.Api.Controllers
 
      
         [HttpPost]
-        // [Authorize]
+        [Authorize]
         public async Task<IActionResult> Create([FromBody] PreAnesthesiaRecordCommand command)
         {
             var result = await _preAnesthesiaRecordService.Create(command);
@@ -49,7 +50,7 @@ namespace UFF.FichaAnestesica.Api.Controllers
 
         
         [HttpPut("{id}")]
-        // [Authorize]
+        [Authorize]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] PreAnesthesiaRecordCommand command)
         {
             if (command == null)

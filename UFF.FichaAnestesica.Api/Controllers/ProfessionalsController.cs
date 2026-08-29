@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UFF.FichaAnestesica.Domain.Services;
 
@@ -15,7 +16,7 @@ namespace UFF.FichaAnestesica.Api.Controllers
         }
 
         [HttpGet("{term}")]
-        //    [Authorize]
+        [Authorize]
         public async Task<IActionResult> GetProfessionalsByName([FromRoute] string term)
         {
             var professionals = await _professionalService.GetProfessionalsForAnethesiaRecord(term);
@@ -23,7 +24,7 @@ namespace UFF.FichaAnestesica.Api.Controllers
         }
 
         [HttpGet()]
-        //    [Authorize]
+        [Authorize]
         public async Task<IActionResult> GetAllProceduresForAnethesiaRecord()
         {
             var professionals = await _professionalService.GetAllProfessionalsForAnethesiaRecord();

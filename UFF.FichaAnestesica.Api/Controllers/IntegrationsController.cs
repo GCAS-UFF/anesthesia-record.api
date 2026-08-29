@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using UFF.FichaAnestesica.Domain.Commands;
 using UFF.FichaAnestesica.Domain.Services;
 using UFF.FichaAnestesica.Infra.Repositories.Aghu;
@@ -6,7 +7,7 @@ using UFF.FichaAnestesica.Service.Services.Aghu;
 
 [ApiController]
 [Route("api/[controller]")]
-//[Authorize]
+[Authorize]
 public class IntegrationsController : ControllerBase
 {
     private readonly IProfessionalApiService _professionalApiService;

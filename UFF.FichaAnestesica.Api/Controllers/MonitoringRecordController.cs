@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord;
 using UFF.FichaAnestesica.Domain.Services;
@@ -21,7 +22,7 @@ namespace UFF.FichaAnestesica.Api.Controllers
         /// <param name="id">ID do registro de monitoriza��o</param>
         /// <returns>Registro de monitoriza��o encontrado</returns>
         [HttpGet("{id}")]
-        // [Authorize]
+        [Authorize]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
             var result = await _monitoringRecordService.GetByIdAsync(id);
@@ -38,7 +39,7 @@ namespace UFF.FichaAnestesica.Api.Controllers
         /// <param name="command">Dados do registro de monitoriza��o</param>
         /// <returns>Registro criado</returns>
         [HttpPost]
-        // [Authorize]
+        [Authorize]
         public async Task<IActionResult> Create([FromBody] MonitoringRecordCommand command)
         {
             var result = await _monitoringRecordService.Create(command);
@@ -56,7 +57,7 @@ namespace UFF.FichaAnestesica.Api.Controllers
         /// <param name="command">Dados atualizados</param>
         /// <returns>Registro atualizado</returns>
         [HttpPut("{id}")]
-        // [Authorize]
+        [Authorize]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] MonitoringRecordCommand command)
         {
             if (command == null)
@@ -77,7 +78,7 @@ namespace UFF.FichaAnestesica.Api.Controllers
         /// <param name="command">Dados atualizados</param>
         /// <returns>Registro atualizado</returns>
         [HttpPatch("{id}")]
-        // [Authorize]
+        [Authorize]
         public async Task<IActionResult> FinalizePatientAsync([FromRoute] int id, [FromBody] MonitoringRecordCommand? command)
         {
             var result = await _monitoringRecordService.FinalizePatientAsync(id, command);

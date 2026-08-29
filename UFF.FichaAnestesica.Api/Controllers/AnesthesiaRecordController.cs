@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using UFF.FichaAnestesica.Application.Interfaces;
 using UFF.FichaAnestesica.Domain.Commands;
 using UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord;
@@ -29,7 +30,7 @@ namespace UFF.FichaAnestesica.Api.Controllers
         }
 
         [HttpPost]
-        // [Authorize]
+        [Authorize]
         public async Task<IActionResult> Create([FromBody] AnesthesiaRecordCommand command)
         {
             var response = await _anesthesiaRecordService.Create(command);
@@ -41,7 +42,7 @@ namespace UFF.FichaAnestesica.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        // [Authorize]
+        [Authorize]
         public async Task<IActionResult> Updadate([FromRoute] int id, [FromBody] AnesthesiaRecordCommand command)
         {
             var result = await _anesthesiaRecordService.Update(id, command);
@@ -53,7 +54,7 @@ namespace UFF.FichaAnestesica.Api.Controllers
         }
 
         [HttpGet("{id}/{extenalPatientId}")]
-        //    [Authorize]
+        [Authorize]
         public async Task<IActionResult> GetByIdAsync([FromRoute] int id, string extenalPatientId)
         {
             var surgeries = await _anesthesiaRecordService.GetByIdAsync(id, extenalPatientId);

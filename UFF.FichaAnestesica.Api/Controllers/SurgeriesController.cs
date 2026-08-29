@@ -17,7 +17,7 @@ namespace UFF.FichaAnestesica.Api.Controllers
         }
 
         [HttpGet("{doctorId}")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> GetSurgeries([FromRoute] int doctorId, [FromQuery] DateTime? date, [FromQuery] string? term, [FromQuery] SurgeryStatusEnum? status, [FromQuery] int page = 1, [FromQuery] int size = 10)
         {
             var surgeries = await _surgeriesService.GetPatientsWithSurgeriesAsync(doctorId, date, term, status, page, size);
@@ -25,7 +25,7 @@ namespace UFF.FichaAnestesica.Api.Controllers
         }
 
         [HttpGet("{surgeryId}/{patientId}")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> GetPatientBySurgeryId([FromRoute] int surgeryId, string patientId)
         {
             var surgerie = await _surgeriesService.GetPatientAnesthesiaRecordByIdAsync(patientId, surgeryId);
@@ -33,7 +33,7 @@ namespace UFF.FichaAnestesica.Api.Controllers
         }
 
         [HttpPatch("{patientId}/{surgeryId}/{responsableId}")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> AssumePatient([FromRoute] string patientId, int surgeryId, int? responsableId)
         {
             var mappedList = await _surgeriesService.AssumePatientAsync(patientId, surgeryId, responsableId);

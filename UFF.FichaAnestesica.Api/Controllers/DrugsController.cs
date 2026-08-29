@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UFF.FichaAnestesica.Domain.Services;
 
@@ -15,7 +16,7 @@ namespace UFF.FichaAnestesica.Api.Controllers
         }
 
         [HttpGet()]
-        //    [Authorize]
+        [Authorize]
         public async Task<IActionResult> GetAllDrugsForAnethesiaRecord()
         {
             var drugs = await _drugService.GetAllDrugsForAnethesiaRecord();
