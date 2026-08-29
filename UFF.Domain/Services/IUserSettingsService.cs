@@ -9,5 +9,6 @@ namespace UFF.FichaAnestesica.Domain.Services
         Task<CommandResult> UpdateUserSettingsAsync(UserSettingsCommand command);
         Task<CommandResult> UpdateInstitutionSettingsAsync(InstitutionSettingsCommand command);
         Task<CommandResult> ChangeAdminPasswordAsync(ChangeAdminPasswordCommand command);
+        Task<CommandResult> TestAghuConnectionAsync(TestAghuConnectionCommand command);
     }
 }

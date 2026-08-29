@@ -8,6 +8,7 @@ using UFF.FichaAnestesica.Domain.Entities;
 using UFF.FichaAnestesica.Domain.Enums;
 using UFF.FichaAnestesica.Domain.Extensions;
 using UFF.FichaAnestesica.Domain.Repositories;
+using UFF.FichaAnestesica.Domain.Security;
 using UFF.FichaAnestesica.Domain.Services;
 
 namespace UFF.FichaAnestesica.Service.Services
@@ -40,11 +41,17 @@ namespace UFF.FichaAnestesica.Service.Services
                 if (user is null || !user.IsAdmin)
                     return CommandResult.Fail("Usuário ou senha inválidos");
 
-                if (user.Password != password)
+                if (!PasswordHasher.Verify(password, user.Password))
                     return CommandResult.Fail("Usuário ou senha inválidos");
 
                 if (!user.CanLogIn || user.Status != UserStatusEnum.Enabled)
                     return CommandResult.Fail("Usuário sem permissão");
+
+                if (!PasswordHasher.IsHashed(user.Password))
+                {
+                    user.ChangePassword(PasswordHasher.Hash(password));
+                    _userRepository.Update(user);
+                }
             }
             else
             {

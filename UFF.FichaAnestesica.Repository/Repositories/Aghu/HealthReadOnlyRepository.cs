@@ -1,5 +1,6 @@
 ﻿using System.Net.Http.Json;
 using UFF.FichaAnestesica.Domain.Dto;
+using UFF.FichaAnestesica.Domain.Repositories.Aghu;
 using UFF.FichaAnestesica.Domain.Repositories.ReadOnly;
 using UFF.FichaAnestesica.Infra.Context;
 
@@ -7,15 +8,15 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
 {
     public class HealthReadOnlyRepository : IHealthReadOnlyRepository
     {
-        private readonly HttpClient _httpClient;
+        private readonly IAghuHttpClientFactory _aghuHttpClientFactory;
         private readonly SigaDbCtx _context;
 
         public HealthReadOnlyRepository(
             SigaDbCtx context,
-            IHttpClientFactory factory)
+            IAghuHttpClientFactory aghuHttpClientFactory)
         {
             _context = context;
-            _httpClient = factory.CreateClient("HospitalApi");
+            _aghuHttpClientFactory = aghuHttpClientFactory;
         }
 
         public async Task<(bool bd, bool aghu)> CheckHealth()
@@ -42,7 +43,8 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
         {
             try
             {
-                var response = await _httpClient.GetAsync("saude");
+                var client = await _aghuHttpClientFactory.CreateClientAsync();
+                var response = await client.GetAsync("saude");
 
                 if (!response.IsSuccessStatusCode)
                     return false;

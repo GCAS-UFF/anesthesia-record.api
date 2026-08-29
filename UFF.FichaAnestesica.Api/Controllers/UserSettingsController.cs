@@ -62,5 +62,17 @@ namespace UFF.FichaAnestesica.Api.Controllers
 
             return Ok(result);
         }
+
+        [HttpPost("institution/aghu/test-connection")]
+        [Authorize(Policy = "AdminOnly")]
+        public async Task<IActionResult> TestAghuConnection([FromBody] TestAghuConnectionCommand command)
+        {
+            var result = await _userSettingsService.TestAghuConnectionAsync(command);
+
+            if (!result.Valid)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
     }
 }

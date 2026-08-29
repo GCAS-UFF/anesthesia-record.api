@@ -1,8 +1,11 @@
+using System.Net.Http.Json;
 using UFF.FichaAnestesica.Domain.Commands;
 using UFF.FichaAnestesica.Domain.Commands.UserSettings;
+using UFF.FichaAnestesica.Domain.Dto;
 using UFF.FichaAnestesica.Domain.Entities;
 using UFF.FichaAnestesica.Domain.Repositories;
 using UFF.FichaAnestesica.Domain.Response;
+using UFF.FichaAnestesica.Domain.Security;
 using UFF.FichaAnestesica.Domain.Services;
 
 namespace UFF.FichaAnestesica.Service.Services
@@ -13,17 +16,20 @@ namespace UFF.FichaAnestesica.Service.Services
         private readonly IInstitutionSettingsRepository _institutionSettingsRepository;
         private readonly IUserRepository _userRepository;
         private readonly ICurrentUserService _currentUser;
+        private readonly IHttpClientFactory _httpClientFactory;
 
         public UserSettingsService(
             IUserSettingsRepository userSettingsRepository,
             IInstitutionSettingsRepository institutionSettingsRepository,
             IUserRepository userRepository,
-            ICurrentUserService currentUser)
+            ICurrentUserService currentUser,
+            IHttpClientFactory httpClientFactory)
         {
             _userSettingsRepository = userSettingsRepository;
             _institutionSettingsRepository = institutionSettingsRepository;
             _userRepository = userRepository;
             _currentUser = currentUser;
+            _httpClientFactory = httpClientFactory;
         }
 
         public async Task<CommandResult> GetForCurrentUserAsync()
@@ -125,12 +131,12 @@ namespace UFF.FichaAnestesica.Service.Services
             if (user == null)
                 return CommandResult.Fail("Usuário não encontrado");
 
-            if (user.Password != command.CurrentPassword)
+            if (!PasswordHasher.Verify(command.CurrentPassword, user.Password))
                 return CommandResult.Fail("Senha atual incorreta");
 
             try
             {
-                user.ChangePassword(command.NewPassword);
+                user.ChangePassword(PasswordHasher.Hash(command.NewPassword));
                 _userRepository.Update(user);
                 await _userRepository.SaveChangesAsync();
 
@@ -139,6 +145,33 @@ namespace UFF.FichaAnestesica.Service.Services
             catch (Exception ex)
             {
                 return CommandResult.Fail(ex.Message);
+            }
+        }
+
+        public async Task<CommandResult> TestAghuConnectionAsync(TestAghuConnectionCommand command)
+        {
+            if (string.IsNullOrWhiteSpace(command.AghuBaseUrl) ||
+                !Uri.TryCreate(command.AghuBaseUrl.Trim(), UriKind.Absolute, out var baseUri))
+                return CommandResult.Fail("Informe um endereço válido para o AGHU");
+
+            try
+            {
+                var client = _httpClientFactory.CreateClient();
+                client.BaseAddress = new Uri(baseUri.ToString().TrimEnd('/') + "/");
+                client.Timeout = TimeSpan.FromSeconds(15);
+
+                var response = await client.GetAsync("saude");
+
+                if (!response.IsSuccessStatusCode)
+                    return CommandResult.Success(new { connected = false });
+
+                var health = await response.Content.ReadFromJsonAsync<HealthDto>();
+
+                return CommandResult.Success(new { connected = health?.Online ?? false });
+            }
+            catch
+            {
+                return CommandResult.Success(new { connected = false });
             }
         }
 

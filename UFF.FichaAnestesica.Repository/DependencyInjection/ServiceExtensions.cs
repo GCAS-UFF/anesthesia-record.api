@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using UFF.FichaAnestesica.Application.Interfaces;
 using UFF.FichaAnestesica.Domain.Repositories;
+using UFF.FichaAnestesica.Domain.Repositories.Aghu;
 using UFF.FichaAnestesica.Domain.Repositories.ReadOnly;
 using UFF.FichaAnestesica.Domain.Services;
 using UFF.FichaAnestesica.Infra.Repositories;
@@ -39,6 +40,7 @@ namespace UFF.FichaAnestesica.Infra.DependencyInjection
             services.AddScoped<IMedicineReadOnlyRepository, MedicineReadOnlyRepository>();
             services.AddScoped<IHealthReadOnlyRepository, HealthReadOnlyRepository>();
             services.AddScoped<IProcedureReadOnlyRepository, ProcedureReadOnlyRepository>();
+            services.AddScoped<IAghuHttpClientFactory, AghuHttpClientFactory>();
 
             services.AddScoped<IClinicalEventRepository, ClinicalEventRepository>();
             services.AddScoped<ICustomFieldRepository, CustomFieldRepository>();
@@ -59,12 +61,8 @@ namespace UFF.FichaAnestesica.Infra.DependencyInjection
             services.AddScoped<ICurrentUserService, CurrentUserService>();
 
             services.AddHttpContextAccessor();
-
-            var hospitalApiUrl = configuration["HospitalApi:BaseUrl"];
-
             services.AddHttpClient("HospitalApi", client =>
             {
-                client.BaseAddress = new Uri(hospitalApiUrl);
                 client.Timeout = TimeSpan.FromSeconds(30);
             });
 

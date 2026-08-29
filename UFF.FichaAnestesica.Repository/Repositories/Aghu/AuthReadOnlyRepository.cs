@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using UFF.FichaAnestesica.Domain.Dto;
 using UFF.FichaAnestesica.Domain.Entities;
 using UFF.FichaAnestesica.Domain.Repositories;
+using UFF.FichaAnestesica.Domain.Repositories.Aghu;
 using UFF.FichaAnestesica.Infra.Context;
 
 namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
@@ -10,12 +11,12 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
     public class AuthReadOnlyRepository : RepositoryBase<User>, IAuthRepository
     {
         private readonly SigaDbCtx _context;
-        private readonly HttpClient _httpClient;
+        private readonly IAghuHttpClientFactory _aghuHttpClientFactory;
 
-        public AuthReadOnlyRepository(SigaDbCtx context, IHttpClientFactory factory)
+        public AuthReadOnlyRepository(SigaDbCtx context, IAghuHttpClientFactory aghuHttpClientFactory)
             : base(context)
         {
-            _httpClient = factory.CreateClient("HospitalApi");
+            _aghuHttpClientFactory = aghuHttpClientFactory;
             _context = context;
         }
 
@@ -24,7 +25,8 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
             if (string.IsNullOrWhiteSpace(login))
                 return null;
 
-            var response = await _httpClient.PostAsJsonAsync("auth", new
+            var client = await _aghuHttpClientFactory.CreateClientAsync();
+            var response = await client.PostAsJsonAsync("auth", new
             {
                 Login = login,
                 Senha = password

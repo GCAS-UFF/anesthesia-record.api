@@ -1,22 +1,24 @@
 ﻿using System;
 using System.Net.Http.Json;
 using UFF.FichaAnestesica.Domain.Dto;
+using UFF.FichaAnestesica.Domain.Repositories.Aghu;
 using UFF.FichaAnestesica.Domain.Repositories.ReadOnly;
 
 namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
 {
     public class ProcedureReadOnlyRepository : IProcedureReadOnlyRepository
     {
-        private readonly HttpClient _httpClient;
+        private readonly IAghuHttpClientFactory _aghuHttpClientFactory;
 
-        public ProcedureReadOnlyRepository(IHttpClientFactory factory)
+        public ProcedureReadOnlyRepository(IAghuHttpClientFactory aghuHttpClientFactory)
         {
-            _httpClient = factory.CreateClient("HospitalApi");
+            _aghuHttpClientFactory = aghuHttpClientFactory;
         }
 
         public async Task<ProcedureListDto> GetProceduresFromAGHU()
         {
-            var response = await _httpClient.GetAsync("procedimentos");
+            var client = await _aghuHttpClientFactory.CreateClientAsync();
+            var response = await client.GetAsync("procedimentos");
             response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadFromJsonAsync<ProcedureListDto>() ?? new ProcedureListDto();

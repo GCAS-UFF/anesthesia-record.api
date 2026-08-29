@@ -5,6 +5,7 @@ using UFF.FichaAnestesica.CrossCutting.Extensions;
 using UFF.FichaAnestesica.CrossCutting.Helpers;
 using UFF.FichaAnestesica.Domain.Dto;
 using UFF.FichaAnestesica.Domain.Enums;
+using UFF.FichaAnestesica.Domain.Repositories.Aghu;
 using UFF.FichaAnestesica.Domain.Repositories.ReadOnly;
 using UFF.FichaAnestesica.Domain.Response;
 
@@ -12,11 +13,11 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
 {
     public class PatientReadOnlyRepository : IPatientReadOnlyRepository
     {
-        private readonly HttpClient _httpClient;
+        private readonly IAghuHttpClientFactory _aghuHttpClientFactory;
 
-        public PatientReadOnlyRepository(IHttpClientFactory factory)
+        public PatientReadOnlyRepository(IAghuHttpClientFactory aghuHttpClientFactory)
         {
-            _httpClient = factory.CreateClient("HospitalApi");
+            _aghuHttpClientFactory = aghuHttpClientFactory;
         }
 
         public async Task<PagedResponse<PatientDetailDto>> GetPatientsFromHospitalAsync(DateTime? date, string term, SurgeryStatusEnum? status, int page = 1, int pageSize = 10)
@@ -37,7 +38,8 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
 
             var queryString = string.Join("&", queryParams);
 
-            var response = await _httpClient.GetAsync($"cirurgias?{queryString}");
+            var client = await _aghuHttpClientFactory.CreateClientAsync();
+            var response = await client.GetAsync($"cirurgias?{queryString}");
 
             response.EnsureSuccessStatusCode();
 
@@ -85,7 +87,8 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
 
             var queryString = string.Join("&", queryParams);
 
-            var response = await _httpClient.GetAsync($"cirurgias/por-ids?{queryString}");
+            var client = await _aghuHttpClientFactory.CreateClientAsync();
+            var response = await client.GetAsync($"cirurgias/por-ids?{queryString}");
 
             response.EnsureSuccessStatusCode();
 
@@ -112,7 +115,8 @@ namespace UFF.FichaAnestesica.Infra.Repositories.Aghu
             if (string.IsNullOrWhiteSpace(patientId) || surgeryId == default)
                 return null;
 
-            var response = await _httpClient.GetAsync($"cirurgias/{patientId}/{surgeryId}");
+            var client = await _aghuHttpClientFactory.CreateClientAsync();
+            var response = await client.GetAsync($"cirurgias/{patientId}/{surgeryId}");
 
             if (response.StatusCode == HttpStatusCode.NotFound)
                 return null;
