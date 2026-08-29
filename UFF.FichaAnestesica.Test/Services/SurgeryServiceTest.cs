@@ -152,5 +152,170 @@ namespace UFF.FichaAnestesica.Test.Services
             Assert.False(result.Valid);
             Assert.Contains("Erro DB", result.Message);
         }
+
+        private static AnesthesiaRecord CreateRecord(int surgeryId, string patientId, SurgeryStatusEnum status, DateTime surgeryDate)
+        {
+            var record = AnesthesiaRecord.Create(new Domain.Commands.AnesthesiaRecord.AnesthesiaRecordCommand
+            {
+                SurgeryId = surgeryId,
+                PatientId = patientId
+            }, surgeryDate);
+
+            record.SetStatus(status);
+
+            return record;
+        }
+
+        [Fact]
+        public async Task GetMyPatientsAsync_SemFiltroDeData_UsaPaginacaoPriorizadaLocal()
+        {
+            var inProgressRecord = CreateRecord(2, "P2", SurgeryStatusEnum.InProgress, new DateTime(2026, 1, 1));
+            var scheduledRecord = CreateRecord(3, "P3", SurgeryStatusEnum.Scheduled, new DateTime(2026, 8, 20));
+
+            // A consulta local já devolve o paciente em atendimento primeiro,
+            // mesmo com data de cirurgia mais antiga que a do agendado.
+            _anesthesiaRepoMock
+                .Setup(a => a.GetPagedByDoctorPrioritizedAsync(1, null, 1, 10))
+                .ReturnsAsync(((IEnumerable<AnesthesiaRecord>)new[] { inProgressRecord, scheduledRecord }, 2));
+
+            _anesthesiaRepoMock
+                .Setup(a => a.CanAssumePatientsAsync(1))
+                .ReturnsAsync(true);
+
+            _preAnesthesiaRepoMock
+                .Setup(p => p.GetCompletedAnesthesiaRecordIds(It.Is<IEnumerable<int>>(ids => ids.SequenceEqual(new[] { 2, 3 }))))
+                .Returns(new HashSet<int> { 2, 3 });
+
+            // O AGHU (fonte externa, somente leitura) devolve os dados fora de ordem (por nome).
+            _hospitalApiRepoMock
+                .Setup(h => h.GetMyPatientsFromHospitalAsync(
+                    It.Is<IEnumerable<int>>(ids => ids.SequenceEqual(new[] { 2, 3 })),
+                    null, 1, 2))
+                .ReturnsAsync(new PagedResponse<PatientDetailDto>
+                {
+                    Data = new List<PatientDetailDto>
+                    {
+                        new() { SurgeryId = 3, PatientId = "P3", FullName = "Ana", Status = "agendada", ExpectedAt = new DateTime(2026, 8, 20) },
+                        new() { SurgeryId = 2, PatientId = "P2", FullName = "Zeca", Status = "em_progresso", ExpectedAt = new DateTime(2026, 1, 1) }
+                    },
+                    Page = 1,
+                    PageSize = 2,
+                    TotalItems = 2
+                });
+
+            var result = await _service.GetMyPatientsAsync(1, null, string.Empty, null, 1, 10);
+
+            var paged = Assert.IsType<PagedResponse<PatientSurgeryResponse>>(result.Data);
+            Assert.Equal(2, paged.TotalItems);
+            Assert.Equal(2, paged.Data.Count());
+            Assert.Equal(2, paged.Data.First().SurgeryId);
+            Assert.Equal(3, paged.Data.Last().SurgeryId);
+            Assert.All(paged.Data, p => Assert.True(p.IsPreAnesthesiaRecordDone));
+
+            _anesthesiaRepoMock.Verify(a => a.GetByDoctorAndDateAsync(It.IsAny<int>(), It.IsAny<DateTime?>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task GetMyPatientsAsync_SemFiltroDeData_SemRegistros_RetornaVazio()
+        {
+            _anesthesiaRepoMock
+                .Setup(a => a.GetPagedByDoctorPrioritizedAsync(1, null, 1, 10))
+                .ReturnsAsync(((IEnumerable<AnesthesiaRecord>)new List<AnesthesiaRecord>(), 0));
+
+            var result = await _service.GetMyPatientsAsync(1, null, string.Empty, null, 1, 10);
+
+            var paged = Assert.IsType<PagedResponse<PatientSurgeryResponse>>(result.Data);
+            Assert.Empty(paged.Data);
+            Assert.Equal(0, paged.TotalItems);
+        }
+
+        [Fact]
+        public async Task GetMyPatientsAsync_ComFiltroDeData_SemTermo_TambemUsaPaginacaoPriorizada()
+        {
+            var date = new DateTime(2026, 8, 29, 0, 0, 0, DateTimeKind.Utc);
+            var record = CreateRecord(5, "P5", SurgeryStatusEnum.Scheduled, date);
+
+            // Mesmo com filtro de data, o paciente em atendimento (se houver) continua
+            // vindo primeiro: a priorização não é exclusiva do cenário "sem filtro".
+            _anesthesiaRepoMock
+                .Setup(a => a.GetPagedByDoctorPrioritizedAsync(1, date, 1, 10))
+                .ReturnsAsync(((IEnumerable<AnesthesiaRecord>)new List<AnesthesiaRecord> { record }, 1));
+
+            _anesthesiaRepoMock
+                .Setup(a => a.CanAssumePatientsAsync(1))
+                .ReturnsAsync(false);
+
+            _preAnesthesiaRepoMock
+                .Setup(p => p.GetCompletedAnesthesiaRecordIds(It.IsAny<IEnumerable<int>>()))
+                .Returns(new HashSet<int>());
+
+            _hospitalApiRepoMock
+                .Setup(h => h.GetMyPatientsFromHospitalAsync(
+                    It.Is<IEnumerable<int>>(ids => ids.SequenceEqual(new[] { 5 })),
+                    null, 1, 1))
+                .ReturnsAsync(new PagedResponse<PatientDetailDto>
+                {
+                    Data = new List<PatientDetailDto>
+                    {
+                        new() { SurgeryId = 5, PatientId = "P5", FullName = "Carlos", Status = "agendada", ExpectedAt = date }
+                    },
+                    Page = 1,
+                    PageSize = 1,
+                    TotalItems = 1
+                });
+
+            var result = await _service.GetMyPatientsAsync(1, date, string.Empty, null, 1, 10);
+
+            var paged = Assert.IsType<PagedResponse<PatientSurgeryResponse>>(result.Data);
+            Assert.Single(paged.Data);
+            Assert.Equal(5, paged.Data.Single().SurgeryId);
+
+            _anesthesiaRepoMock.Verify(a => a.GetByDoctorAndDateAsync(It.IsAny<int>(), It.IsAny<DateTime?>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task GetMyPatientsAsync_ComTermoDeBusca_UsaFluxoDelegadoAoAghu()
+        {
+            var date = new DateTime(2026, 8, 29, 0, 0, 0, DateTimeKind.Utc);
+            var record = CreateRecord(5, "P5", SurgeryStatusEnum.Scheduled, date);
+
+            // Com termo de busca, a filtragem por nome/prontuário só existe no AGHU,
+            // então a paginação e a ordenação continuam totalmente delegadas a ele.
+            _anesthesiaRepoMock
+                .Setup(a => a.GetByDoctorAndDateAsync(1, date))
+                .ReturnsAsync(new List<AnesthesiaRecord> { record });
+
+            _anesthesiaRepoMock
+                .Setup(a => a.CanAssumePatientsAsync(1))
+                .ReturnsAsync(false);
+
+            _preAnesthesiaRepoMock
+                .Setup(p => p.GetCompletedAnesthesiaRecordIds(It.IsAny<IEnumerable<int>>()))
+                .Returns(new HashSet<int> { 5 });
+
+            _hospitalApiRepoMock
+                .Setup(h => h.GetMyPatientsFromHospitalAsync(
+                    It.Is<IEnumerable<int>>(ids => ids.SequenceEqual(new[] { 5 })),
+                    "Carlos", 1, 10))
+                .ReturnsAsync(new PagedResponse<PatientDetailDto>
+                {
+                    Data = new List<PatientDetailDto>
+                    {
+                        new() { SurgeryId = 5, PatientId = "P5", FullName = "Carlos", Status = "agendada", ExpectedAt = date }
+                    },
+                    Page = 1,
+                    PageSize = 10,
+                    TotalItems = 1
+                });
+
+            var result = await _service.GetMyPatientsAsync(1, date, "Carlos", null, 1, 10);
+
+            var paged = Assert.IsType<PagedResponse<PatientSurgeryResponse>>(result.Data);
+            Assert.Single(paged.Data);
+            Assert.Equal(5, paged.Data.Single().SurgeryId);
+            Assert.True(paged.Data.Single().IsPreAnesthesiaRecordDone);
+
+            _anesthesiaRepoMock.Verify(a => a.GetPagedByDoctorPrioritizedAsync(It.IsAny<int>(), It.IsAny<DateTime?>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+        }
     }
 }

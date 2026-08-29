@@ -201,6 +201,15 @@ namespace UFF.FichaAnestesica.Service.Services
             if (date.HasValue)
                 date = DateTime.SpecifyKind(date.Value, DateTimeKind.Utc);
 
+            // O paciente atualmente em atendimento (status InProgress) deve sempre ficar na
+            // primeira posição, mesmo em páginas seguintes de pacientes mais antigos ou com
+            // filtro de data aplicado. Isso só é possível paginando pela tabela local (que já
+            // conhece o status "em atendimento") antes de consultar o AGHU. Quando há busca por
+            // termo, a filtragem por nome/prontuário só existe no AGHU, então mantemos o fluxo
+            // antigo (paginação e ordenação delegadas ao AGHU) para não quebrar a busca.
+            if (string.IsNullOrWhiteSpace(term))
+                return await GetMyPatientsPrioritizedAsync(doctorId, date, page, size);
+
             var anesthesiaRecords = await _anesthesiaRecordRepository.GetByDoctorAndDateAsync(doctorId, date);
 
             if (!anesthesiaRecords.Any())
@@ -231,15 +240,103 @@ namespace UFF.FichaAnestesica.Service.Services
 
             var recordsBySurgeryId = anesthesiaRecords.ToDictionary(x => x.Id, x => x);
 
-            var canAssumePatient = recordsBySurgeryId.Any(x => x.Value.FirstAnesthesiologistId == doctorId
-            && (x.Value.Status == SurgeryStatusEnum.InProgress)
-            || x.Value.Status == SurgeryStatusEnum.Scheduled
-            || x.Value.Status == SurgeryStatusEnum.Preparing);
+            var canAssumePatient = await _anesthesiaRecordRepository.CanAssumePatientsAsync(doctorId);
+
+            var completedPreAnesthesiaRecordIds = _preAnesthesiaRecordRepository.GetCompletedAnesthesiaRecordIds(surgeryIds);
 
             SetSurgeryStatus(hospitalData, recordsBySurgeryId);
 
             var responseData = PatientResponseMapper.Map(hospitalData.Data, recordsBySurgeryId);
 
+            AttachResponsibles(responseData, recordsBySurgeryId);
+            ApplyPreAnesthesiaRecordDone(responseData, completedPreAnesthesiaRecordIds);
+
+            return CommandResult.Success(new PagedResponse<PatientSurgeryResponse>
+            {
+                Data = responseData,
+                Page = hospitalData.Page,
+                PageSize = hospitalData.PageSize,
+                TotalItems = hospitalData.TotalItems,
+                CanAssumePatient = !canAssumePatient
+            });
+        }
+
+        private async Task<CommandResult> GetMyPatientsPrioritizedAsync(int doctorId, DateTime? date, int page, int size)
+        {
+            var (pagedRecords, totalItems) = await _anesthesiaRecordRepository.GetPagedByDoctorPrioritizedAsync(doctorId, date, page, size);
+
+            var pagedRecordsList = pagedRecords.ToList();
+
+            if (!pagedRecordsList.Any())
+            {
+                return CommandResult.Success(new PagedResponse<PatientSurgeryResponse>
+                {
+                    Data = [],
+                    Page = page,
+                    PageSize = size,
+                    TotalItems = totalItems
+                });
+            }
+
+            // A ordem já vem definida pela consulta local (em atendimento primeiro,
+            // depois mais recente para o mais antigo). Buscamos no AGHU somente os
+            // detalhes desses ids (já limitados ao tamanho da página).
+            var orderedIds = pagedRecordsList.Select(x => x.Id).ToList();
+
+            var hospitalData = await _hospitalApiRepository.GetMyPatientsFromHospitalAsync(orderedIds, null, 1, orderedIds.Count);
+
+            if (hospitalData.Data == null || !hospitalData.Data.Any())
+            {
+                return CommandResult.Success(new PagedResponse<PatientSurgeryResponse>
+                {
+                    Data = [],
+                    Page = page,
+                    PageSize = size,
+                    TotalItems = totalItems
+                });
+            }
+
+            var recordsBySurgeryId = pagedRecordsList.ToDictionary(x => x.Id, x => x);
+
+            var canAssumePatient = await _anesthesiaRecordRepository.CanAssumePatientsAsync(doctorId);
+
+            var completedPreAnesthesiaRecordIds = _preAnesthesiaRecordRepository.GetCompletedAnesthesiaRecordIds(orderedIds);
+
+            SetSurgeryStatus(hospitalData, recordsBySurgeryId);
+
+            var responseData = PatientResponseMapper.Map(hospitalData.Data, recordsBySurgeryId);
+
+            AttachResponsibles(responseData, recordsBySurgeryId);
+            ApplyPreAnesthesiaRecordDone(responseData, completedPreAnesthesiaRecordIds);
+
+            // O AGHU retorna os dados ordenados por nome; restauramos a prioridade
+            // (em atendimento primeiro, depois mais recente) antes de responder.
+            var orderIndex = orderedIds
+                .Select((id, index) => (id, index))
+                .ToDictionary(x => x.id, x => x.index);
+
+            responseData = responseData
+                .OrderBy(x => orderIndex.TryGetValue(x.SurgeryId, out var index) ? index : int.MaxValue)
+                .ToList();
+
+            return CommandResult.Success(new PagedResponse<PatientSurgeryResponse>
+            {
+                Data = responseData,
+                Page = page,
+                PageSize = size,
+                TotalItems = totalItems,
+                CanAssumePatient = !canAssumePatient
+            });
+        }
+
+        private static void ApplyPreAnesthesiaRecordDone(List<PatientSurgeryResponse> responseData, HashSet<int> completedPreAnesthesiaRecordIds)
+        {
+            foreach (var patient in responseData)
+                patient.IsPreAnesthesiaRecordDone = completedPreAnesthesiaRecordIds.Contains(patient.SurgeryId);
+        }
+
+        private static void AttachResponsibles(List<PatientSurgeryResponse> responseData, Dictionary<int, AnesthesiaRecord> recordsBySurgeryId)
+        {
             foreach (var patient in responseData)
             {
                 if (!recordsBySurgeryId.TryGetValue(patient.SurgeryId, out var record))
@@ -285,15 +382,6 @@ namespace UFF.FichaAnestesica.Service.Services
                     };
                 }
             }
-
-            return CommandResult.Success(new PagedResponse<PatientSurgeryResponse>
-            {
-                Data = responseData,
-                Page = hospitalData.Page,
-                PageSize = hospitalData.PageSize,
-                TotalItems = hospitalData.TotalItems,
-                CanAssumePatient = !canAssumePatient
-            });
         }
 
         public async Task<CommandResult> GetPatientAnesthesiaRecordByIdAsync(string patientId, int surgeryId)

@@ -70,14 +70,36 @@ namespace UFF.FichaAnestesica.Infra.Repositories
         {
             return await _context.AnesthesiaRecords
                 .Include(x => x.FirstAnesthesiologist)
-                .Where(x => x.FirstAnesthesiologistId == doctorId && x.SurgeryDate == date)
+                .Where(x => x.FirstAnesthesiologistId == doctorId && (!date.HasValue || x.SurgeryDate == date))
                 .OrderBy(x => x.Status == SurgeryStatusEnum.InProgress ? 0 :
                               x.Status == SurgeryStatusEnum.Preparing ? 1 :
                               x.Status == SurgeryStatusEnum.Scheduled ? 2 :
                               x.Status == SurgeryStatusEnum.Completed ? 3 :
                               4)
-                .ThenBy(x => x.SurgeryDate)
+                .ThenByDescending(x => x.SurgeryDate)
                 .ToListAsync();
+        }
+
+        public async Task<(IEnumerable<AnesthesiaRecord> Items, int TotalItems)> GetPagedByDoctorPrioritizedAsync(int doctorId, DateTime? date, int page, int pageSize)
+        {
+            var query = _context.AnesthesiaRecords
+                .Include(x => x.FirstAnesthesiologist)
+                .Where(x => x.FirstAnesthesiologistId == doctorId && (!date.HasValue || x.SurgeryDate == date));
+
+            var totalItems = await query.CountAsync();
+
+            var items = await query
+                .OrderBy(x => x.Status == SurgeryStatusEnum.InProgress ? 0 :
+                              x.Status == SurgeryStatusEnum.Preparing ? 1 :
+                              x.Status == SurgeryStatusEnum.Scheduled ? 2 :
+                              x.Status == SurgeryStatusEnum.Completed ? 3 :
+                              4)
+                .ThenByDescending(x => x.SurgeryDate)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalItems);
         }
 
         public async Task<IEnumerable<AnesthesiaRecord>> GetByStatusAndDateAsync(SurgeryStatusEnum status, DateTime? date)
