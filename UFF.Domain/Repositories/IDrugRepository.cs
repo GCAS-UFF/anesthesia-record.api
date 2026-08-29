@@ -1,4 +1,5 @@
 ﻿using UFF.FichaAnestesica.Domain.Entities;
+using UFF.FichaAnestesica.Domain.Enums;
 
 namespace UFF.FichaAnestesica.Domain.Repositories
 {
@@ -12,5 +13,9 @@ namespace UFF.FichaAnestesica.Domain.Repositories
 
         Task<List<Drug>> GetActiveAsync();
         Task<DateTime?> GetLastTimeIntegration();
+
+        Task<Drug?> GetByIdAsync(int id);
+
+        Task<(List<Drug> Items, int TotalItems)> GetPagedAsync(string? term, DrugCategoryEnum? category, int page, int pageSize);
     }
 }

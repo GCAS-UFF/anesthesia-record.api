@@ -9,8 +9,10 @@ namespace UFF.FichaAnestesica.Domain.Entities
         public TimeSpan Time { get; private set; }
         public ClinicalEventTypeEnum EventType { get; private set; }
         public string? Observations { get; private set; }
+        public int? CatalogEventId { get; private set; }
+        public string? CatalogEventName { get; private set; }
         public int MonitoringRecordId { get; private set; }
-        public MonitoringRecord MonitoringRecord { get; private set; }         
+        public MonitoringRecord MonitoringRecord { get; private set; }
 
         public static ClinicalEvent Create(ClinicalEventCommand command)
         {
@@ -20,6 +22,8 @@ namespace UFF.FichaAnestesica.Domain.Entities
                 Date = command.Date,
                 EventType = command.EventType,
                 Observations = command.Observations,
+                CatalogEventId = command.CatalogEventId,
+                CatalogEventName = command.CatalogEventName,
                 CreatedAt = DateTime.UtcNow
             };
         }
@@ -35,6 +39,8 @@ namespace UFF.FichaAnestesica.Domain.Entities
             Date = command.Date;
             EventType = command.EventType;
             Observations = command.Observations;
+            CatalogEventId = command.CatalogEventId;
+            CatalogEventName = command.CatalogEventName;
 
             LastUpdate = DateTime.UtcNow;
         }

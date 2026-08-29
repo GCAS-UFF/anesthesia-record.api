@@ -46,6 +46,8 @@ namespace UFF.FichaAnestesica.Infra.DependencyInjection
             services.AddScoped<ICustomFieldRepository, CustomFieldRepository>();
             services.AddScoped<ICustomFieldRepository, CustomFieldRepository>();
             services.AddScoped<IDrugRepository, DrugRepository>();
+            services.AddScoped<IEventTypeRepository, EventTypeRepository>();
+            services.AddScoped<IEventTypeService, EventTypeService>();
             services.AddScoped<IFluidBalanceRepository, FluidBalanceRepository>();
             services.AddScoped<IMonitoringRecordRepository, MonitoringRecordRepository>();
             services.AddScoped<IVitalSignRecordRepository, VitalSignRecordRepository>();

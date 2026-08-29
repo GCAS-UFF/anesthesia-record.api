@@ -1,15 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using UFF.FichaAnestesica.Domain.Entities;
-using UFF.FichaAnestesica.Domain.Enums;
 
 namespace UFF.FichaAnestesica.Infra.EntityConfig
 {
-    public class DrugConfig : IEntityTypeConfiguration<Drug>
+    public class EventTypeConfig : IEntityTypeConfiguration<EventType>
     {
-        public void Configure(EntityTypeBuilder<Drug> builder)
+        public void Configure(EntityTypeBuilder<EventType> builder)
         {
-            builder.ToTable("drugs");
+            builder.ToTable("event_types");
 
             builder.HasKey(x => x.Id);
 
@@ -18,15 +17,20 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .UseIdentityColumn()
                 .IsRequired();
 
+            builder.Property(x => x.Name)
+                .HasColumnName("name")
+                .HasColumnType("varchar(150)")
+                .IsRequired();
+
             builder.Property(x => x.Description)
                 .HasColumnName("description")
-                .HasColumnType("varchar(150)")
-                .IsRequired();          
+                .HasColumnType("varchar(500)")
+                .IsRequired();
 
-            builder.Property(x => x.DefaultUnit)
-                .HasColumnName("default_unit")
-                .HasColumnType("varchar(150)")
-                .IsRequired();         
+            builder.Property(x => x.Active)
+                .HasColumnName("active")
+                .HasDefaultValue(true)
+                .IsRequired();
 
             builder.Property(x => x.CreatedAt)
                 .HasColumnName("created_at")
@@ -37,13 +41,7 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .HasColumnName("last_update")
                 .HasColumnType("timestamptz");
 
-            builder.Property(x => x.Category)
-                .HasColumnName("category")
-                .HasColumnType("integer")
-                .HasDefaultValue(DrugCategoryEnum.Outros)
-                .IsRequired();
-
-            builder.HasIndex(x => x.Description)
+            builder.HasIndex(x => x.Name)
                 .IsUnique();
         }
     }

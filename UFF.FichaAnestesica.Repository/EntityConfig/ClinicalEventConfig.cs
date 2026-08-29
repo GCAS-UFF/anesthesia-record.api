@@ -36,6 +36,13 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .HasColumnName("observations")
                 .HasColumnType("text");
 
+            builder.Property(x => x.CatalogEventId)
+                .HasColumnName("catalog_event_id");
+
+            builder.Property(x => x.CatalogEventName)
+                .HasColumnName("catalog_event_name")
+                .HasColumnType("varchar(150)");
+
             builder.Property(x => x.MonitoringRecordId)
              .HasColumnName("monitoring_record_id")
              .IsRequired();

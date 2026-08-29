@@ -68,6 +68,8 @@ namespace UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord
         public DateTime Date { get; set; }
         public ClinicalEventTypeEnum EventType { get; set; }
         public string Observations { get; set; }
+        public int? CatalogEventId { get; set; }
+        public string? CatalogEventName { get; set; }
     }
 
     public class PatientPositionCommand

@@ -19,6 +19,7 @@ namespace UFF.FichaAnestesica.Infra.Context
         public DbSet<ClinicalEvent> ClinicalEvents { get; set; }
         public DbSet<CustomField> CustomFields { get; set; }
         public DbSet<Drug> Drugs { get; set; }
+        public DbSet<EventType> EventTypes { get; set; }
         public DbSet<FluidBalance> FluidBalances { get; set; }
         public DbSet<Procedure> Procedures { get; set; }
         public DbSet<MonitoringRecord> MonitoringRecords { get; set; }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using UFF.FichaAnestesica.Domain.Entities;
+using UFF.FichaAnestesica.Domain.Enums;
 using UFF.FichaAnestesica.Domain.Repositories;
 using UFF.FichaAnestesica.Infra.Context;
 
@@ -46,6 +47,32 @@ namespace UFF.FichaAnestesica.Infra.Repositories
             return await _context.Drugs
                 .OrderBy(x => x.Description)
                 .ToListAsync();
+        }
+
+        public async Task<Drug?> GetByIdAsync(int id)
+        {
+            return await _context.Drugs.FirstOrDefaultAsync(x => x.Id == id);
+        }
+
+        public async Task<(List<Drug> Items, int TotalItems)> GetPagedAsync(string? term, DrugCategoryEnum? category, int page, int pageSize)
+        {
+            var query = _context.Drugs.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(term))
+                query = query.Where(x => x.Description.ToLower().Contains(term.ToLower()));
+
+            if (category.HasValue)
+                query = query.Where(x => x.Category == category.Value);
+
+            var totalItems = await query.CountAsync();
+
+            var items = await query
+                .OrderBy(x => x.Description)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalItems);
         }
     }
 }

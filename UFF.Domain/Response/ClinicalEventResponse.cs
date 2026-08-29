@@ -9,6 +9,8 @@ namespace UFF.FichaAnestesica.Domain.Response
         public DateTime Date { get; set; }
         public ClinicalEventTypeEnum EventType { get; private set; }
         public string? Observations { get; private set; }
+        public int? CatalogEventId { get; private set; }
+        public string? CatalogEventName { get; private set; }
 
         public static ClinicalEventResponse ToResponse(ClinicalEvent entity)
         {
@@ -17,7 +19,9 @@ namespace UFF.FichaAnestesica.Domain.Response
                 EventType = entity.EventType,
                 Time = entity.Time,
                 Date = entity.Date,
-                Observations = entity.Observations
+                Observations = entity.Observations,
+                CatalogEventId = entity.CatalogEventId,
+                CatalogEventName = entity.CatalogEventName
             };
         }
     }
