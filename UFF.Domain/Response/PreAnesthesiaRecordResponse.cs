@@ -7,6 +7,7 @@ namespace UFF.FichaAnestesica.Domain.Response
         public int Id { get; set; }
         public int AnesthesiaRecordId { get; set; }
         public string PatientId { get; set; } = string.Empty;
+        public int? FirstAnesthesiologistId { get; set; }
 
         #region Procedimento
         public List<PreAnesthesiaSurgeryResponse> Surgeries { get; set; } = new();
@@ -134,6 +135,7 @@ namespace UFF.FichaAnestesica.Domain.Response
                 Id = entity.Id,
                 AnesthesiaRecordId = entity.AnesthesiaRecordId,
                 PatientId = entity.AnesthesiaRecord?.PatientId ?? string.Empty,
+                FirstAnesthesiologistId = entity.AnesthesiaRecord?.FirstAnesthesiologistId,
 
                 Surgeries = entity.Surgeries.Select(PreAnesthesiaSurgeryResponse.ToResponse).ToList(),
                 Laterality = entity.Laterality?.ToString(),

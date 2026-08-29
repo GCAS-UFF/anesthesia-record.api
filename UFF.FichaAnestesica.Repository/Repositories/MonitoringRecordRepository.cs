@@ -20,6 +20,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories
         public async Task<MonitoringRecord?> GetCompleteByIdAsync(int id)
         {
             return await _context.MonitoringRecords
+                .Include(x => x.AnesthesiaRecord)
                 .Include(x => x.VitalSigns)
                     .ThenInclude(x => x.CustomFields)
                 .Include(x => x.AdministeredAgents)

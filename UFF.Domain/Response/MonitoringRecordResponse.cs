@@ -11,6 +11,8 @@ namespace UFF.FichaAnestesica.Domain.Response
 
         public int SurgeryId { get; set; }
 
+        public int? FirstAnesthesiologistId { get; set; }
+
         public int RecordedByProfessionalId { get; set; }
 
         public SurgeryStatusEnum Status { get; set; }
@@ -42,6 +44,7 @@ namespace UFF.FichaAnestesica.Domain.Response
                 Id = entity.Id,
                 AnesthesiaRecordId = entity.AnesthesiaRecordId,
                 SurgeryId = entity.AnesthesiaRecordId,
+                FirstAnesthesiologistId = entity.AnesthesiaRecord?.FirstAnesthesiologistId,
                 Status = entity.Status,
                 RecordedByProfessionalId = entity.RecordedByProfessionalId,
                 StartedAt = entity.StartedAt,

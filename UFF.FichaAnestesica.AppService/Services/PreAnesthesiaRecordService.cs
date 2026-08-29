@@ -9,12 +9,17 @@ public class PreAnesthesiaRecordService : IPreAnesthesiaRecordService
 {
     private readonly IPreAnesthesiaRecordRepository _preAnesthesiaRecordRepository;
     private readonly IAnesthesiaRecordRepository _anesthesiaRecordRepository;
+    private readonly ICurrentUserService _currentUserService;
 
-    public PreAnesthesiaRecordService(IPreAnesthesiaRecordRepository preAnesthesiaRecordRepository, IAnesthesiaRecordRepository anesthesiaRecordRepository)
+    public PreAnesthesiaRecordService(IPreAnesthesiaRecordRepository preAnesthesiaRecordRepository, IAnesthesiaRecordRepository anesthesiaRecordRepository, ICurrentUserService currentUserService)
     {
         _preAnesthesiaRecordRepository = preAnesthesiaRecordRepository;
         _anesthesiaRecordRepository = anesthesiaRecordRepository;
+        _currentUserService = currentUserService;
     }
+
+    private bool IsResponsibleDoctor(int? firstAnesthesiologistId)
+        => firstAnesthesiologistId.HasValue && firstAnesthesiologistId == _currentUserService.UserId;
 
     public async Task<CommandResult> GetByIdAsync(int id)
     {
@@ -45,6 +50,9 @@ public class PreAnesthesiaRecordService : IPreAnesthesiaRecordService
         if (anesthesiaRecord == null)
             return CommandResult.Fail("Cirurgia/ficha anestésica não encontrada");
 
+        if (!IsResponsibleDoctor(anesthesiaRecord.FirstAnesthesiologistId))
+            return CommandResult.Forbid("Apenas o médico responsável pode criar a avaliação pré-anestésica.");
+
         var existing = await _preAnesthesiaRecordRepository.GetByAnesthesiaRecordIdAsync(command.AnesthesiaRecordId);
         if (existing != null)
             return CommandResult.Fail("Já existe uma avaliação pré-anestésica para esta cirurgia. Use a atualização (PUT).");
@@ -74,6 +82,9 @@ public class PreAnesthesiaRecordService : IPreAnesthesiaRecordService
         var record = await _preAnesthesiaRecordRepository.GetCompleteByIdAsync(id);
         if (record == null)
             return CommandResult.Fail("Avaliação pré-anestésica não encontrada");
+
+        if (!IsResponsibleDoctor(record.AnesthesiaRecord?.FirstAnesthesiologistId))
+            return CommandResult.Forbid("Apenas o médico responsável pode editar a avaliação pré-anestésica.");
 
         try
         {

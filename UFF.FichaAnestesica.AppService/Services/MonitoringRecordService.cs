@@ -10,11 +10,19 @@ public class MonitoringRecordService : IMonitoringRecordService
 {
     private readonly IMonitoringRecordRepository _monitoringRepository;
     private readonly IAnesthesiaRecordRepository _anesthesiaRecordRepository;
+    private readonly ICurrentUserService _currentUserService;
 
-    public MonitoringRecordService(IMonitoringRecordRepository repository, IAnesthesiaRecordRepository anesthesiaRecordRepository)
+    public MonitoringRecordService(IMonitoringRecordRepository repository, IAnesthesiaRecordRepository anesthesiaRecordRepository, ICurrentUserService currentUserService)
     {
         _monitoringRepository = repository;
         _anesthesiaRecordRepository = anesthesiaRecordRepository;
+        _currentUserService = currentUserService;
+    }
+
+    private bool IsResponsibleDoctor(MonitoringRecord monitoring)
+    {
+        var firstAnesthesiologistId = monitoring.AnesthesiaRecord?.FirstAnesthesiologistId;
+        return firstAnesthesiologistId.HasValue && firstAnesthesiologistId == _currentUserService.UserId;
     }
 
     public async Task<CommandResult> GetByIdAsync(int id)
@@ -23,6 +31,9 @@ public class MonitoringRecordService : IMonitoringRecordService
 
         if (monitoring == null)
             return new CommandResult(false, "Monitorização não encontrada");
+
+        if (!IsResponsibleDoctor(monitoring) && monitoring.Status != SurgeryStatusEnum.Completed)
+            return CommandResult.Forbid("Monitorização ainda não concluída.");
 
         return CommandResult.Success(MonitoringRecordResponse.ToResponse(monitoring));
     }
@@ -51,6 +62,9 @@ public class MonitoringRecordService : IMonitoringRecordService
         if (monitoring == null)
             return CommandResult.Fail("Monitoriza��o n�o encontrada");
 
+        if (!IsResponsibleDoctor(monitoring))
+            return CommandResult.Forbid("Apenas o médico responsável pode editar a monitorização.");
+
         if (monitoring.Status == SurgeryStatusEnum.Completed)
             return CommandResult.Fail("Não é possível alterar uma monitorização depois de finalizada.");
 
@@ -78,14 +92,12 @@ public class MonitoringRecordService : IMonitoringRecordService
             if (monitoringRecord == null)
                 return CommandResult.Fail("Registro de monitoramento n�o encontrado");
 
-            // Já finalizada: não sobrescreve os dados de novo (evita reabrir uma monitorização
-            // concluída via reenvio/retry), só devolve o estado atual — idempotente.
+            if (!IsResponsibleDoctor(monitoringRecord))
+                return CommandResult.Forbid("Apenas o médico responsável pode finalizar a monitorização.");
+
             if (monitoringRecord.Status == SurgeryStatusEnum.Completed)
                 return CommandResult.Success(MonitoringRecordResponse.ToResponse(monitoringRecord));
 
-            // Persiste o snapshot final do monitoramento (vitais/agentes/eventos/balan�o/posi��es),
-            // se enviado. N�o altera o status da FICHA anest�sica em nenhuma hip�tese: finalizar o
-            // monitoramento e finalizar a ficha s�o momentos distintos.
             if (command != null)
                 monitoringRecord.Update(command);
 

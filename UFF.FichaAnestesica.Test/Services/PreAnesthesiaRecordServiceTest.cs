@@ -6,22 +6,30 @@ using UFF.FichaAnestesica.Domain.Entities;
 using UFF.FichaAnestesica.Domain.Enums;
 using UFF.FichaAnestesica.Domain.Repositories;
 using UFF.FichaAnestesica.Domain.Response;
+using UFF.FichaAnestesica.Domain.Services;
 
 namespace UFF.FichaAnestesica.Test.Services
 {
     public class PreAnesthesiaRecordServiceTest
     {
+        private const int ResponsibleDoctorId = 1;
+        private const int OtherDoctorId = 2;
+
         private readonly Mock<IPreAnesthesiaRecordRepository> _preAnesthesiaRepoMock;
         private readonly Mock<IAnesthesiaRecordRepository> _anesthesiaRepoMock;
+        private readonly Mock<ICurrentUserService> _currentUserServiceMock;
         private readonly PreAnesthesiaRecordService _service;
 
         public PreAnesthesiaRecordServiceTest()
         {
             _preAnesthesiaRepoMock = new Mock<IPreAnesthesiaRecordRepository>();
             _anesthesiaRepoMock = new Mock<IAnesthesiaRecordRepository>();
+            _currentUserServiceMock = new Mock<ICurrentUserService>();
+            _currentUserServiceMock.Setup(x => x.UserId).Returns(ResponsibleDoctorId);
             _service = new PreAnesthesiaRecordService(
                 _preAnesthesiaRepoMock.Object,
-                _anesthesiaRepoMock.Object);
+                _anesthesiaRepoMock.Object,
+                _currentUserServiceMock.Object);
         }
 
         private static PreAnesthesiaRecordCommand BaseCommand(int anesthesiaRecordId = 10)
@@ -34,16 +42,23 @@ namespace UFF.FichaAnestesica.Test.Services
             };
         }
 
-        private static PreAnesthesiaRecord CreateBaseRecord(int anesthesiaRecordId = 10) =>
-            PreAnesthesiaRecord.Create(BaseCommand(anesthesiaRecordId));
+        private static AnesthesiaRecord CreateAnesthesiaRecord(int? firstAnesthesiologistId = ResponsibleDoctorId)
+        {
+            var anesthesiaRecord = AnesthesiaRecord.Create(new AnesthesiaRecordCommand(), DateTime.MinValue);
+            anesthesiaRecord.AssignFirstAnesthesiologistId(firstAnesthesiologistId);
+            return anesthesiaRecord;
+        }
 
-        private static AnesthesiaRecord CreateAnesthesiaRecord() =>
-            AnesthesiaRecord.Create(new AnesthesiaRecordCommand(), DateTime.MinValue);
+        private static PreAnesthesiaRecord CreateBaseRecord(int anesthesiaRecordId = 10, int? firstAnesthesiologistId = ResponsibleDoctorId)
+        {
+            var record = PreAnesthesiaRecord.Create(BaseCommand(anesthesiaRecordId));
+            record.SetAnesthesiaRecord(CreateAnesthesiaRecord(firstAnesthesiologistId));
+            return record;
+        }
 
         private static PreAnesthesiaRecordResponse GetData(CommandResult result) =>
             (PreAnesthesiaRecordResponse)result.Data!;
 
-        // ========== GetByIdAsync ==========
 
         [Fact]
         public async Task GetByIdAsync_Should_Return_Success_When_Record_Found()
@@ -225,6 +240,48 @@ namespace UFF.FichaAnestesica.Test.Services
 
             Assert.False(result.Valid);
             Assert.Contains("Erro de atualização", result.Message);
+        }
+
+     
+
+        [Fact]
+        public async Task Create_Should_Return_Forbidden_When_Not_Responsible()
+        {
+            _currentUserServiceMock.Setup(x => x.UserId).Returns(OtherDoctorId);
+            var command = BaseCommand(45);
+            _anesthesiaRepoMock.Setup(r => r.GetByIdAsync(45)).ReturnsAsync(CreateAnesthesiaRecord(ResponsibleDoctorId));
+
+            var result = await _service.Create(command);
+
+            Assert.False(result.Valid);
+            Assert.True(result.Forbidden);
+            _preAnesthesiaRepoMock.Verify(r => r.AddAsync(It.IsAny<PreAnesthesiaRecord>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task Update_Should_Return_Forbidden_When_Not_Responsible()
+        {
+            _currentUserServiceMock.Setup(x => x.UserId).Returns(OtherDoctorId);
+            var existing = CreateBaseRecord(53, ResponsibleDoctorId);
+            _preAnesthesiaRepoMock.Setup(r => r.GetCompleteByIdAsync(53)).ReturnsAsync(existing);
+
+            var result = await _service.Update(53, BaseCommand(53));
+
+            Assert.False(result.Valid);
+            Assert.True(result.Forbidden);
+            _preAnesthesiaRepoMock.Verify(r => r.SaveChangesAsync(), Times.Never);
+        }
+
+        [Fact]
+        public async Task GetByIdAsync_Should_Return_Success_When_Not_Responsible()
+        {
+            _currentUserServiceMock.Setup(x => x.UserId).Returns(OtherDoctorId);
+            var record = CreateBaseRecord(54, ResponsibleDoctorId);
+            _preAnesthesiaRepoMock.Setup(r => r.GetCompleteByIdAsync(54)).ReturnsAsync(record);
+
+            var result = await _service.GetByIdAsync(54);
+
+            Assert.True(result.Valid);
         }
     }
 }

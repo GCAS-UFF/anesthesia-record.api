@@ -5,6 +5,7 @@
         public bool Valid { get; set; }
         public object Data { get; set; }
         public string Message { get; set; }
+        public bool Forbidden { get; set; }
 
         public CommandResult(bool valid, object data = null, string message = "")
         {
@@ -21,6 +22,11 @@
         public static CommandResult Fail(string message, object data = null)
         {
             return new CommandResult(false, data, message);
+        }
+
+        public static CommandResult Forbid(string message, object data = null)
+        {
+            return new CommandResult(false, data, message) { Forbidden = true };
         }
     }
 }

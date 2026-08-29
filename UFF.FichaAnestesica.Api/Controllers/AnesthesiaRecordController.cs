@@ -48,7 +48,9 @@ namespace UFF.FichaAnestesica.Api.Controllers
             var result = await _anesthesiaRecordService.Update(id, command);
 
             if (!result.Valid)
-                return BadRequest(new CommandResult(false, result.Data));
+                return result.Forbidden
+                    ? StatusCode(403, new CommandResult(false, result.Data, result.Message) { Forbidden = true })
+                    : BadRequest(new CommandResult(false, result.Data));
 
             return Ok(new CommandResult(true, result));
         }
@@ -59,6 +61,18 @@ namespace UFF.FichaAnestesica.Api.Controllers
         {
             var surgeries = await _anesthesiaRecordService.GetByIdAsync(id, extenalPatientId);
             return Ok(surgeries);
+        }
+
+        [HttpPatch("{id}/reopen")]
+        [Authorize(Policy = "AdminOnly")]
+        public async Task<IActionResult> Reopen([FromRoute] int id)
+        {
+            var result = await _anesthesiaRecordService.Reopen(id);
+
+            if (!result.Valid)
+                return BadRequest(result);
+
+            return Ok(result);
         }
 
         [HttpGet("my-patients")]

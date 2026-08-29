@@ -148,6 +148,9 @@ namespace UFF.FichaAnestesica.Domain.Entities
             LastUpdate = DateTime.UtcNow;
         }
 
+        public void SetAnesthesiaRecord(AnesthesiaRecord anesthesiaRecord)
+            => AnesthesiaRecord = anesthesiaRecord;
+
         private void SetValues(PreAnesthesiaRecordCommand command)
         {
             AnesthesiaRecordId = command.AnesthesiaRecordId;

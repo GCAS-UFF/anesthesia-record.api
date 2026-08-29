@@ -44,11 +44,11 @@ namespace UFF.FichaAnestesica.Api.Controllers
         {
             var result = await _preAnesthesiaRecordService.Create(command);
             if (!result.Valid)
-                return BadRequest(result);
+                return result.Forbidden ? StatusCode(403, result) : BadRequest(result);
             return Created(string.Empty, result);
         }
 
-        
+
         [HttpPut("{id}")]
         [Authorize]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] PreAnesthesiaRecordCommand command)
@@ -58,7 +58,7 @@ namespace UFF.FichaAnestesica.Api.Controllers
 
             var result = await _preAnesthesiaRecordService.Update(id, command);
             if (!result.Valid)
-                return BadRequest(result);
+                return result.Forbidden ? StatusCode(403, result) : BadRequest(result);
             return Ok(result);
         }
     }

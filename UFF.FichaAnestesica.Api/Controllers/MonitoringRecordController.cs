@@ -16,11 +16,6 @@ namespace UFF.FichaAnestesica.Api.Controllers
             _monitoringRecordService = monitoringRecordService;
         }
 
-        /// <summary>
-        /// Obt�m um registro de monitoriza��o por ID
-        /// </summary>
-        /// <param name="id">ID do registro de monitoriza��o</param>
-        /// <returns>Registro de monitoriza��o encontrado</returns>
         [HttpGet("{id}")]
         [Authorize]
         public async Task<IActionResult> GetById([FromRoute] int id)
@@ -28,16 +23,11 @@ namespace UFF.FichaAnestesica.Api.Controllers
             var result = await _monitoringRecordService.GetByIdAsync(id);
 
             if (!result.Valid)
-                return NotFound(result);
+                return result.Forbidden ? StatusCode(403, result) : NotFound(result);
 
             return Ok(result);
         }
 
-        /// <summary>
-        /// Cria um novo registro de monitoriza��o
-        /// </summary>
-        /// <param name="command">Dados do registro de monitoriza��o</param>
-        /// <returns>Registro criado</returns>
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> Create([FromBody] MonitoringRecordCommand command)
@@ -50,12 +40,7 @@ namespace UFF.FichaAnestesica.Api.Controllers
             return Created(string.Empty, result);
         }
 
-        /// <summary>
-        /// Atualiza um registro de monitoriza��o existente
-        /// </summary>
-        /// <param name="id">ID do registro a ser atualizado</param>
-        /// <param name="command">Dados atualizados</param>
-        /// <returns>Registro atualizado</returns>
+      
         [HttpPut("{id}")]
         [Authorize]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] MonitoringRecordCommand command)
@@ -66,17 +51,12 @@ namespace UFF.FichaAnestesica.Api.Controllers
             var result = await _monitoringRecordService.Update(id, command);
 
             if (!result.Valid)
-                return BadRequest(result);
+                return result.Forbidden ? StatusCode(403, result) : BadRequest(result);
 
             return Ok(result);
         }
 
-        // <summary>
-        /// Finaliza o monitoramento de uma cirurgia em andamento
-        /// </summary>
-        /// <param name="id">ID do registro a ser finalizado</param>
-        /// <param name="command">Dados atualizados</param>
-        /// <returns>Registro atualizado</returns>
+ 
         [HttpPatch("{id}")]
         [Authorize]
         public async Task<IActionResult> FinalizePatientAsync([FromRoute] int id, [FromBody] MonitoringRecordCommand? command)
@@ -84,7 +64,7 @@ namespace UFF.FichaAnestesica.Api.Controllers
             var result = await _monitoringRecordService.FinalizePatientAsync(id, command);
 
             if (!result.Valid)
-                return BadRequest(result);
+                return result.Forbidden ? StatusCode(403, result) : BadRequest(result);
 
             return Ok(result);
         }

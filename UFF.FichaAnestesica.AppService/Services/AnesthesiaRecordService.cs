@@ -13,14 +13,16 @@ public class AnesthesiaRecordService : IAnesthesiaRecordService
     private readonly IMonitoringRecordRepository _monitoringRecordRepository;
     private readonly IPatientReadOnlyRepository _hospitalApiRepository;
     private readonly IProcedureRepository _procedureRepository;
+    private readonly ICurrentUserService _currentUserService;
 
     public AnesthesiaRecordService(IAnesthesiaRecordRepository anesthesiaRecordRepository, IMonitoringRecordRepository monitoringRecordRepository, IPatientReadOnlyRepository hospitalApiRepository,
-        IProcedureRepository procedureRepository)
+        IProcedureRepository procedureRepository, ICurrentUserService currentUserService)
     {
         _anesthesiaRecordRepository = anesthesiaRecordRepository;
         _monitoringRecordRepository = monitoringRecordRepository;
         _hospitalApiRepository = hospitalApiRepository;
         _procedureRepository = procedureRepository;
+        _currentUserService = currentUserService;
     }
 
     public async Task<CommandResult> GetByIdAsync(int id, string extenalPatientId)
@@ -69,6 +71,9 @@ public class AnesthesiaRecordService : IAnesthesiaRecordService
         if (anesthesiaRecord == null)
             throw new Exception("Ficha anestésica não encontrada");
 
+        if (anesthesiaRecord.FirstAnesthesiologistId.HasValue && anesthesiaRecord.FirstAnesthesiologistId != _currentUserService.UserId)
+            return CommandResult.Forbid("Apenas o médico responsável pode editar esta ficha.");
+
         if (anesthesiaRecord.Status == SurgeryStatusEnum.Completed)
             throw new Exception("Não é possível alterar uma ficha depois da cirurgia finalizada.");
 
@@ -104,5 +109,29 @@ public class AnesthesiaRecordService : IAnesthesiaRecordService
         }
 
         return CommandResult.Success(AnesthesiaRecordResponse.ToResponse(anesthesiaRecord, patient));
-    }  
+    }
+
+    public async Task<CommandResult> Reopen(int id)
+    {
+        var anesthesiaRecord = await _anesthesiaRecordRepository.GetByIdAsync(id);
+
+        if (anesthesiaRecord == null)
+            return CommandResult.Fail("Ficha anestésica não encontrada");
+
+        if (anesthesiaRecord.Status != SurgeryStatusEnum.Completed)
+            return CommandResult.Fail("Esta ficha não está finalizada.");
+
+        try
+        {
+            anesthesiaRecord.SetStatus(SurgeryStatusEnum.InProgress);
+            _anesthesiaRecordRepository.Update(anesthesiaRecord);
+            await _anesthesiaRecordRepository.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            return CommandResult.Fail(ex.Message);
+        }
+
+        return CommandResult.Success(new { anesthesiaRecord.Id, anesthesiaRecord.Status });
+    }
 }
