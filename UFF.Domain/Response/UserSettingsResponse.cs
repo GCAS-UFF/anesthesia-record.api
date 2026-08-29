@@ -9,6 +9,7 @@ namespace UFF.FichaAnestesica.Domain.Response
         public int MonitoringIntervalMinutes { get; set; }
         public bool UseInstitutionalInterval { get; set; }
         public int InstitutionalMonitoringIntervalMinutes { get; set; }
+        public string HospitalName { get; set; }
         public InstitutionSettingsResponse Institution { get; set; }
 
         public static UserSettingsResponse ToResponse(
@@ -23,7 +24,8 @@ namespace UFF.FichaAnestesica.Domain.Response
                 MonitoringIntervalMinutes = userSettings.MonitoringIntervalMinutes,
                 UseInstitutionalInterval = userSettings.UseInstitutionalInterval,
                 InstitutionalMonitoringIntervalMinutes = institutionSettings.MonitoringIntervalMinutes,
-                Institution = isAdmin ? InstitutionSettingsResponse.ToResponse(institutionSettings) : null
+                HospitalName = institutionSettings.HospitalName,
+                Institution = InstitutionSettingsResponse.ToResponse(institutionSettings)
             };
         }
     }
