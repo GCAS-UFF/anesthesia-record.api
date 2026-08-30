@@ -1,0 +1,230 @@
+@model UFF.FichaAnestesica.Domain.Response.Reports.ReportPdfViewModel
+
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <title>@Model.Title</title>
+    <style>
+        @@page {
+            size: A4 portrait;
+            margin: 14mm 12mm;
+        }
+
+        * { box-sizing: border-box; }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+            color: #0f172a;
+        }
+
+        body {
+            font-size: 10.5pt;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid #1e3a8a;
+            padding-bottom: 10px;
+            margin-bottom: 16px;
+        }
+
+        .brand .siga {
+            font-weight: 800;
+            font-size: 14pt;
+            color: #1e3a8a;
+            letter-spacing: 0.04em;
+        }
+
+        .brand .meta {
+            text-align: right;
+            font-size: 8.5pt;
+            color: #64748b;
+        }
+
+        h1.title {
+            font-size: 18pt;
+            margin: 0 0 4px;
+            color: #0f172a;
+        }
+
+        p.subtitle {
+            margin: 0 0 10px;
+            font-size: 10pt;
+            color: #64748b;
+        }
+
+        .filters-line {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+            font-size: 9pt;
+            color: #334155;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin-bottom: 18px;
+        }
+
+        .filters-line b { color: #0f172a; }
+
+        .kpi-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .kpi-tile {
+            flex: 1 1 140px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px 12px;
+        }
+
+        .kpi-tile .value { display: block; font-size: 15pt; font-weight: 800; color: #0f172a; }
+        .kpi-tile .label { display: block; font-size: 8.5pt; color: #64748b; margin-top: 2px; }
+
+        .chart-block { margin-bottom: 22px; page-break-inside: avoid; }
+        .chart-block h3 { font-size: 11pt; margin: 0 0 8px; color: #1e3a8a; }
+        .chart-block canvas { width: 100% !important; max-height: 260px; }
+
+        table.data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 9pt;
+            margin-bottom: 12px;
+        }
+
+        table.data-table th {
+            text-align: left;
+            background: #f1f5f9;
+            color: #475569;
+            padding: 6px 8px;
+            border-bottom: 1px solid #cbd5e1;
+            text-transform: uppercase;
+            font-size: 8pt;
+            letter-spacing: 0.03em;
+        }
+
+        table.data-table td {
+            padding: 6px 8px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="brand">
+        <span class="siga">SIGA — Ficha Anestésica</span>
+        <span class="meta">Gerado em @Model.GeneratedAt.ToString("dd/MM/yyyy HH:mm")</span>
+    </div>
+
+    <h1 class="title">@Model.Title</h1>
+    <p class="subtitle">@Model.Subtitle</p>
+
+    <div class="filters-line">
+        <span>Período: <b>@Model.PeriodLabel</b></span>
+        <span>Filtros: <b>@Model.FiltersLabel</b></span>
+    </div>
+
+    @if (Model.Kpis.Count > 0)
+    {
+        <div class="kpi-grid">
+            @foreach (var kpi in Model.Kpis)
+            {
+                <div class="kpi-tile">
+                    <span class="value">@kpi.Value</span>
+                    <span class="label">@kpi.Label</span>
+                </div>
+            }
+        </div>
+    }
+
+    @for (var i = 0; i < Model.Charts.Count; i++)
+    {
+        var chart = Model.Charts[i];
+        <div class="chart-block">
+            <h3>@chart.Title</h3>
+            <canvas id="chart-@i" width="800" height="320"></canvas>
+        </div>
+    }
+
+    @if (Model.Table != null && Model.Table.Rows.Count > 0)
+    {
+        <table class="data-table">
+            <thead>
+                <tr>
+                    @foreach (var header in Model.Table.Headers)
+                    {
+                        <th>@header</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var row in Model.Table.Rows)
+                {
+                    <tr>
+                        @foreach (var cell in row)
+                        {
+                            <td>@cell</td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+    <script>@Html.Raw(UFF.FichaAnestesica.Service.Services.Pdf.ChartJsAssetLoader.GetSource())</script>
+    <script>
+        (function () {
+            var chartData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Charts));
+
+            chartData.forEach(function (c, i) {
+                var ctx = document.getElementById('chart-' + i).getContext('2d');
+                var palette = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899', '#84cc16', '#f97316', '#64748b'];
+
+                var chartType = c.type === 'doughnut' ? 'doughnut' : (c.type === 'line' ? 'line' : 'bar');
+
+                var dataset = {
+                    label: c.title,
+                    data: c.values,
+                    backgroundColor: chartType === 'doughnut'
+                        ? c.labels.map(function (_, idx) { return palette[idx % palette.length]; })
+                        : '#3b82f6',
+                    borderColor: '#3b82f6',
+                    fill: chartType === 'line',
+                    borderRadius: chartType === 'bar' ? 4 : 0
+                };
+
+                new Chart(ctx, {
+                    type: chartType,
+                    data: { labels: c.labels, datasets: [dataset] },
+                    options: {
+                        responsive: false,
+                        animation: false,
+                        plugins: { legend: { display: chartType === 'doughnut' } }
+                    }
+                });
+            });
+
+            requestAnimationFrame(function () {
+                requestAnimationFrame(function () {
+                    window.__chartsReady = true;
+                });
+            });
+        })();
+
+        if (@(Model.Charts.Count == 0 ? "true" : "false")) {
+            window.__chartsReady = true;
+        }
+    </script>
+</body>
+</html>

@@ -10,6 +10,7 @@ using UFF.FichaAnestesica.Infra.Repositories.Aghu;
 using UFF.FichaAnestesica.Infra.Services;
 using UFF.FichaAnestesica.Service.Services;
 using UFF.FichaAnestesica.Service.Services.Aghu;
+using UFF.FichaAnestesica.Service.Services.Pdf;
 
 namespace UFF.FichaAnestesica.Infra.DependencyInjection
 {
@@ -61,6 +62,10 @@ namespace UFF.FichaAnestesica.Infra.DependencyInjection
             services.AddScoped<IInstitutionSettingsRepository, InstitutionSettingsRepository>();
             services.AddScoped<IUserSettingsService, UserSettingsService>();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
+            services.AddScoped<IReportService, ReportService>();
+            services.AddScoped<IReportRepository, ReportRepository>();
+            services.AddScoped<IReportPdfService, ReportPdfService>();
+            services.AddSingleton<IPdfBrowserProvider, PdfBrowserProvider>();
 
             services.AddHttpContextAccessor();
             services.AddHttpClient("HospitalApi", client =>

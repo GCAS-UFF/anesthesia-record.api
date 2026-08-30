@@ -7,6 +7,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Assets\chart.umd.min.js" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Responses\apo3bxms.snr~" />
     <None Remove="Services\Aghu\MedicineApiService.cs~RF347b361.TMP" />
     <None Remove="Services\Aghu\PatientApiService.cs~RF2b8572f.TMP" />
