@@ -1,16 +1,18 @@
-﻿namespace UFF.FichaAnestesica.Domain.Enums
+using System.ComponentModel;
+
+namespace UFF.FichaAnestesica.Domain.Enums
 {
     public enum SurgicalPositionEnum
     {
-        Supine = 1,
-        Prone = 2,
-        Sitting = 3,
-        LeftLateral = 4,
-        RightLateral = 5,
-        Trendelenburg = 6,
-        Lithotomy = 7,
-        ReverseTrendelenburg = 8,
-        Jackknife = 9,
-        Fowler = 10
+        [Description("Supina")] Supine = 1,
+        [Description("Prona")] Prone = 2,
+        [Description("Sentado")] Sitting = 3,
+        [Description("Lateral Esquerdo")] LeftLateral = 4,
+        [Description("Lateral Direito")] RightLateral = 5,
+        [Description("Trendelenburg")] Trendelenburg = 6,
+        [Description("Litotômica")] Lithotomy = 7,
+        [Description("Trendelenburg Reverso")] ReverseTrendelenburg = 8,
+        [Description("Jackknife")] Jackknife = 9,
+        [Description("Fowler")] Fowler = 10
     }
 }

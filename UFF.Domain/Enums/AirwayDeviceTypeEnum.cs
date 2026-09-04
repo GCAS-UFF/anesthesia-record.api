@@ -1,10 +1,12 @@
-﻿namespace UFF.FichaAnestesica.Domain.Enums
+using System.ComponentModel;
+
+namespace UFF.FichaAnestesica.Domain.Enums
 {
     public enum AirwayDeviceTypeEnum
     {
-        Guedel = 1,
-        LaryngealMask = 2,
-        FacialMask = 3,
-        Tube = 4
+        [Description("Guedel")] Guedel = 1,
+        [Description("Máscara Laríngea")] LaryngealMask = 2,
+        [Description("Máscara Facial")] FacialMask = 3,
+        [Description("Tubo")] Tube = 4
     }
 }

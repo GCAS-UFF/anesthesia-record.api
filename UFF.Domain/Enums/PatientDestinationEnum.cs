@@ -1,11 +1,13 @@
-﻿namespace UFF.FichaAnestesica.Domain.Enums
+using System.ComponentModel;
+
+namespace UFF.FichaAnestesica.Domain.Enums
 {
     public enum PatientDestinationEnum
     {
-        RPA = 1,
-        Room = 2,
-        ICU = 3,
-        DayClinic = 4,
-        Discharge = 5
+        [Description("RPA")] RPA = 1,
+        [Description("Enfermaria")] Room = 2,
+        [Description("UTI")] ICU = 3,
+        [Description("Hospital-dia")] DayClinic = 4,
+        [Description("Alta")] Discharge = 5
     }
 }

@@ -1,9 +1,11 @@
-﻿namespace UFF.FichaAnestesica.Domain.Enums
+using System.ComponentModel;
+
+namespace UFF.FichaAnestesica.Domain.Enums
 {
     public enum ClinicalDischargeConditionEnum
     {
-        Awake = 1,
-        Drowsy = 2,
-        Intubated = 3
+        [Description("Acordado")] Awake = 1,
+        [Description("Sonolento")] Drowsy = 2,
+        [Description("Intubado")] Intubated = 3
     }
 }

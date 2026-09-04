@@ -1,13 +1,15 @@
-﻿namespace UFF.FichaAnestesica.Domain.Enums
+using System.ComponentModel;
+
+namespace UFF.FichaAnestesica.Domain.Enums
 {
     public enum AdministrationRouteEnum
     {
-        IV = 1,
-        IM = 2,
-        VO = 3,
-        SC = 4,
-        IN = 5,
-        Epidural = 6,
-        Raquianesthesia = 7
+        [Description("IV")] IV = 1,
+        [Description("IM")] IM = 2,
+        [Description("VO")] VO = 3,
+        [Description("SC")] SC = 4,
+        [Description("IN")] IN = 5,
+        [Description("Peridural")] Epidural = 6,
+        [Description("Raquianestesia")] Raquianesthesia = 7
     }
 }

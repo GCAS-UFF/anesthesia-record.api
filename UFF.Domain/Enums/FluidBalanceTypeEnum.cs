@@ -1,8 +1,10 @@
-﻿namespace UFF.FichaAnestesica.Domain.Enums
+using System.ComponentModel;
+
+namespace UFF.FichaAnestesica.Domain.Enums
 {
     public enum FluidBalanceTypeEnum
     {
-        Gain = 1,
-        Loss = 2
+        [Description("Entrada")] Gain = 1,
+        [Description("Saída")] Loss = 2
     }
 }

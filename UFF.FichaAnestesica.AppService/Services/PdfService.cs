@@ -8,14 +8,13 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using UFF.FichaAnestesica.Application.Interfaces;
-using UFF.FichaAnestesica.Domain.Repositories;
+using UFF.FichaAnestesica.Domain.Services;
 
 namespace UFF.FichaAnestesica.Infra.Services
 {
     public class PdfService : IPdfService
     {
-        private static bool _browserDownloaded = false;
-        private readonly IAnesthesiaRecordRepository _anesthesiaRecordRepository;
+        private readonly IAnesthesiaRecordPrintService _anesthesiaRecordPrintService;
         private readonly ICompositeViewEngine _viewEngine;
         private readonly ITempDataProvider _tempDataProvider;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -23,27 +22,27 @@ namespace UFF.FichaAnestesica.Infra.Services
         private readonly IConfiguration _configuration;
 
         public PdfService(ICompositeViewEngine viewEngine, ITempDataProvider tempDataProvider, IHttpContextAccessor httpContextAccessor, IServiceProvider serviceProvider,
-            IConfiguration configuration, IAnesthesiaRecordRepository anesthesiaRecordRepository)
+            IConfiguration configuration, IAnesthesiaRecordPrintService anesthesiaRecordPrintService)
         {
             _viewEngine = viewEngine;
             _tempDataProvider = tempDataProvider;
             _httpContextAccessor = httpContextAccessor;
             _serviceProvider = serviceProvider;
             _configuration = configuration;
-            _anesthesiaRecordRepository = anesthesiaRecordRepository;
+            _anesthesiaRecordPrintService = anesthesiaRecordPrintService;
         }
 
         public async Task<(string, string)> GeneratePdfAsync(int id)
         {
-            var model = await _anesthesiaRecordRepository.GetByIdAsync(id);
+            var viewModel = await _anesthesiaRecordPrintService.BuildAsync(id);
 
-            if (model == null)
+            if (viewModel == null)
                 return (null, null);
 
             var layoutBase = _configuration["Pdf:ViewPath"];
-            var html = await RenderViewToStringAsync(layoutBase, model);
+            var html = await RenderViewToStringAsync(layoutBase, viewModel);
 
-            return (html, model.PatientId);
+            return (html, viewModel.Record.ExternalPatientId);
         }
 
         private async Task<string> RenderViewToStringAsync(string viewPath, object model)

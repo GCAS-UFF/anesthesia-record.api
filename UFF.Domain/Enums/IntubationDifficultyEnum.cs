@@ -1,8 +1,10 @@
-﻿namespace UFF.FichaAnestesica.Domain.Enums
+using System.ComponentModel;
+
+namespace UFF.FichaAnestesica.Domain.Enums
 {
     public enum IntubationDifficultyEnum
     {
-        Easy = 1,
-        Difficult = 2
+        [Description("Fácil")] Easy = 1,
+        [Description("Difícil")] Difficult = 2
     }
 }

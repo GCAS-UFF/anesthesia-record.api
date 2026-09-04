@@ -23,6 +23,7 @@ namespace UFF.FichaAnestesica.Infra.DependencyInjection
             services.AddScoped<IProfessionalService, ProfessionalServices>();
             services.AddScoped<IProfessionalReadOnlyRepository, ProfessionalReadOnlyRepository>();
             services.AddScoped<IAnesthesiaRecordService, AnesthesiaRecordService>();
+            services.AddScoped<IAnesthesiaRecordPrintService, AnesthesiaRecordPrintService>();
             services.AddScoped<IPdfService, PdfService>();
             services.AddScoped<IRazorViewRenderer, RazorViewRendererService>();
             services.AddScoped<IMonitoringRecordService, MonitoringRecordService>();

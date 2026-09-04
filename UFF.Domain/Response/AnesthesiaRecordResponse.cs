@@ -150,8 +150,10 @@ namespace UFF.FichaAnestesica.Domain.Response
 
         public int? FirstAnesthesiologistId { get; set; }
         public string? FirstAnesthesiologistName { get; set; }
+        public string? FirstAnesthesiologistRegistration { get; set; }
         public int? SecondAnesthesiologistId { get; set; }
         public string? SecondAnesthesiologistName { get; set; }
+        public string? SecondAnesthesiologistRegistration { get; set; }
         public int? SurgeonId { get; set; }
         public string? SurgeonName { get; set; }
         public int? AssistantId { get; set; }
@@ -313,8 +315,10 @@ namespace UFF.FichaAnestesica.Domain.Response
                 Status = anesthesiaRecord.Status,
                 FirstAnesthesiologistId = anesthesiaRecord.FirstAnesthesiologistId,
                 FirstAnesthesiologistName = anesthesiaRecord.FirstAnesthesiologist?.Name,
+                FirstAnesthesiologistRegistration = anesthesiaRecord.FirstAnesthesiologist?.Registration,
                 SecondAnesthesiologistId = anesthesiaRecord.SecondAnesthesiologistId,
                 SecondAnesthesiologistName = anesthesiaRecord.SecondAnesthesiologist?.Name,
+                SecondAnesthesiologistRegistration = anesthesiaRecord.SecondAnesthesiologist?.Registration,
                 SurgeonId = anesthesiaRecord.SurgeonId,
                 SurgeonName = anesthesiaRecord.Surgeon?.Name,
                 AssistantId = anesthesiaRecord.AssistantId,

@@ -1,8 +1,10 @@
-﻿namespace UFF.FichaAnestesica.Domain.Enums
+using System.ComponentModel;
+
+namespace UFF.FichaAnestesica.Domain.Enums
 {
     public enum PuncturePositionEnum
     {
-        Sentada = 1,
-        Decubito = 2
+        [Description("Sentada")] Sentada = 1,
+        [Description("Decúbito Lateral")] Decubito = 2
     }
 }

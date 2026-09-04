@@ -1,10 +1,12 @@
-﻿namespace UFF.FichaAnestesica.Domain.Enums
+using System.ComponentModel;
+
+namespace UFF.FichaAnestesica.Domain.Enums
 {
     public enum AirwayTypeEnum
     {
-        Simple = 1,
-        Endobronchial = 2,
-        Reinforced = 3,
-        Other = 4
+        [Description("Simples")] Simple = 1,
+        [Description("Endobrônquico")] Endobronchial = 2,
+        [Description("Aramado")] Reinforced = 3,
+        [Description("Outras")] Other = 4
     }
 }

@@ -1,8 +1,10 @@
-﻿namespace UFF.FichaAnestesica.Domain.Enums
+using System.ComponentModel;
+
+namespace UFF.FichaAnestesica.Domain.Enums
 {
     public enum VenousAccessTypeEnum
     {
-        Peripheral = 1,
-        Central = 2
+        [Description("Periférico")] Peripheral = 1,
+        [Description("Central")] Central = 2
     }
 }

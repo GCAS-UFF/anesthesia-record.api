@@ -1,11 +1,13 @@
-﻿namespace UFF.FichaAnestesica.Domain.Enums
+using System.ComponentModel;
+
+namespace UFF.FichaAnestesica.Domain.Enums
 {
     public enum OxygenSupplementationTypeEnum
     {
-        CateterNasal = 1,
-        MascaraSimples = 2,
-        MascaraReservatorio = 3,
-        Venturi = 4,
-        Outros = 5
+        [Description("Catéter Nasal")] CateterNasal = 1,
+        [Description("Máscara Simples")] MascaraSimples = 2,
+        [Description("Máscara com Reservatório")] MascaraReservatorio = 3,
+        [Description("Venturi")] Venturi = 4,
+        [Description("Outros")] Outros = 5
     }
 }

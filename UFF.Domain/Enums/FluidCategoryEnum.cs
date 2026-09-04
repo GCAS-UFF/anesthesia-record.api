@@ -1,14 +1,16 @@
-﻿namespace UFF.FichaAnestesica.Domain.Enums
+using System.ComponentModel;
+
+namespace UFF.FichaAnestesica.Domain.Enums
 {
     public enum FluidCategoryEnum
     {
-        Crystalloid = 1,
-        Colloid = 2,
-        BloodProduct = 3,
-        Diuresis = 4,
-        Bleeding = 5,
-        Drain = 6,
-        GastricLoss = 7,
-        Other = 8
+        [Description("Cristaloide")] Crystalloid = 1,
+        [Description("Colóide")] Colloid = 2,
+        [Description("Hemoderivado")] BloodProduct = 3,
+        [Description("Diurese")] Diuresis = 4,
+        [Description("Sangramento")] Bleeding = 5,
+        [Description("Dreno")] Drain = 6,
+        [Description("Perda Gástrica")] GastricLoss = 7,
+        [Description("Outro")] Other = 8
     }
 }

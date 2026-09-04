@@ -1,20 +1,75 @@
-﻿@model UFF.FichaAnestesica.Domain.Entities.AnesthesiaRecord
-
+@using UFF.FichaAnestesica.Domain.Extensions
+@using UFF.FichaAnestesica.Domain.Enums
+@model UFF.FichaAnestesica.Domain.Response.Print.AnesthesiaRecordPrintViewModel
+@{
+    var record = Model.Record;
+    var patient = record.Patient;
+    var primarySurgery = record.Surgeries?.FirstOrDefault();
+    var procedures = record.Surgeries?.SelectMany(s => s.Procedures ?? new()).ToList() ?? new();
+    var pre = Model.PreAnesthesia;
+    var monitoring = Model.Monitoring;
+    var vitals = (monitoring?.VitalSigns ?? new()).OrderBy(v => v.Date).ThenBy(v => v.Time).ToList();
+    var drugs = (monitoring?.AdministeredAgents ?? new()).OrderBy(d => d.Date).ThenBy(d => d.Time).ToList();
+    var events = (monitoring?.ClinicalEvents ?? new()).OrderBy(e => e.Date).ThenBy(e => e.Time).ToList();
+    var fluids = (monitoring?.FluidBalances ?? new()).OrderBy(f => f.Date).ThenBy(f => f.Time).ToList();
+    var positions = (monitoring?.Positions ?? new()).OrderBy(p => p.Date).ThenBy(p => p.Time).ToList();
+    var showBis = vitals.Any(v => v.Bis.HasValue);
+    var showPvc = vitals.Any(v => v.Pvc.HasValue);
+    var showPcap = vitals.Any(v => v.Pcap.HasValue);
+}
+@functions {
+    string YesNo(bool? v) => v switch { true => "Sim", false => "Não", _ => "Não informado" };
+    string Txt(string? v) => string.IsNullOrWhiteSpace(v) ? "Não informado" : v!;
+    string TxtOrEmpty(string? v) => v ?? string.Empty;
+    string TimeOf(TimeOnly? t) => t.HasValue ? t.Value.ToString("HH:mm") : "—";
+    string TimeOf(TimeSpan t) => t.ToString(@"hh\:mm");
+    string Lbl<T>(T? e) where T : struct, Enum => e.HasValue ? ((Enum)e.Value).GetDescription() : "Não informado";
+    string Num(decimal? v, string suffix = "") => v.HasValue ? $"{v.Value}{suffix}" : "—";
+    string NumI(int? v, string suffix = "") => v.HasValue ? $"{v.Value}{suffix}" : "—";
+    string Bp(int? sys, int? dia)
+    {
+        if (sys.HasValue && dia.HasValue) return $"{sys}/{dia}";
+        if (sys.HasValue) return $"{sys}/—";
+        if (dia.HasValue) return $"—/{dia}";
+        return "—";
+    }
+    string GroupTitle(string? key) => string.IsNullOrWhiteSpace(key) ? "—" : char.ToUpper(key[0]) + key.Substring(1);
+    string AldreteText(string component, int? score)
+    {
+        if (!score.HasValue) return "Não informado";
+        return (component, score.Value) switch
+        {
+            ("consciencia", 2) => "Totalmente desperto",
+            ("consciencia", 1) => "Desperta quando chamado",
+            ("consciencia", 0) => "Não responde",
+            ("atividade", 2) => "Movimento de todas extremidades",
+            ("atividade", 1) => "Movimento de duas extremidades",
+            ("atividade", 0) => "Incapaz de se mover",
+            ("circulacao", 2) => "PA ± 20% do pré-anestésico",
+            ("circulacao", 1) => "PA 20% a 50% do pré-anestésico",
+            ("circulacao", 0) => "PA ± 50% do pré-anestésico",
+            ("respiracao", 2) => "Respira profundamente e tosse",
+            ("respiracao", 1) => "Dispnéia, hipoventilação",
+            ("respiracao", 0) => "Apneia",
+            ("saturacao", 2) => "Mantém SpO2 > 90% em ar ambiente",
+            ("saturacao", 1) => "Necessita O2 para SpO2 > 90%",
+            ("saturacao", 0) => "SpO2 < 90% mesmo com O2",
+            _ => score.Value.ToString()
+        };
+    }
+}
 <!doctype html>
 <html lang="pt-BR">
 <head>
     <meta charset="utf-8" />
-    <title>Ficha Anestésica — {{patient.name}}</title>
+    <title>Ficha Anestésica — @patient.FullName</title>
     <style>
-        /* ============ PAGE / RESET ============ */
         @@page {
             size: A4 landscape;
-            margin: 6mm 7mm;
+            margin: 12mm 10mm;
         }
 
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
         html, body {
             margin: 0;
@@ -23,14 +78,13 @@
 
         body {
             font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
-            font-size: 8.2pt;
+            font-size: 8.3pt;
             color: #0f172a;
-            line-height: 1.25;
+            line-height: 1.3;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
         }
 
-        /* ============ TOKENS ============ */
         :root {
             --ink: #0f172a;
             --muted: #64748b;
@@ -45,23 +99,9 @@
             --accent: #0369a1;
         }
 
-        /* ============ PAGE FRAME ============ */
-        .page {
-            width: 100%;
-            min-height: calc(210mm - 12mm);
-            page-break-after: always;
-            display: flex;
-            flex-direction: column;
-        }
-
-            .page:last-child {
-                page-break-after: auto;
-            }
-
-        /* ============ HEADER ============ */
         .doc-header {
             display: grid;
-            grid-template-columns: 1fr 1.4fr 1fr auto;
+            grid-template-columns: 1.2fr 1.4fr 1.2fr auto;
             gap: 6mm;
             align-items: center;
             padding-bottom: 2mm;
@@ -69,905 +109,714 @@
             margin-bottom: 3mm;
         }
 
-            .doc-header .brand {
-                font-weight: 700;
-                color: var(--brand);
-                font-size: 11pt;
-                line-height: 1.15;
-            }
+        .doc-header .brand { font-weight: 700; color: var(--brand); font-size: 10.5pt; line-height: 1.2; }
+        .doc-header .brand small { display: block; color: var(--muted); font-weight: 500; font-size: 6.8pt; }
+        .doc-header .title { text-align: center; font-weight: 800; font-size: 12.5pt; letter-spacing: .4px; color: var(--brand); }
+        .doc-header .title small { display: block; font-size: 7.2pt; color: var(--muted); font-weight: 500; letter-spacing: 0; }
+        .doc-header .patient-mini { font-size: 7.4pt; color: var(--ink); }
+        .doc-header .patient-mini b { color: var(--brand); }
+        .doc-header .badge { border: 1pt solid var(--line-strong); border-radius: 2mm; padding: 1.6mm 2.6mm; text-align: center; min-width: 24mm; }
+        .doc-header .badge small { display: block; color: var(--muted); font-size: 6.4pt; letter-spacing: .4px; text-transform: uppercase; }
+        .doc-header .badge b { font-size: 9.5pt; }
 
-                .doc-header .brand small {
-                    display: block;
-                    color: var(--muted);
-                    font-weight: 500;
-                    font-size: 7pt;
-                }
+        .grid { display: grid; gap: 2.4mm; }
+        .cols-4 { grid-template-columns: repeat(4, minmax(0,1fr)); }
+        .cols-3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
+        .cols-2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
 
-            .doc-header .title {
-                text-align: center;
-                font-weight: 800;
-                font-size: 13pt;
-                letter-spacing: .5px;
-                color: var(--brand);
-            }
-
-                .doc-header .title small {
-                    display: block;
-                    font-size: 7.5pt;
-                    color: var(--muted);
-                    font-weight: 500;
-                    letter-spacing: 0;
-                }
-
-            .doc-header .patient-mini {
-                font-size: 7.6pt;
-                color: var(--ink);
-            }
-
-                .doc-header .patient-mini b {
-                    color: var(--brand);
-                }
-
-            .doc-header .badge {
-                border: 1pt solid var(--line-strong);
-                border-radius: 2mm;
-                padding: 1.6mm 2.6mm;
-                text-align: center;
-                min-width: 26mm;
-            }
-
-                .doc-header .badge small {
-                    display: block;
-                    color: var(--muted);
-                    font-size: 6.5pt;
-                    letter-spacing: .4px;
-                    text-transform: uppercase;
-                }
-
-                .doc-header .badge b {
-                    font-size: 10pt;
-                }
-
-        /* ============ SECTIONS ============ */
-        .grid {
-            display: grid;
-            gap: 2.4mm;
-        }
-
-        .cols-4 {
-            grid-template-columns: repeat(4, minmax(0,1fr));
-        }
-
-        .cols-3 {
-            grid-template-columns: repeat(3, minmax(0,1fr));
-        }
-
-        .cols-2 {
-            grid-template-columns: repeat(2, minmax(0,1fr));
-        }
-
-        .card {
-            border: 0.6pt solid var(--line);
-            border-radius: 1.6mm;
-            overflow: hidden;
-            background: #fff;
-            break-inside: avoid;
-        }
-
-            .card > header {
-                background: var(--brand-soft);
-                color: var(--brand);
-                font-weight: 700;
-                font-size: 8pt;
-                letter-spacing: .4px;
-                text-transform: uppercase;
-                padding: 1.4mm 2.2mm;
-                display: flex;
-                align-items: center;
-                gap: 2mm;
-                border-bottom: 0.6pt solid var(--line);
-            }
-
-                .card > header .dot {
-                    width: 2.4mm;
-                    height: 2.4mm;
-                    border-radius: 50%;
-                    background: var(--brand);
-                    display: inline-block;
-                }
-
-            .card .body {
-                padding: 2mm 2.4mm;
-            }
-
-        /* key/value list */
-        .kv {
-            display: grid;
-            grid-template-columns: 34% 1fr;
-            row-gap: 0.9mm;
-            column-gap: 2mm;
-            font-size: 7.8pt;
-        }
-
-            .kv dt {
-                color: var(--muted);
-            }
-
-            .kv dd {
-                margin: 0;
-                color: var(--ink);
-                font-weight: 500;
-            }
-
-                .kv dd.strong {
-                    font-weight: 700;
-                }
-
-        /* alert row (allergies etc) */
-        .alerts {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1.4mm;
-            margin-bottom: 2mm;
-        }
-
-            .alerts .chip {
-                border: 0.6pt solid var(--line-strong);
-                border-radius: 6mm;
-                padding: 1mm 2.4mm;
-                font-size: 7.4pt;
-                font-weight: 600;
-                display: inline-flex;
-                align-items: center;
-                gap: 1.4mm;
-                background: #fff;
-            }
-
-        .chip.danger {
-            color: var(--danger);
-            border-color: #fecaca;
-            background: #fef2f2;
-        }
-
-        .chip.warn {
-            color: var(--warn);
-            border-color: #fed7aa;
-            background: #fffbeb;
-        }
-
-        .chip.ok {
-            color: var(--ok);
-            border-color: #bbf7d0;
-            background: #f0fdf4;
-        }
-
-        .chip.info {
-            color: var(--accent);
-            border-color: #bae6fd;
-            background: #f0f9ff;
-        }
-
-        /* generic table */
-        table.data {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 7.6pt;
-        }
-
-            table.data th, table.data td {
-                border-bottom: 0.4pt solid var(--line);
-                padding: 1.3mm 2mm;
-                text-align: left;
-                vertical-align: top;
-            }
-
-            table.data th {
-                background: var(--band);
-                color: var(--muted);
-                font-weight: 600;
-                font-size: 6.8pt;
-                letter-spacing: .4px;
-                text-transform: uppercase;
-            }
-
-            table.data tr:last-child td {
-                border-bottom: 0;
-            }
-
-        .num {
-            text-align: right;
-            font-variant-numeric: tabular-nums;
-        }
-
-        .muted {
-            color: var(--muted);
-        }
-
-        /* signatures */
-        .signatures {
-            margin-top: auto;
-            display: grid;
-            grid-template-columns: repeat(3,1fr);
-            gap: 8mm;
-            padding-top: 6mm;
-        }
-
-        .sig {
-            text-align: center;
-            font-size: 7.4pt;
-        }
-
-            .sig .line {
-                border-top: 0.6pt solid var(--ink);
-                margin-bottom: 1mm;
-                height: 0;
-            }
-
-            .sig b {
-                display: block;
-                font-size: 8pt;
-            }
-
-            .sig small {
-                color: var(--muted);
-            }
-
-        /* footer */
-        .doc-footer {
-            margin-top: 3mm;
-            padding-top: 1.6mm;
-            border-top: 0.4pt solid var(--line);
-            display: flex;
-            justify-content: space-between;
-            font-size: 6.8pt;
-            color: var(--muted);
-        }
-
-        /* ============ MONITORING GRID (page 2) ============ */
-        .monitor {
-            border: 0.6pt solid var(--line);
-            border-radius: 1.6mm;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            flex: 1 1 auto;
-        }
-
-            .monitor > header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                background: var(--brand-soft);
-                color: var(--brand);
-                padding: 1.4mm 2.4mm;
-                font-weight: 700;
-                text-transform: uppercase;
-                letter-spacing: .4px;
-                font-size: 8pt;
-                border-bottom: 0.6pt solid var(--line);
-            }
-
-                .monitor > header .legend {
-                    display: flex;
-                    gap: 4mm;
-                    font-size: 6.8pt;
-                    color: var(--ink);
-                    font-weight: 500;
-                    text-transform: none;
-                    letter-spacing: 0;
-                }
-
-                    .monitor > header .legend span {
-                        display: inline-flex;
-                        align-items: center;
-                        gap: 1.2mm;
-                    }
-
-        .glyph {
-            display: inline-block;
-            width: 3mm;
-            text-align: center;
-            font-weight: 700;
-            color: var(--brand);
-        }
-
-        table.timegrid {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed;
-            font-size: 7pt;
-        }
-
-            table.timegrid col.label {
-                width: 32mm;
-            }
-
-            table.timegrid th, table.timegrid td {
-                border: 0.3pt solid var(--line);
-                padding: 0;
-                height: 4.2mm;
-                vertical-align: middle;
-            }
-
-            table.timegrid thead th {
-                background: var(--band);
-                color: var(--muted);
-                font-weight: 600;
-                font-size: 6.6pt;
-                letter-spacing: .3px;
-                text-align: center;
-                padding: 1mm 0;
-            }
-
-            table.timegrid td.rowlabel {
-                background: #fafafa;
-                padding: 0.6mm 1.8mm;
-                font-weight: 600;
-                color: var(--ink);
-                font-size: 7pt;
-                text-align: left;
-            }
-
-                table.timegrid td.rowlabel small {
-                    display: block;
-                    color: var(--muted);
-                    font-weight: 400;
-                    font-size: 6.2pt;
-                }
-
-            table.timegrid td.cell {
-                text-align: center;
-                font-size: 6.8pt;
-                color: var(--ink);
-            }
-
-                table.timegrid td.cell.filled {
-                    background: #f8fafc;
-                }
-
-            table.timegrid tr.section-break td {
-                background: var(--brand-soft);
-                color: var(--brand);
-                font-weight: 700;
-                text-transform: uppercase;
-                letter-spacing: .4px;
-                font-size: 6.6pt;
-                padding: 1mm 2mm;
-                text-align: left;
-                border-top: 0.6pt solid var(--brand);
-            }
-
-            /* pressure / HR plot rows keep the same grid but bigger */
-            table.timegrid tr.plot td {
-                height: 6mm;
-                position: relative;
-            }
-
-            table.timegrid td.plot-y {
-                background: #fafafa;
-                color: var(--muted);
-                font-size: 6.4pt;
-                text-align: right;
-                padding-right: 1.6mm;
-            }
-
-        .marker {
-            display: inline-block;
-            font-weight: 700;
-            line-height: 1;
-        }
-
-        .m-sys::before {
-            content: "∨";
-            color: #0f172a;
-        }
-
-        .m-dia::before {
-            content: "∧";
-            color: #0f172a;
-        }
-
-        .m-hr::before {
-            content: "●";
-            color: #0f172a;
-            font-size: 6pt;
-        }
-
-        .m-anest::before {
-            content: "✕";
-            color: #0f172a;
-            font-weight: 800;
-        }
-
-        .m-surg::before {
-            content: "○";
-            color: #0f172a;
-            font-weight: 800;
-        }
-
-        /* ============ UTIL ============ */
-        .row-flex {
-            display: flex;
-            gap: 2.4mm;
-        }
-
-        .grow {
-            flex: 1 1 auto;
-        }
-
-        h3.section-title {
-            margin: 0 0 1.4mm;
-            font-size: 8.4pt;
+        .doc-section { margin-bottom: 3mm; }
+        .doc-section > h2 {
+            font-size: 8.6pt;
             color: var(--brand);
             text-transform: uppercase;
             letter-spacing: .5px;
-            border-left: 2pt solid var(--brand);
-            padding-left: 2mm;
+            border-bottom: 0.8pt solid var(--brand);
+            padding-bottom: 1mm;
+            margin: 0 0 1.6mm;
         }
+
+        .card { border: 0.6pt solid var(--line); border-radius: 1.6mm; overflow: hidden; background: #fff; break-inside: avoid; page-break-inside: avoid; }
+        .card > header { background: var(--brand-soft); color: var(--brand); font-weight: 700; font-size: 7.6pt; letter-spacing: .4px; text-transform: uppercase; padding: 1.3mm 2.2mm; border-bottom: 0.6pt solid var(--line); }
+        .card .body { padding: 2mm 2.4mm; }
+
+        .kv { display: grid; grid-template-columns: 40% 1fr; row-gap: 0.9mm; column-gap: 2mm; font-size: 7.7pt; }
+        .kv dt { color: var(--muted); }
+        .kv dd { margin: 0; color: var(--ink); font-weight: 500; }
+        .kv dd.strong { font-weight: 700; }
+
+        .alerts { display: flex; flex-wrap: wrap; gap: 1.4mm; margin-bottom: 2mm; }
+        .alerts .chip { border: 0.6pt solid var(--line-strong); border-radius: 6mm; padding: 1mm 2.4mm; font-size: 7.2pt; font-weight: 600; display: inline-flex; align-items: center; gap: 1.4mm; background: #fff; }
+        .chip.danger { color: var(--danger); border-color: #fecaca; background: #fef2f2; }
+        .chip.warn { color: var(--warn); border-color: #fed7aa; background: #fffbeb; }
+        .chip.ok { color: var(--ok); border-color: #bbf7d0; background: #f0fdf4; }
+        .chip.info { color: var(--accent); border-color: #bae6fd; background: #f0f9ff; }
+
+        table.data { width: 100%; border-collapse: collapse; font-size: 7.5pt; }
+        table.data thead { display: table-header-group; }
+        table.data tr { break-inside: avoid; page-break-inside: avoid; }
+        table.data th, table.data td { border-bottom: 0.4pt solid var(--line); padding: 1.3mm 2mm; text-align: left; vertical-align: top; }
+        table.data th { background: var(--band); color: var(--muted); font-weight: 600; font-size: 6.8pt; letter-spacing: .3px; text-transform: uppercase; }
+        table.data th.emphasis, table.data td.emphasis { background: #eef2ff; }
+        table.data tr:last-child td { border-bottom: 0; }
+        table.data .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+        .muted { color: var(--muted); }
+        .empty-note { color: var(--muted); font-size: 7.4pt; font-style: italic; }
+
+        h3.section-title { margin: 0 0 1.2mm; font-size: 7.6pt; color: var(--brand); text-transform: uppercase; letter-spacing: .4px; border-left: 2pt solid var(--brand); padding-left: 1.6mm; }
+        .sub-block { margin-bottom: 2mm; }
+        .sub-block:last-child { margin-bottom: 0; }
+
+        .checklist { display: flex; flex-direction: column; gap: 0.8mm; }
+        .checklist .check-item { display: flex; justify-content: space-between; gap: 3mm; font-size: 7.6pt; padding: 0.8mm 0; border-bottom: 0.3pt dashed var(--line); }
+        .checklist .check-item b { color: var(--ink); }
+
+        .aldrete-grid { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 2mm; margin-bottom: 2mm; }
+        .aldrete-card { border: 0.6pt solid var(--line); border-radius: 1.6mm; padding: 1.6mm; text-align: center; }
+        .aldrete-card .score { font-size: 13pt; font-weight: 800; color: var(--brand); }
+        .aldrete-card .label { font-size: 7pt; font-weight: 700; text-transform: uppercase; letter-spacing: .3px; }
+        .aldrete-card .desc { font-size: 6.8pt; color: var(--muted); margin-top: 0.6mm; }
+        .aldrete-total { text-align: center; margin-bottom: 2mm; }
+        .aldrete-total .value { font-size: 16pt; font-weight: 800; color: var(--brand); }
+
+        .signatures { margin-top: 4mm; display: grid; grid-template-columns: repeat(3,1fr); gap: 8mm; padding-top: 4mm; }
+        .sig { text-align: center; font-size: 7.4pt; }
+        .sig .line { border-top: 0.6pt solid var(--ink); margin-bottom: 1mm; height: 0; }
+        .sig b { display: block; font-size: 8pt; }
+        .sig small { color: var(--muted); }
+
+        .doc-footer { margin-top: 3mm; padding-top: 1.6mm; border-top: 0.4pt solid var(--line); display: flex; justify-content: space-between; font-size: 6.6pt; color: var(--muted); }
     </style>
 </head>
 <body>
 
-    <!-- ==================== PAGE 1 — RESUMO ==================== -->
-    <section class="page">
-        <header class="doc-header">
-            <div class="brand">
-                {{hospital.name}}
-                <small>CNPJ {{hospital.cnpj}} · {{hospital.address}}</small>
-            </div>
-            <div class="title">
-                REGISTRO ANESTÉSICO
-                <small>Ficha Anestésica Trans-operatória</small>
-            </div>
-            <div class="patient-mini">
-                <div><b>Paciente:</b> {{patient.name}}</div>
-                <div><b>Prontuário:</b> {{patient.mrn}} · <b>Nasc.:</b> {{patient.birthDate}} ({{patient.age}}a)</div>
-                <div><b>Convênio:</b> {{patient.insurance}} · <b>Sala:</b> {{procedure.room}}</div>
-            </div>
-            <div class="badge">
-                <small>Atendimento</small>
-                <b>{{procedure.attendanceId}}</b>
-            </div>
-        </header>
-
-        <!-- Alertas em destaque -->
-        <div class="alerts">
-            <span class="chip ok"><b>ASA {{assessment.asa}}</b></span>
-            <span class="chip danger">⚠ Alergias: {{assessment.allergies}}</span>
-            <span class="chip warn">IOT difícil: {{assessment.difficultIntubation}}</span>
-            <span class="chip info">Risco TEV: {{assessment.tevRisk}}</span>
-            <span class="chip">Mallampati {{assessment.mallampati}}</span>
-            <span class="chip">Jejum sól. {{assessment.fastSolids}}h · líq. {{assessment.fastLiquids}}h</span>
+    <header class="doc-header">
+        <div class="brand">
+            @Model.Hospital.Name
+            @if (!string.IsNullOrWhiteSpace(Model.Hospital.Sector))
+            {
+                <small>@Model.Hospital.Sector</small>
+            }
         </div>
+        <div class="title">
+            REGISTRO ANESTÉSICO
+            <small>Ficha Anestésica Trans-operatória</small>
+        </div>
+        <div class="patient-mini">
+            <div><b>Paciente:</b> @Txt(patient.FullName)</div>
+            <div><b>Prontuário:</b> @Txt(patient.MedicalRecordNumber) · <b>Nasc.:</b> @patient.BirthDate.ToString("dd/MM/yyyy") (@patient.Age a)</div>
+            <div><b>Sala:</b> @Txt(primarySurgery?.Location?.Room)</div>
+        </div>
+        <div class="badge">
+            <small>Registro</small>
+            <b>FA-@record.SurgeryId</b>
+        </div>
+    </header>
 
-        <!-- Linha 1: Identificação | Procedimento | Equipe -->
-        <div class="grid cols-3">
+    <div class="alerts">
+        <span class="chip ok"><b>@Lbl(record.AsaClassification)</b></span>
+        @if (patient.Allergies != null && patient.Allergies.Any())
+        {
+            <span class="chip danger">⚠ Alergias: @string.Join("; ", patient.Allergies.Select(a => a.Description))</span>
+        }
+        else
+        {
+            <span class="chip">Sem alergias registradas</span>
+        }
+        @if (pre?.MallampatiClass != null)
+        {
+            <span class="chip info">Mallampati @pre.MallampatiClass</span>
+        }
+        <span class="chip">@record.Status</span>
+    </div>
+
+    <section class="doc-section">
+        <h2>Identificação do Paciente</h2>
+        <div class="grid cols-4">
             <div class="card">
-                <header><span class="dot"></span> Identificação do Paciente</header>
                 <div class="body">
                     <dl class="kv">
-                        <dt>Nome</dt>
-                        <dd class="strong">{{patient.name}}</dd>
-                        <dt>CPF</dt>
-                        <dd>{{patient.cpf}}</dd>
-                        <dt>Data nasc.</dt>
-                        <dd>{{patient.birthDate}} ({{patient.age}} anos)</dd>
-                        <dt>Gênero</dt>
-                        <dd>{{patient.gender}}</dd>
-                        <dt>ASA</dt>
-                        <dd class="strong">{{assessment.asa}}</dd>
-                        <dt>Peso / Altura</dt>
-                        <dd>{{patient.weight}} kg · {{patient.height}} cm</dd>
-                        <dt>IMC</dt>
-                        <dd>{{patient.bmi}}</dd>
-                        <dt>Peso ideal</dt>
-                        <dd>{{patient.idealWeight}} kg · corr. {{patient.correctedWeight}} kg</dd>
-                        <dt>Telefone</dt>
-                        <dd>{{patient.phone}}</dd>
-                        <dt>Endereço</dt>
-                        <dd>{{patient.address}}</dd>
+                        <dt>Nome</dt><dd class="strong">@Txt(patient.FullName)</dd>
+                        <dt>Prontuário</dt><dd>@Txt(patient.MedicalRecordNumber)</dd>
+                        <dt>Data nasc.</dt><dd>@patient.BirthDate.ToString("dd/MM/yyyy") (@patient.Age anos)</dd>
+                        <dt>Sexo</dt><dd>@Txt(patient.Gender)</dd>
                     </dl>
                 </div>
             </div>
-
             <div class="card">
-                <header><span class="dot"></span> Procedimento</header>
                 <div class="body">
                     <dl class="kv">
-                        <dt>Cirurgia(s)</dt>
-                        <dd class="strong">
-                            {{#each procedure.surgeries}}
-                            {{code}} — {{name}}{{#unless }}<br>{{/unless}}
-                            {{/each}}
-                        </dd>
-                        <dt>Tipo</dt>
-                        <dd>{{procedure.type}}</dd>
-                        <dt>Centro cirúrgico</dt>
-                        <dd>{{procedure.center}} · Sala {{procedure.room}}</dd>
-                        <dt>Data cirurgia</dt>
-                        <dd>{{procedure.date}}</dd>
-                        <dt>Início / Fim cirurgia</dt>
-                        <dd>{{procedure.surgeryStart}} → {{procedure.surgeryEnd}} <span class="muted">({{procedure.surgeryDuration}})</span></dd>
-                        <dt>Início / Fim anestesia</dt>
-                        <dd>{{procedure.anesthesiaStart}} → {{procedure.anesthesiaEnd}} <span class="muted">({{procedure.anesthesiaDuration}})</span></dd>
-                        <dt>Aviso cirurgia</dt>
-                        <dd>{{procedure.noticeId}}</dd>
-                        <dt>Convênio</dt>
-                        <dd>{{patient.insurance}}</dd>
-                        <dt>Destino</dt>
-                        <dd>{{procedure.destination}}</dd>
+                        <dt>Peso</dt><dd>@(patient.WeightKg > 0 ? $"{patient.WeightKg} kg" : "Não informado")</dd>
+                        <dt>Altura</dt><dd>@(patient.HeightCm > 0 ? $"{patient.HeightCm} cm" : "Não informado")</dd>
+                        <dt>ASA</dt><dd class="strong">@Lbl(record.AsaClassification)</dd>
                     </dl>
                 </div>
             </div>
-
             <div class="card">
-                <header><span class="dot"></span> Equipe / Pré-procedimento</header>
-                <div class="body">
-                    <div class="muted" style="font-size:6.8pt; text-transform:uppercase; letter-spacing:.4px; margin-bottom:.8mm;">Anestesiologistas</div>
-                    {{#each professionals.anesthesiologists}}
-                    <div style="margin-bottom:1.2mm;">
-                        <b>{{name}}</b> — CRM {{crm}}
-                        {{#if hours}}<br><small class="muted">Tempo em sala: {{hours}}</small>{{/if}}
-                    </div>
-                    {{/each}}
-                    <div class="muted" style="font-size:6.8pt; text-transform:uppercase; letter-spacing:.4px; margin:1.6mm 0 .8mm;">Cirurgiões</div>
-                    {{#each professionals.surgeons}}
-                    <div><b>{{name}}</b> — CRM {{crm}} <span class="muted">({{role}})</span></div>
-                    {{/each}}
-                    {{#if professionals.auxiliary}}
-                    <div class="muted" style="font-size:6.8pt; text-transform:uppercase; letter-spacing:.4px; margin:1.6mm 0 .8mm;">Equipe auxiliar</div>
-                    {{#each professionals.auxiliary}}<div>{{this}}</div>{{/each}}
-                    {{/if}}
-                </div>
-            </div>
-        </div>
-
-        <div style="height:2.4mm;"></div>
-
-        <!-- Linha 2: Segurança/Pré-indução | Técnica Anestésica | Monitorização + Materiais -->
-        <div class="grid cols-3">
-            <div class="card">
-                <header><span class="dot"></span> Segurança / Pré-indução</header>
                 <div class="body">
                     <dl class="kv">
-                        <dt>ATB profilático</dt>
-                        <dd>
-                            <b>{{safety.atb.drug}}</b>
-                            {{#if safety.atb.dose}} · {{safety.atb.dose}}{{/if}}
-                            {{#if safety.atb.time}} · {{safety.atb.time}}{{/if}}
-                            {{#if safety.atb.repique}}
-                            <br><span class="chip warn" style="padding:.3mm 1.4mm; font-size:6.6pt;">
-                                Repique{{#if safety.atb.repiqueTime}} · {{safety.atb.repiqueTime}}{{/if}}{{#if safety.atb.repiqueDose}} · {{safety.atb.repiqueDose}}{{/if}}
-                            </span>
-                            {{/if}}
-                        </dd>
-                        {{#if safety.checklist}}
-                        <dt>Checklist</dt>
-                        <dd>{{safety.checklist}}</dd>{{/if}}
-                        {{#if safety.timeout}}
-                        <dt>Time-out</dt>
-                        <dd>{{safety.timeout}}</dd>{{/if}}
-                        {{#if safety.fasting}}
-                        <dt>Jejum confirmado</dt>
-                        <dd>{{safety.fasting}}</dd>{{/if}}
-                        {{#if safety.tev}}
-                        <dt>Profilaxia TEV</dt>
-                        <dd>{{safety.tev}}</dd>{{/if}}
-                        {{#if safety.notes}}
-                        <dt>Observações</dt>
-                        <dd>{{safety.notes}}</dd>{{/if}}
+                        <dt>Unidade</dt><dd>@Txt(patient.CurrentLocation?.Unit?.Description)</dd>
+                        <dt>Leito</dt><dd>@Txt(patient.CurrentLocation?.Bed)</dd>
+                        <dt>Andar</dt><dd>@Txt(patient.CurrentLocation?.Floor)</dd>
                     </dl>
                 </div>
             </div>
-
             <div class="card">
-                <header><span class="dot"></span> Técnica Anestésica</header>
-                <div class="body">
-                    {{#if technique.geral}}
-                    <h3 class="section-title" style="font-size:7pt;">Anestesia Geral</h3>
-                    <div style="font-size:7.6pt; margin-bottom:1.4mm;">{{technique.geral}}</div>
-                    {{/if}}
-
-                    {{#if technique.bloqueiosEspinhais}}
-                    <h3 class="section-title" style="font-size:7pt;">Bloqueios Espinhais</h3>
-                    <div style="font-size:7.6pt; margin-bottom:1.4mm;">{{technique.bloqueiosEspinhais}}</div>
-                    {{/if}}
-
-                    {{#if technique.bloqueiosPerifericos}}
-                    <h3 class="section-title" style="font-size:7pt;">Bloqueios Periféricos</h3>
-                    <div style="font-size:7.6pt; margin-bottom:1.4mm;">
-                        {{technique.bloqueiosPerifericos}}
-                        {{#if technique.neuroestimulador}} · <b>Neuroestimulador:</b> {{technique.neuroestimulador}}{{/if}}
-                    </div>
-                    {{/if}}
-
-                    {{#if technique.sedacao}}
-                    <h3 class="section-title" style="font-size:7pt;">Sedação</h3>
-                    <div style="font-size:7.6pt; margin-bottom:1.4mm;">{{technique.sedacao}}</div>
-                    {{/if}}
-
-                    {{#if technique.suplementacaoO2}}
-                    <h3 class="section-title" style="font-size:7pt;">Suplementação de O₂</h3>
-                    <div style="font-size:7.6pt; margin-bottom:1.4mm;">{{technique.suplementacaoO2}}</div>
-                    {{/if}}
-
-                    {{#if technique.respiracao}}
-                    <h3 class="section-title" style="font-size:7pt;">Respiração</h3>
-                    <div style="font-size:7.6pt; margin-bottom:1.4mm;">
-                        {{#each technique.respiracao}}<span class="chip info" style="padding:.3mm 1.4mm; font-size:6.8pt; margin:0 .8mm .8mm 0;">{{this}}</span>{{/each}}
-                    </div>
-                    {{/if}}
-
-                    {{#if technique.viaAerea}}
-                    <h3 class="section-title" style="font-size:7pt;">Via Aérea</h3>
-                    <div style="font-size:7.6pt; margin-bottom:1.4mm;">
-                        {{#each technique.viaAerea}}<span class="chip info" style="padding:.3mm 1.4mm; font-size:6.8pt; margin:0 .8mm .8mm 0;">{{this}}</span>{{/each}}
-                    </div>
-                    {{/if}}
-
-                    {{#if technique.posicao}}
-                    <h3 class="section-title" style="font-size:7pt;">Posição / Coxins</h3>
-                    <div style="font-size:7.6pt; margin-bottom:1.4mm;">
-                        {{technique.posicao}}{{#if technique.coxins}} · <b>Coxins:</b> {{technique.coxins}}{{/if}}
-                    </div>
-                    {{/if}}
-
-                    {{#if technique.acessoVenoso}}
-                    <h3 class="section-title" style="font-size:7pt;">Acesso Venoso</h3>
-                    <div style="font-size:7.6pt; margin-bottom:1.4mm;">
-                        {{technique.acessoVenoso}}
-                        {{#if technique.puncaoDificil}} · <span class="chip warn" style="padding:.3mm 1.4mm; font-size:6.6pt;">Punção difícil: {{technique.puncaoDificil}}</span>{{/if}}
-                    </div>
-                    {{/if}}
-                </div>
-            </div>
-
-            <div class="card">
-                <header><span class="dot"></span> Monitorização · Materiais</header>
-                <div class="body">
-                    <h3 class="section-title" style="font-size:7pt;">Monitorização</h3>
-                    <div style="font-size:7.6pt; margin-bottom:1.8mm;">
-                        {{#each monitoring.used}}<span class="chip info" style="padding:.3mm 1.4mm; font-size:6.8pt; margin:0 .8mm .8mm 0;">{{this}}</span>{{/each}}
-                    </div>
-                    <h3 class="section-title" style="font-size:7pt;">Materiais</h3>
-                    <div style="font-size:7.6pt;">{{materials}}</div>
-                </div>
-            </div>
-        </div>
-
-        <div style="height:2.4mm;"></div>
-
-        <!-- Linha 3: Fármacos | Balanço Hídrico | Pós-procedimento -->
-        <div class="grid cols-3">
-            <div class="card">
-                <header><span class="dot"></span> Fármacos utilizados</header>
-                <div class="body" style="padding:0;">
-                    <table class="data">
-                        <thead><tr><th>Fármaco</th><th>Apresentação</th><th class="num">Consumo</th><th>Via</th></tr></thead>
-                        <tbody>
-                            {{#each drugs}}
-                            <tr>
-                                <td><b>{{name}}</b></td>
-                                <td class="muted">{{presentation}}</td>
-                                <td class="num">{{dose}}</td>
-                                <td>{{route}}</td>
-                            </tr>
-                            {{/each}}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="card">
-                <header><span class="dot"></span> Balanço Hídrico</header>
-                <div class="body" style="padding:0;">
-                    <table class="data">
-                        <thead><tr><th>Tipo</th><th>Item</th><th class="num">Volume</th><th>Horário</th></tr></thead>
-                        <tbody>
-                            {{#each balance}}
-                            <tr>
-                                <td><span class="chip {{#if isGain}}ok{{else}}warn{{/if}}" style="padding:.3mm 1.4mm; font-size:6.6pt;">{{typeLabel}}</span></td>
-                                <td>{{item}}</td>
-                                <td class="num">{{volumeMl}} ml</td>
-                                <td class="muted">{{time}}</td>
-                            </tr>
-                            {{/each}}
-                            <tr><td colspan="2" class="num"><b>Total ganhos</b></td><td class="num"><b>{{totals.gainsMl}} ml</b></td><td></td></tr>
-                            <tr><td colspan="2" class="num"><b>Total perdas</b></td><td class="num"><b>{{totals.lossesMl}} ml</b></td><td></td></tr>
-                            <tr><td colspan="2" class="num"><b>Volume final</b></td><td class="num"><b>{{totals.netMl}} ml</b></td><td></td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="card">
-                <header><span class="dot"></span> Pós-procedimento</header>
                 <div class="body">
                     <dl class="kv">
-                        <dt>Cirurgia Realizada</dt>
-                        <dd class="strong">
-                            {{#each postProcedure.surgeriesPerformed}}
-                            {{code}} — {{name}}{{#unless }}<br>{{/unless}}
-                            {{/each}}
-                        </dd>
-                        {{#if postProcedure.intercorrencias}}
-                        <dt>Intercorrências</dt>
-                        <dd>{{postProcedure.intercorrencias}}</dd>{{/if}}
-                        {{#if postProcedure.destino}}
-                        <dt>Destino</dt>
-                        <dd>{{postProcedure.destino}}</dd>{{/if}}
-                        {{#if postProcedure.condicoesSaida}}
-                        <dt>Condições de saída</dt>
-                        <dd>{{postProcedure.condicoesSaida}}</dd>{{/if}}
-                        {{#if postProcedure.prescricao}}
-                        <dt>Prescrição pós</dt>
-                        <dd>{{postProcedure.prescricao}}</dd>{{/if}}
-                        {{#if postProcedure.observacoes}}
-                        <dt>Observações</dt>
-                        <dd>{{postProcedure.observacoes}}</dd>{{/if}}
+                        <dt>Status da cirurgia</dt><dd>@record.Status</dd>
+                        <dt>Identificador AGHU</dt><dd>@Txt(record.ExternalPatientId)</dd>
                     </dl>
                 </div>
             </div>
         </div>
-
-        <div style="height:2.4mm;"></div>
-
-        <!-- Linha 4: Eventos | Incidentes | Observações -->
-        <div class="grid cols-3">
-            <div class="card">
-                <header><span class="dot"></span> Eventos documentados</header>
-                <div class="body" style="padding:0;">
-                    <table class="data">
-                        <thead><tr><th style="width:14mm;">Hora</th><th>Descrição</th></tr></thead>
-                        <tbody>
-                            {{#each events}}
-                            <tr><td class="muted">{{time}}</td><td><b>{{title}}</b>{{#if description}} — <span class="muted">{{description}}</span>{{/if}}</td></tr>
-                            {{/each}}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="card">
-                <header><span class="dot"></span> Incidentes</header>
-                <div class="body">
-                    {{#if incidents.length}}
-                    {{#each incidents}}<div style="margin-bottom:1mm;"><b>{{time}}</b> — {{description}}</div>{{/each}}
-                    {{else}}
-                    <span class="muted">Sem registros.</span>
-                    {{/if}}
-                </div>
-            </div>
-
-            <div class="card">
-                <header><span class="dot"></span> Observações · Alterações</header>
-                <div class="body">
-                    {{#if observations}}<div style="margin-bottom:1.6mm;">{{observations}}</div>{{/if}}
-                    {{#if changes.length}}
-                    <div class="muted" style="font-size:6.8pt; text-transform:uppercase; letter-spacing:.4px; margin-bottom:.8mm;">Alterações realizadas</div>
-                    {{#each changes}}<div style="font-size:7.4pt; margin-bottom:.8mm;"><b>{{time}}</b> — {{description}}</div>{{/each}}
-                    {{/if}}
-                </div>
-            </div>
-        </div>
-
-        <!-- Assinaturas -->
-        <div class="signatures">
-            {{#each signatures}}
-            <div class="sig">
-                <div class="line"></div>
-                <b>{{name}}</b>
-                <small>{{role}} · CRM {{crm}}</small>
-            </div>
-            {{/each}}
-        </div>
-
-        <footer class="doc-footer">
-            <span>{{hospital.name}} · Ficha Anestésica</span>
-            <span>Emitido em {{meta.printedAt}} · Página 1 de 2</span>
-        </footer>
     </section>
 
-    <!-- ==================== PAGE 2 — MONITORAMENTO TIMELINE ==================== -->
-    <section class="page">
-        <header class="doc-header">
-            <div class="brand">
-                {{hospital.name}}
-                <small>Registro trans-operatório</small>
+    <section class="doc-section">
+        <h2>Procedimento</h2>
+        <div class="grid cols-3">
+            <div class="card">
+                <header>Cirurgia(s)</header>
+                <div class="body">
+                    @if (procedures.Any())
+                    {
+                        <dl class="kv">
+                            @foreach (var p in procedures)
+                            {
+                                <dt>@(p.IsPrimary ? "Principal" : "Procedimento")</dt>
+                                <dd class="strong">@p.Description @(!string.IsNullOrWhiteSpace(p.Cid) ? $"({p.Cid})" : "")</dd>
+                            }
+                        </dl>
+                    }
+                    else
+                    {
+                        <span class="empty-note">Nenhum procedimento registrado.</span>
+                    }
+                </div>
             </div>
-            <div class="title">
-                MONITORAMENTO ANESTÉSICO
-                <small>Linha do tempo · {{procedure.date}}</small>
+            <div class="card">
+                <header>Local</header>
+                <div class="body">
+                    <dl class="kv">
+                        <dt>Especialidade</dt><dd>@Txt(primarySurgery?.Specialty?.Description)</dd>
+                        <dt>Centro cirúrgico</dt><dd>@Txt(primarySurgery?.Location?.SurgicalCenter?.Description)</dd>
+                        <dt>Sala</dt><dd>@Txt(primarySurgery?.Location?.Room)</dd>
+                        <dt>Data da cirurgia</dt><dd>@record.SurgeryDate.ToString("dd/MM/yyyy")</dd>
+                    </dl>
+                </div>
             </div>
-            <div class="patient-mini">
-                <div><b>{{patient.name}}</b> · {{patient.age}}a · {{patient.gender}}</div>
-                <div>Sala {{procedure.room}} · ASA {{assessment.asa}} · {{patient.weight}}kg</div>
+            <div class="card">
+                <header>Horários</header>
+                <div class="body">
+                    <dl class="kv">
+                        <dt>Entrada na sala</dt><dd>@TimeOf(record.RoomEntryTime)</dd>
+                        <dt>Início/fim anestesia</dt><dd>@TimeOf(record.AnesthesiaStartTime) → @TimeOf(record.AnesthesiaEndTime)</dd>
+                        <dt>Fim da cirurgia</dt><dd>@TimeOf(record.SurgeryEndTime)</dd>
+                    </dl>
+                </div>
             </div>
-            <div class="badge"><small>Atendimento</small><b>{{procedure.attendanceId}}</b></div>
-        </header>
+        </div>
+    </section>
 
-        <div class="monitor">
-            <header>
-                <span>Monitorização Trans-operatória</span>
-                <span class="legend">
-                    <span><span class="glyph">∨</span> PA sistólica</span>
-                    <span><span class="glyph">∧</span> PA diastólica</span>
-                    <span><span class="glyph">●</span> FC</span>
-                    <span><span class="glyph">✕</span> Início/Fim anestesia</span>
-                    <span><span class="glyph">○</span> Início/Fim cirurgia</span>
-                </span>
-            </header>
+    <section class="doc-section">
+        <h2>Equipe / Pré-procedimento</h2>
+        <div class="grid cols-2">
+            <div class="card">
+                <header>Equipe</header>
+                <div class="body">
+                    <dl class="kv">
+                        <dt>1º Anestesiologista</dt><dd class="strong">@Txt(record.FirstAnesthesiologistName) @(string.IsNullOrWhiteSpace(record.FirstAnesthesiologistRegistration) ? "" : $"— CRM {record.FirstAnesthesiologistRegistration}")</dd>
+                        <dt>2º Anestesiologista</dt><dd>@Txt(record.SecondAnesthesiologistName) @(string.IsNullOrWhiteSpace(record.SecondAnesthesiologistRegistration) ? "" : $"— CRM {record.SecondAnesthesiologistRegistration}")</dd>
+                        <dt>Cirurgião</dt><dd>@Txt(record.SurgeonName) @(string.IsNullOrWhiteSpace(record.SurgeonRegistration) ? "" : $"— CRM {record.SurgeonRegistration}")</dd>
+                        <dt>Assistente</dt><dd>@Txt(record.AssistantName) @(string.IsNullOrWhiteSpace(record.AssistantRegistration) ? "" : $"— CRM {record.AssistantRegistration}")</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="card">
+                <header>Diagnóstico pré-operatório</header>
+                <div class="body">
+                    @Txt(record.PreOperativeDiagnosis)
+                </div>
+            </div>
+        </div>
+    </section>
 
-            <table class="timegrid">
-                <colgroup>
-                    <col class="label" />
-                    {{#each timeline.columns}}
-                    <col />{{/each}}
-                </colgroup>
+    <section class="doc-section">
+        <h2>Avaliação Pré-anestésica</h2>
+        @if (pre == null)
+        {
+            <p class="empty-note">Avaliação pré-anestésica não registrada para esta cirurgia.</p>
+        }
+        else
+        {
+            <div class="grid cols-3">
+                <div class="card">
+                    <header>Responsável</header>
+                    <div class="body">
+                        <dl class="kv">
+                            <dt>Médico</dt><dd class="strong">@Txt(pre.SignedByName)</dd>
+                            <dt>Data da avaliação</dt><dd>@Txt(pre.ConsultationDate)</dd>
+                            <dt>Assinado em</dt><dd>@(pre.SignedAt.HasValue ? pre.SignedAt.Value.ToString("dd/MM/yyyy HH:mm") : "Não informado")</dd>
+                        </dl>
+                    </div>
+                </div>
+                <div class="card">
+                    <header>Antropometria / Jejum</header>
+                    <div class="body">
+                        <dl class="kv">
+                            <dt>Peso / Altura</dt><dd>@Num(pre.WeightKg, " kg") / @Num(pre.HeightCm, " cm")</dd>
+                            <dt>IMC</dt><dd>@Num(pre.Bmi)</dd>
+                            <dt>Jejum sólidos</dt><dd>@Num(pre.FastingSolidsHours, "h")</dd>
+                            <dt>Jejum líquidos</dt><dd>@Num(pre.FastingLiquidsHours, "h")</dd>
+                        </dl>
+                    </div>
+                </div>
+                <div class="card">
+                    <header>Via aérea / Risco</header>
+                    <div class="body">
+                        <dl class="kv">
+                            <dt>Mallampati</dt><dd>@(pre.MallampatiClass?.ToString() ?? "Não informado")</dd>
+                            <dt>Previsão IOT difícil</dt><dd>@YesNo(pre.DifficultIntubationPrediction)</dd>
+                            <dt>ASA</dt><dd>@Lbl((AsaClassificationEnum?)pre.AsaClassification)</dd>
+                            <dt>Emergência</dt><dd>@(pre.IsEmergency ? "Sim" : "Não")</dd>
+                            <dt>Liberado</dt><dd>@(pre.NotCleared ? $"Não — {Txt(pre.NotClearedReason)}" : "Sim")</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+            <div class="grid cols-2" style="margin-top:2.4mm;">
+                <div class="card">
+                    <header>Comorbidades</header>
+                    <div class="body">
+                        @{ var comorbidities = pre.Comorbidities.Where(c => c.Findings.Any() || !string.IsNullOrWhiteSpace(c.OtherDescription)).ToList(); }
+                        @if (comorbidities.Any())
+                        {
+                            <dl class="kv">
+                                @foreach (var c in comorbidities)
+                                {
+                                    <dt>@GroupTitle(c.GroupKey)</dt>
+                                    <dd>@string.Join(", ", c.Findings) @(!string.IsNullOrWhiteSpace(c.OtherDescription) ? $"— {c.OtherDescription}" : "")</dd>
+                                }
+                            </dl>
+                        }
+                        else
+                        {
+                            <span class="empty-note">Sem comorbidades registradas.</span>
+                        }
+                    </div>
+                </div>
+                <div class="card">
+                    <header>Conduta</header>
+                    <div class="body">
+                        <dl class="kv">
+                            <dt>Ações</dt><dd>@(pre.ConductActions.Any() ? string.Join(", ", pre.ConductActions) : "Não informado")</dd>
+                            <dt>Observações</dt><dd>@Txt(pre.ConductNotes)</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        }
+    </section>
+
+    <section class="doc-section">
+        <h2>Segurança / Pré-indução</h2>
+        <div class="grid cols-2">
+            <div class="card">
+                <header>Segurança do Paciente</header>
+                <div class="body">
+                    <div class="checklist">
+                        <div class="check-item"><span>Paciente identificado e avaliado antes da indução</span><b>@YesNo(record.PatientIdentifiedBeforeInduction)</b></div>
+                        <div class="check-item"><span>Termo de consentimento anestésico assinado</span><b>@YesNo(record.AnestheticConsentSigned)</b></div>
+                        <div class="check-item"><span>Equipamento de anestesia e acessórios checados</span><b>@YesNo(record.AnesthesiaEquipmentChecked)</b></div>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(record.SafetyObservations))
+                    {
+                        <p style="margin:1.6mm 0 0;"><b>Observações:</b> @record.SafetyObservations</p>
+                    }
+                </div>
+            </div>
+            <div class="card">
+                <header>Pré-indução</header>
+                <div class="body">
+                    <dl class="kv">
+                        <dt>Medicação pré-anestésica</dt><dd>@YesNo(record.PreAnestheticMedication)</dd>
+                        @if (record.PreAnestheticMedication == true)
+                        {
+                            <dt>Fármaco</dt><dd>@Txt(record.PreAnestheticMedicationName)</dd>
+                            <dt>Dose</dt><dd>@Txt(record.PreAnestheticMedicationDose)</dd>
+                            <dt>Via</dt><dd>@Txt(record.PreAnestheticMedicationRoute ?? record.PreAnestheticMedicationOtherRoute)</dd>
+                            <dt>Horário</dt><dd>@TimeOf(record.PreAnestheticMedicationTime)</dd>
+                        }
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <div class="grid cols-2" style="margin-top:2.4mm;">
+            <div class="card">
+                <header>Profilaxia (Antibiótico)</header>
+                <div class="body" style="padding:0;">
+                    <dl class="kv" style="padding:2mm 2.4mm;">
+                        <dt>Uso de antibiótico profilático</dt><dd>@YesNo(record.ProphylacticAntibioticUsed)</dd>
+                    </dl>
+                    @if (record.AntibioticsList != null && record.AntibioticsList.Any())
+                    {
+                        <table class="data">
+                            <thead><tr><th>Fármaco</th><th>Dose</th><th>Via</th><th>Horário</th></tr></thead>
+                            <tbody>
+                                @foreach (var atb in record.AntibioticsList)
+                                {
+                                    <tr>
+                                        <td><b>@Txt(atb.Name)</b></td>
+                                        <td>@Txt(atb.Dose)</td>
+                                        <td>@Txt(atb.Route)</td>
+                                        <td>@TimeOf(atb.Time)</td>
+                                    </tr>
+                                    @if (atb.Boosters != null)
+                                    {
+                                        foreach (var booster in atb.Boosters)
+                                        {
+                                            <tr>
+                                                <td class="muted">↳ Repique — @Txt(booster.Name)</td>
+                                                <td>@Txt(booster.Dose)</td>
+                                                <td>@Txt(booster.Route)</td>
+                                                <td>@TimeOf(booster.Time)</td>
+                                            </tr>
+                                        }
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+            </div>
+            <div class="card">
+                <header>Dados Vitais e Antropométricos</header>
+                <div class="body">
+                    <dl class="kv">
+                        <dt>Pressão arterial</dt><dd>@Txt(record.BloodPressure)</dd>
+                        <dt>Frequência respiratória</dt><dd>@NumI(record.RespiratoryRate, " irpm")</dd>
+                        <dt>Temperatura</dt><dd>@Num(record.Temperature, " °C")</dd>
+                        <dt>SpO₂</dt><dd>@NumI(record.OxygenSaturation, "%")</dd>
+                        <dt>Peso</dt><dd>@Num(record.WeightKg, " kg")</dd>
+                        <dt>Entrada na sala</dt><dd>@TimeOf(record.RoomEntryTime)</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="doc-section">
+        <h2>Posição Operatória / Técnica Anestésica</h2>
+        <div class="grid cols-4">
+            <div class="card"><div class="body"><dl class="kv">
+                <dt>Posição</dt><dd class="strong">@(record.SurgicalPosition.HasValue ? Lbl(record.SurgicalPosition) : Txt(record.OtherSurgicalPosition))</dd>
+                <dt>Uso de coxins</dt><dd>@YesNo(record.UsesCushions) @(!string.IsNullOrWhiteSpace(record.CushionsAccessLocation) ? $"— {record.CushionsAccessLocation}" : "")</dd>
+                <dt>Acesso venoso</dt><dd>@Lbl(record.VenousAccessType) @(!string.IsNullOrWhiteSpace(record.VenousAccessLocation) ? $"— {record.VenousAccessLocation}" : "")</dd>
+                <dt>Dificuldade de punção</dt><dd>@YesNo(record.DifficultVenousPuncture)</dd>
+            </dl></div></div>
+            <div class="card"><div class="body"><dl class="kv">
+                <dt>Anestesia geral</dt><dd class="strong">@YesNo(record.GeneralAnesthesia)</dd>
+                <dt>Respiração</dt><dd>@Lbl(record.RespirationMode) @(record.RespirationMode == RespirationModeEnum.Controlled ? $"({Lbl(record.ControlledVentilationMode)})" : "")</dd>
+                <dt>Circuito (absorvedor CO₂)</dt><dd>@YesNo(record.Co2AbsorberCircuit)</dd>
+            </dl></div></div>
+            <div class="card"><div class="body">
+                <div class="sub-block">
+                    <h3 class="section-title">Via aérea</h3>
+                    <dl class="kv">
+                        <dt>Dispositivos</dt><dd>@(record.AirwayDevices.Any() ? string.Join(", ", record.AirwayDevices.Select(d => d.DeviceType.GetDescription())) : "Não informado") @(!string.IsNullOrWhiteSpace(record.AirwayDeviceNumbers) ? $"nº {record.AirwayDeviceNumbers}" : "")</dd>
+                        <dt>Tipo</dt><dd>@Lbl(record.AirwayType) @(!string.IsNullOrWhiteSpace(record.OtherAirwayTypeDescription) ? $"— {record.OtherAirwayTypeDescription}" : "")</dd>
+                        <dt>IOT</dt><dd>@YesNo(record.Iot) @(record.Iot == true ? $"({Lbl(record.IntubationDifficulty)})" : "")</dd>
+                        <dt>Cuff / Oral / Nasal</dt><dd>@YesNo(record.Cuff) / @YesNo(record.OralTube) / @YesNo(record.NasalTube)</dd>
+                    </dl>
+                </div>
+            </div></div>
+            <div class="card"><div class="body">
+                <div class="sub-block">
+                    <h3 class="section-title">Bloqueios espinhais</h3>
+                    <dl class="kv">
+                        <dt>Realizado</dt><dd>@YesNo(record.SpinalBlockPerformed)</dd>
+                        @if (record.SpinalBlockPerformed == true)
+                        {
+                            <dt>Nível</dt><dd>@(record.PunctureLevels.Any() ? string.Join(", ", record.PunctureLevels.Select(p => p.Level.GetDescription())) : "Não informado")</dd>
+                            <dt>Posição</dt><dd>@Lbl(record.PuncturePosition)</dd>
+                            <dt>Cateter / Opióide</dt><dd>@YesNo(record.SpinalCatheter) / @YesNo(record.SpinalOpioid)</dd>
+                        }
+                    </dl>
+                </div>
+            </div></div>
+        </div>
+        <div class="grid cols-2" style="margin-top:2.4mm;">
+            <div class="card"><div class="body">
+                <h3 class="section-title">Sedação e oxigênio</h3>
+                <dl class="kv">
+                    <dt>Sedação</dt><dd>@YesNo(record.SedationPerformed)</dd>
+                    <dt>Suplementação de O₂</dt><dd>@YesNo(record.OxygenSupplementation) @(record.OxygenSupplementation == true && record.OxygenSupplementationTypes.Any() ? $"— {string.Join(", ", record.OxygenSupplementationTypes.Select(t => t.Type.GetDescription()))}" : "") @(record.HasOxygenSupplementationOther == true ? $"— {record.OxygenSupplementationOther}" : "")</dd>
+                </dl>
+            </div></div>
+            <div class="card"><div class="body">
+                <h3 class="section-title">Bloqueio de plexo / neuro</h3>
+                <dl class="kv">
+                    <dt>Bloqueio de plexo</dt><dd>@YesNo(record.PlexusBlockPerformed)</dd>
+                    @if (record.PlexusBlockPerformed == true)
+                    {
+                        <dt>Neuroestimulador</dt><dd>@YesNo(record.NeurostimulatorUsed)</dd>
+                        <dt>Nervos estimulados</dt><dd>@(record.StimulatedNerves.Any() ? string.Join(", ", record.StimulatedNerves.Select(n => n.Nerve.GetDescription())) : "Não informado")</dd>
+                    }
+                </dl>
+            </div></div>
+        </div>
+    </section>
+
+    <section class="doc-section">
+        <h2>Monitorização</h2>
+        <h3 class="section-title">Monitorização Contínua</h3>
+        @if (vitals.Any())
+        {
+            <table class="data">
                 <thead>
                     <tr>
-                        <th style="text-align:left; padding-left:2mm;">Tempo</th>
-                        {{#each timeline.columns}}
-                        <th>{{time}}</th>{{/each}}
+                        <th>Horário</th>
+                        <th class="emphasis">Pressão Arterial</th>
+                        <th class="emphasis">FC</th>
+                        <th>SpO₂</th>
+                        <th>EtCO₂</th>
+                        <th>Temp.</th>
+                        @if (showBis) { <th>BIS</th> }
+                        @if (showPvc) { <th>PVC</th> }
+                        @if (showPcap) { <th>PCAP</th> }
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Bloco: parâmetros ventilatórios / gasosos -->
-                    {{#each timeline.rows.gases}}
-                    <tr>
-                        <td class="rowlabel">{{label}}<small>{{unit}}</small></td>
-                        {{#each cells}}
-                        <td class="cell {{#if value}}filled{{/if}}">{{value}}</td>{{/each}}
-                    </tr>
-                    {{/each}}
-
-                    <tr class="section-break"><td colspan="{{timeline.colspan}}">Balanço hídrico</td></tr>
-                    {{#each timeline.rows.fluids}}
-                    <tr>
-                        <td class="rowlabel">{{label}}</td>
-                        {{#each cells}}
-                        <td class="cell {{#if value}}filled{{/if}}">{{value}}</td>{{/each}}
-                    </tr>
-                    {{/each}}
-
-                    <tr class="section-break"><td colspan="{{timeline.colspan}}">Monitorização contínua</td></tr>
-                    {{#each timeline.rows.vitals}}
-                    <tr>
-                        <td class="rowlabel">{{label}}<small>{{unit}}</small></td>
-                        {{#each cells}}
-                        <td class="cell {{#if value}}filled{{/if}}">{{value}}</td>{{/each}}
-                    </tr>
-                    {{/each}}
-
-                    <tr class="section-break"><td colspan="{{timeline.colspan}}">Posição · Fármacos · Eventos · Incidentes · Exames</td></tr>
-                    {{#each timeline.rows.markers}}
-                    <tr>
-                        <td class="rowlabel">{{label}}</td>
-                        {{#each cells}}
-                        <td class="cell {{#if value}}filled{{/if}}">{{value}}</td>{{/each}}
-                    </tr>
-                    {{/each}}
-
-                    <tr class="section-break"><td colspan="{{timeline.colspan}}">Pressão arterial (mmHg) · Frequência cardíaca (bpm)</td></tr>
-                    {{#each timeline.rows.plot}}
-                    <tr class="plot">
-                        <td class="plot-y">{{y}}</td>
-                        {{#each cells}}
-                        <td class="cell">
-                            {{#each markers}}<span class="marker m-{{this}}"></span>{{/each}}
-                        </td>
-                        {{/each}}
-                    </tr>
-                    {{/each}}
+                    @foreach (var v in vitals)
+                    {
+                        <tr>
+                            <td>@TimeOf(v.Time)</td>
+                            <td class="emphasis">@Bp(v.SystolicBloodPressure, v.DiastolicBloodPressure)</td>
+                            <td class="emphasis">@NumI(v.HeartRate)</td>
+                            <td>@NumI(v.Spo2, "%")</td>
+                            <td>@NumI(v.Etco2)</td>
+                            <td>@Num(v.Temperature, " °C")</td>
+                            @if (showBis) { <td>@NumI(v.Bis)</td> }
+                            @if (showPvc) { <td>@Num(v.Pvc)</td> }
+                            @if (showPcap) { <td>@Num(v.Pcap)</td> }
+                        </tr>
+                    }
                 </tbody>
             </table>
-        </div>
-
-        <footer class="doc-footer">
-            <span>Legenda: ∨ PA sistólica · ∧ PA diastólica · ● FC · ✕ Anestesia · ○ Cirurgia</span>
-            <span>Emitido em {{meta.printedAt}} · Página 2 de 2</span>
-        </footer>
+        }
+        else
+        {
+            <p class="empty-note">Nenhum sinal vital registrado na monitorização.</p>
+        }
+        @if (positions.Any())
+        {
+            <div style="margin-top:2mm;">
+                <b style="font-size:7.4pt;">Posições registradas:</b>
+                <span style="font-size:7.4pt;">@string.Join(" · ", positions.Select(p => $"{TimeOf(p.Time)} — {p.Position.GetDescription()}"))</span>
+            </div>
+        }
     </section>
 
+    <section class="doc-section">
+        <h2>Fármacos Utilizados</h2>
+        @if (drugs.Any())
+        {
+            <table class="data">
+                <thead><tr><th>Fármaco</th><th class="num">Dose</th><th>Via</th><th>Horário</th></tr></thead>
+                <tbody>
+                    @foreach (var d in drugs)
+                    {
+                        <tr>
+                            <td><b>@d.DrugName</b></td>
+                            <td class="num">@d.Dose @d.Unit</td>
+                            <td>@d.Route.GetDescription()</td>
+                            <td>@TimeOf(d.Time)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p class="empty-note">Nenhum fármaco administrado registrado.</p>
+        }
+    </section>
+
+    <section class="doc-section">
+        <h2>Eventos Clínicos</h2>
+        @if (events.Any())
+        {
+            <table class="data">
+                <thead><tr><th style="width:16mm;">Horário</th><th>Evento</th><th>Descrição</th></tr></thead>
+                <tbody>
+                    @foreach (var e in events)
+                    {
+                        <tr>
+                            <td>@TimeOf(e.Time)</td>
+                            <td><b>@(string.IsNullOrWhiteSpace(e.CatalogEventName) ? e.EventType.GetDescription() : e.CatalogEventName)</b></td>
+                            <td>@Txt(e.Observations)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p class="empty-note">Nenhum evento clínico registrado.</p>
+        }
+    </section>
+
+    <section class="doc-section">
+        <h2>Balanço Hídrico</h2>
+        @if (fluids.Any())
+        {
+            <table class="data">
+                <thead><tr><th>Horário</th><th>Tipo</th><th>Categoria</th><th>Detalhes</th><th class="num">Volume</th></tr></thead>
+                <tbody>
+                    @foreach (var f in fluids)
+                    {
+                        <tr>
+                            <td>@TimeOf(f.Time)</td>
+                            <td>@f.Type.GetDescription()</td>
+                            <td>@f.Category.GetDescription()</td>
+                            <td>@Txt(f.Details)</td>
+                            <td class="num">@f.VolumeMl mL</td>
+                        </tr>
+                    }
+                    <tr><td colspan="4" class="num"><b>Total de entradas</b></td><td class="num"><b>@Model.FluidTotals.GainsMl mL</b></td></tr>
+                    <tr><td colspan="4" class="num"><b>Total de saídas</b></td><td class="num"><b>@Model.FluidTotals.LossesMl mL</b></td></tr>
+                    <tr><td colspan="4" class="num"><b>Balanço final</b></td><td class="num"><b>@Model.FluidTotals.NetMl mL</b></td></tr>
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p class="empty-note">Nenhum registro de balanço hídrico.</p>
+        }
+    </section>
+
+    <section class="doc-section">
+        <h2>Pós-Procedimento</h2>
+        <div class="grid cols-3">
+            <div class="card"><div class="body">
+                <dl class="kv">
+                    <dt>Cirurgia realizada</dt><dd class="strong">@Txt(record.SurgeryPerformed)</dd>
+                </dl>
+            </div></div>
+            <div class="card"><div class="body">
+                <dl class="kv">
+                    <dt>Fim da cirurgia</dt><dd>@TimeOf(record.SurgeryEndTime)</dd>
+                    <dt>Fim da anestesia</dt><dd>@TimeOf(record.AnesthesiaEndTime)</dd>
+                </dl>
+            </div></div>
+            <div class="card"><div class="body">
+                <dl class="kv">
+                    <dt>Diagnóstico pós-operatório</dt><dd>@Txt(record.PostOperativeDiagnosis)</dd>
+                </dl>
+            </div></div>
+        </div>
+    </section>
+
+    <section class="doc-section">
+        <h2>Índice de Aldrete e Kroulik</h2>
+        <div class="aldrete-grid">
+            <div class="aldrete-card">
+                <div class="label">Consciência</div>
+                <div class="score">@NumI(record.ConsciousnessScore)</div>
+                <div class="desc">@AldreteText("consciencia", record.ConsciousnessScore)</div>
+            </div>
+            <div class="aldrete-card">
+                <div class="label">Atividade</div>
+                <div class="score">@NumI(record.ActivityScore)</div>
+                <div class="desc">@AldreteText("atividade", record.ActivityScore)</div>
+            </div>
+            <div class="aldrete-card">
+                <div class="label">Circulação</div>
+                <div class="score">@NumI(record.CirculationScore)</div>
+                <div class="desc">@AldreteText("circulacao", record.CirculationScore)</div>
+            </div>
+            <div class="aldrete-card">
+                <div class="label">Respiração</div>
+                <div class="score">@NumI(record.RespirationScore)</div>
+                <div class="desc">@AldreteText("respiracao", record.RespirationScore)</div>
+            </div>
+            <div class="aldrete-card">
+                <div class="label">SpO2</div>
+                <div class="score">@NumI(record.OxygenSaturationScore)</div>
+                <div class="desc">@AldreteText("saturacao", record.OxygenSaturationScore)</div>
+            </div>
+        </div>
+        <div class="aldrete-total">
+            <span class="value">@(record.TotalAldreteKroulikScore?.ToString() ?? "—") / 10</span>
+            <div class="muted">Avaliado às @TimeOf(record.AldreteEvaluationTime)</div>
+        </div>
+    </section>
+
+    <section class="doc-section">
+        <h2>Condições Clínicas da Alta</h2>
+        <div class="grid cols-2">
+            <div class="card"><div class="body">
+                <dl class="kv">
+                    <dt>Condição clínica</dt><dd class="strong">@Lbl(record.ClinicalDischargeCondition) @(!string.IsNullOrWhiteSpace(record.DischargeConditionOther) ? $"— {record.DischargeConditionOther}" : "")</dd>
+                    <dt>Destino</dt><dd>@Lbl(record.Destination)</dd>
+                </dl>
+            </div></div>
+        </div>
+    </section>
+
+    <section class="doc-section">
+        <h2>Presença de Dor</h2>
+        <div class="grid cols-2">
+            <div class="card"><div class="body">
+                <dl class="kv">
+                    <dt>Presença de dor</dt><dd class="strong">@YesNo(record.HasPain)</dd>
+                    @if (record.HasPain == true)
+                    {
+                        @if (record.DorUsouENV == true)
+                        {
+                            <dt>ENV</dt><dd>@NumI(record.DorENV) / 10</dd>
+                        }
+                        @if (record.DorUsouPAINAD == true)
+                        {
+                            <dt>PAINAD</dt><dd>@NumI(record.DorPAINAD) / 10</dd>
+                        }
+                        @if (record.DorUsouBPS == true)
+                        {
+                            <dt>BPS</dt><dd>@NumI(record.DorBPS) / 12</dd>
+                        }
+                    }
+                </dl>
+            </div></div>
+            @if (record.HasPain == true && !string.IsNullOrWhiteSpace(record.Conduta))
+            {
+                <div class="card"><div class="body">
+                    <dl class="kv"><dt>Conduta</dt><dd>@record.Conduta</dd></dl>
+                </div></div>
+            }
+        </div>
+    </section>
+
+    <div class="signatures">
+        <div class="sig">
+            <div class="line"></div>
+            <b>@Txt(record.FirstAnesthesiologistName)</b>
+            <small>1º Anestesiologista @(string.IsNullOrWhiteSpace(record.FirstAnesthesiologistRegistration) ? "" : $"· CRM {record.FirstAnesthesiologistRegistration}")</small>
+        </div>
+        <div class="sig">
+            <div class="line"></div>
+            <b>@Txt(record.SecondAnesthesiologistName)</b>
+            <small>2º Anestesiologista @(string.IsNullOrWhiteSpace(record.SecondAnesthesiologistRegistration) ? "" : $"· CRM {record.SecondAnesthesiologistRegistration}")</small>
+        </div>
+        <div class="sig">
+            <div class="line"></div>
+            <b>@(record.SignatureDate.HasValue ? record.SignatureDate.Value.ToString("dd/MM/yyyy") : "Não assinado")</b>
+            <small>Data da assinatura</small>
+        </div>
+    </div>
+
+    <footer class="doc-footer">
+        <span>@Model.Hospital.Name @(string.IsNullOrWhiteSpace(Model.Hospital.Cnpj) ? "" : $"· CNPJ {Model.Hospital.Cnpj}") · Ficha Anestésica</span>
+        <span>Emitido em @Model.PrintedAt.ToString("dd/MM/yyyy HH:mm")</span>
+    </footer>
 </body>
 </html>

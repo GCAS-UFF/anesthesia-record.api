@@ -1,8 +1,10 @@
-﻿namespace UFF.FichaAnestesica.Domain.Enums
+using System.ComponentModel;
+
+namespace UFF.FichaAnestesica.Domain.Enums
 {
     public enum ControlledVentilationModeEnum
     {
-        Volume = 1,
-        Pressure = 2
+        [Description("Volume")] Volume = 1,
+        [Description("Pressão")] Pressure = 2
     }
 }
