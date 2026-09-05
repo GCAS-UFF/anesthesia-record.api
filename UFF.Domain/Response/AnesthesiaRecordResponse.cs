@@ -176,8 +176,8 @@ namespace UFF.FichaAnestesica.Domain.Response
                 {
                     FullName = patientDetail.FullName,
                     BirthDate = patientDetail.BirthDate,
-                    Age = patientDetail.BirthDate.Date.GetAge(),
-                    Status = patientDetail.HaveFirstAnesthesist && ParseStatus(patientDetail.Status) != SurgeryStatusEnum.Completed ? SurgeryStatusEnum.InProgress : ParseStatus(patientDetail.Status),
+                    Age = patientDetail.BirthDate.Date.GetAge(),                 
+                    Status = SurgeryStatusDerivation.DeriveEffectiveStatus(anesthesiaRecord.Status, anesthesiaRecord.FirstAnesthesiologistId != null),
                     Gender = patientDetail.Gender,
                     WeightKg = patientDetail.WeightKg,
                     MedicalRecordNumber = patientDetail.MedicalRecordNumber,

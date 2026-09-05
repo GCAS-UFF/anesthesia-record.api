@@ -150,8 +150,11 @@ namespace UFF.FichaAnestesica.Service.Services
                 if (recordsBySurgeryId.TryGetValue(patient.SurgeryId, out var record))
                 {
                     patient.HaveFirstAnesthesist = record.FirstAnesthesiologist != null;
-                    patient.Status = record.Status == 0 ? SurgeryStatusEnumMapping.Parse(patient.Status).GetDescription() : record.Status.GetDescription();
 
+                    var rawStatus = record.Status == 0 ? SurgeryStatusEnumMapping.Parse(patient.Status) : record.Status;
+                    var effectiveStatus = SurgeryStatusDerivation.DeriveEffectiveStatus(rawStatus, patient.HaveFirstAnesthesist);
+
+                    patient.Status = effectiveStatus.GetDescription();
                 }
             }
         }
@@ -415,10 +418,11 @@ namespace UFF.FichaAnestesica.Service.Services
                 responsibleAnesthesiologist = await _userRepository.GetUserByIdAsync(responsibleAnesthesiologistId.Value);
 
             var anesthesiaRecord = await _anesthesiaRecordRepository.GetByIdAsync(surgeryId);
+            var isNewAnesthesiaRecord = anesthesiaRecord == null;
 
             try
             {
-                if (anesthesiaRecord == null)
+                if (isNewAnesthesiaRecord)
                 {
                     anesthesiaRecord = AnesthesiaRecord.Create(new AnesthesiaRecordCommand
                     {
@@ -430,19 +434,41 @@ namespace UFF.FichaAnestesica.Service.Services
 
                     await _anesthesiaRecordRepository.AddAsync(anesthesiaRecord);
                 }
-                else
+                // Cirurgia já concluída/cancelada: "assumir"/"abandonar" não deve reabrir nem
+                // reverter o status — só chegam aqui por engano (ex.: clique duplo, tela
+                // desatualizada).
+                else if (anesthesiaRecord.Status != SurgeryStatusEnum.Completed && anesthesiaRecord.Status != SurgeryStatusEnum.Canceled)
                 {
-                    anesthesiaRecord.AssignFirstAnesthesiologistId(responsibleAnesthesiologistId);
-                    anesthesiaRecord.SetStatus(SurgeryStatusEnum.Preparing);
+                    if (responsibleAnesthesiologistId > 0)
+                    {
+                        anesthesiaRecord.AssignFirstAnesthesiologistId(responsibleAnesthesiologistId);
+                        anesthesiaRecord.SetStatus(SurgeryStatusEnum.Preparing);
+                    }
+                    else
+                    {
+                        // responsableId 0/null = "abandonar paciente": sem médico responsável, a
+                        // cirurgia volta a ficar disponível ("Agendada"), não presa em "Em Preparo"
+                        // como se ainda estivesse sendo preparada por alguém.
+                        anesthesiaRecord.AssignFirstAnesthesiologistId(null);
+                        anesthesiaRecord.SetStatus(SurgeryStatusEnum.Scheduled);
+                    }
 
                     _anesthesiaRecordRepository.Update(anesthesiaRecord);
                 }
 
-                var monitoring = MonitoringRecord.Create(new MonitoringRecordCommand(anesthesiaRecord.Id));
+                // AssumePatientAsync pode ser chamado várias vezes pra mesma cirurgia (assumir,
+                // abandonar, assumir de novo...) — sem essa checagem, cada chamada criava um
+                // MonitoringRecord novo e duplicado para o mesmo AnesthesiaRecordId.
+                var hasMonitoring = await _monitoringRecordRepository.GetByAnesthesiaRecordIdAsync(anesthesiaRecord.Id) != null;
 
-                monitoring.SetAnesthesiaRecord(anesthesiaRecord);
+                if (!hasMonitoring)
+                {
+                    var monitoring = MonitoringRecord.Create(new MonitoringRecordCommand(anesthesiaRecord.Id));
 
-                await _monitoringRecordRepository.AddAsync(monitoring);
+                    monitoring.SetAnesthesiaRecord(anesthesiaRecord);
+
+                    await _monitoringRecordRepository.AddAsync(monitoring);
+                }
 
                 await _anesthesiaRecordRepository.SaveChangesAsync();
 

@@ -1,5 +1,4 @@
 using Moq;
-using UFF.FichaAnestesica.Domain.Commands;
 using UFF.FichaAnestesica.Domain.Dto;
 using UFF.FichaAnestesica.Domain.Entities;
 using UFF.FichaAnestesica.Domain.Enums;
@@ -55,17 +54,53 @@ namespace UFF.FichaAnestesica.Test.Services
                 PatientId = "P1",
                 FullName = "João",
                 SurgeryId = 1,
-                Status = "agendado"
+                Status = "agendado",
+                ExpectedAt = new DateTime(2026, 1, 1),
+                SurgeryDate = new DateTime(2026, 1, 1),
             };
             _hospitalApiRepoMock
                 .Setup(h => h.GetPatientsFromHospitalAsync(It.IsAny<DateTime?>(), string.Empty, It.IsAny<SurgeryStatusEnum?>(), It.IsAny<int>(), It.IsAny<int>()))
                 .ReturnsAsync(new PagedResponse<PatientDetailDto> { Data = new List<PatientDetailDto> { patientDto }, TotalItems = 1 });
             _anesthesiaRepoMock.Setup(a => a.GetByIdsAsync(It.IsAny<string[]>())).ReturnsAsync(new List<AnesthesiaRecord>());
+            _preAnesthesiaRepoMock
+                .Setup(p => p.GetCompletedAnesthesiaRecordIds(It.IsAny<IEnumerable<int>>()))
+                .Returns(new HashSet<int>());
 
             var result = await _service.GetPatientsWithSurgeriesAsync(1, null, string.Empty, null);
             var paged = Assert.IsType<PagedResponse<PatientSurgeryResponse>>(result.Data);
             var patient = Assert.Single(paged.Data);
             Assert.Null(patient.FirstAnesthesiologist);
+        }
+
+        [Fact]
+        public async Task GetPatientsWithSurgeriesAsync_Should_Report_InProgress_When_FirstAnesthesiologist_Assigned()
+        {
+           
+            var patientDto = new PatientDetailDto
+            {
+                PatientId = "P1",
+                FullName = "João",
+                SurgeryId = 1,
+                Status = "agendado",               
+                SurgeryDate = new DateTime(2026, 1, 1),
+            };
+            _hospitalApiRepoMock
+                .Setup(h => h.GetPatientsFromHospitalAsync(It.IsAny<DateTime?>(), string.Empty, It.IsAny<SurgeryStatusEnum?>(), It.IsAny<int>(), It.IsAny<int>()))
+                .ReturnsAsync(new PagedResponse<PatientDetailDto> { Data = new List<PatientDetailDto> { patientDto }, TotalItems = 1 });
+
+            var record = AnesthesiaRecord.Create(new Domain.Commands.AnesthesiaRecord.AnesthesiaRecordCommand { PatientId = "P1", SurgeryId = 1 }, DateTime.MinValue);
+            record.SetStatus(SurgeryStatusEnum.Preparing);
+            var anesthesiologist = User.Create(1, "Dr. João", "joao@teste.com", "jsilva", "123", MedicalSpecialtyEnum.Anesthesiology, SectorEnum.SurgicalCenter);
+            typeof(AnesthesiaRecord).GetProperty("FirstAnesthesiologist")!.SetValue(record, anesthesiologist);
+            _anesthesiaRepoMock.Setup(a => a.GetByIdsAsync(It.IsAny<string[]>())).ReturnsAsync(new List<AnesthesiaRecord> { record });
+            _preAnesthesiaRepoMock
+                .Setup(p => p.GetCompletedAnesthesiaRecordIds(It.IsAny<IEnumerable<int>>()))
+                .Returns(new HashSet<int>());
+
+            var result = await _service.GetPatientsWithSurgeriesAsync(1, null, string.Empty, null);
+            var paged = Assert.IsType<PagedResponse<PatientSurgeryResponse>>(result.Data);
+            var patient = Assert.Single(paged.Data);
+            Assert.Equal(SurgeryStatusEnum.InProgress, patient.Status);
         }
 
         [Fact]
@@ -172,8 +207,7 @@ namespace UFF.FichaAnestesica.Test.Services
             var inProgressRecord = CreateRecord(2, "P2", SurgeryStatusEnum.InProgress, new DateTime(2026, 1, 1));
             var scheduledRecord = CreateRecord(3, "P3", SurgeryStatusEnum.Scheduled, new DateTime(2026, 8, 20));
 
-            // A consulta local já devolve o paciente em atendimento primeiro,
-            // mesmo com data de cirurgia mais antiga que a do agendado.
+            
             _anesthesiaRepoMock
                 .Setup(a => a.GetPagedByDoctorPrioritizedAsync(1, null, 1, 10))
                 .ReturnsAsync(((IEnumerable<AnesthesiaRecord>)new[] { inProgressRecord, scheduledRecord }, 2));
@@ -186,7 +220,7 @@ namespace UFF.FichaAnestesica.Test.Services
                 .Setup(p => p.GetCompletedAnesthesiaRecordIds(It.Is<IEnumerable<int>>(ids => ids.SequenceEqual(new[] { 2, 3 }))))
                 .Returns(new HashSet<int> { 2, 3 });
 
-            // O AGHU (fonte externa, somente leitura) devolve os dados fora de ordem (por nome).
+           
             _hospitalApiRepoMock
                 .Setup(h => h.GetMyPatientsFromHospitalAsync(
                     It.Is<IEnumerable<int>>(ids => ids.SequenceEqual(new[] { 2, 3 })),
@@ -235,8 +269,7 @@ namespace UFF.FichaAnestesica.Test.Services
             var date = new DateTime(2026, 8, 29, 0, 0, 0, DateTimeKind.Utc);
             var record = CreateRecord(5, "P5", SurgeryStatusEnum.Scheduled, date);
 
-            // Mesmo com filtro de data, o paciente em atendimento (se houver) continua
-            // vindo primeiro: a priorização não é exclusiva do cenário "sem filtro".
+           
             _anesthesiaRepoMock
                 .Setup(a => a.GetPagedByDoctorPrioritizedAsync(1, date, 1, 10))
                 .ReturnsAsync(((IEnumerable<AnesthesiaRecord>)new List<AnesthesiaRecord> { record }, 1));
@@ -279,8 +312,7 @@ namespace UFF.FichaAnestesica.Test.Services
             var date = new DateTime(2026, 8, 29, 0, 0, 0, DateTimeKind.Utc);
             var record = CreateRecord(5, "P5", SurgeryStatusEnum.Scheduled, date);
 
-            // Com termo de busca, a filtragem por nome/prontuário só existe no AGHU,
-            // então a paginação e a ordenação continuam totalmente delegadas a ele.
+          
             _anesthesiaRepoMock
                 .Setup(a => a.GetByDoctorAndDateAsync(1, date))
                 .ReturnsAsync(new List<AnesthesiaRecord> { record });

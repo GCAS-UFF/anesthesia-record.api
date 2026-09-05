@@ -14,7 +14,7 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
 
             builder.Property(x => x.Id).HasColumnName("id").IsRequired().ValueGeneratedNever();
 
-            #region Segurança
+            #region Seguranï¿½a
             builder.Property(x => x.PatientIdentifiedBeforeInduction)
                 .HasColumnName("patient_identified_before_induction");
 
@@ -29,7 +29,7 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .HasColumnType("text");
             #endregion
 
-            #region Pré-medicação
+            #region Pre-medicacao
             builder.Property(x => x.PreAnestheticMedication)
                 .HasColumnName("pre_anesthetic_medication");
 
@@ -81,7 +81,7 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .HasColumnType("text");
             #endregion
 
-            #region Antibióticos
+            #region Antibioticos
             builder.Property(x => x.ProphylacticAntibioticUsed)
                 .HasColumnName("prophylactic_antibiotic_used");
             #endregion
@@ -110,7 +110,7 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .HasConversion<int>();
             #endregion
 
-            #region Horários
+            #region Horarios
             builder.Property(x => x.RoomEntryTime)
                 .HasColumnName("room_entry_time")
                 .HasColumnType("time");
@@ -192,10 +192,10 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .HasColumnName("co2_absorber_circuit");
             #endregion
 
-            #region Via Aérea - Dispositivos
+            #region Via Aerea - Dispositivos
             builder.Property(x => x.AirwayDeviceNumbers)
                 .HasColumnName("airway_device_numbers")
-                .HasColumnType("jsonb"); // ou "text" se não usar PostgreSQL
+                .HasColumnType("jsonb");
 
             builder.Property(x => x.Cuff)
                 .HasColumnName("cuff");
@@ -214,7 +214,7 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .HasConversion<int>();
             #endregion
 
-            #region Via Aérea - Tipo
+            #region Via Aerea - Tipo
             builder.Property(x => x.AirwayType)
                 .HasColumnName("airway_type")
                 .HasConversion<int>();
@@ -224,7 +224,7 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .HasColumnType("varchar(200)");
             #endregion
 
-            #region Via Aérea - Técnicas
+            #region Via Aerea - Tecnicas
             builder.Property(x => x.Laryngoscopy)
                 .HasColumnName("laryngoscopy");
 
@@ -266,7 +266,7 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .HasColumnName("puncture_count");
             #endregion
 
-            #region Sedação e Oxigênio
+            #region Sedacao e Oxigï¿½nio
             builder.Property(x => x.SedationPerformed)
                 .HasColumnName("sedation_performed");
 
@@ -289,7 +289,7 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .HasColumnName("neurostimulator_used");
             #endregion
 
-            #region Pós-Procedimento
+            #region Pï¿½s-Procedimento
             builder.Property(x => x.SurgeryPerformed)
                 .HasColumnName("surgery_performed")
                 .HasColumnType("text");
@@ -299,7 +299,7 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .HasColumnType("text");
             #endregion
 
-            #region Recuperação
+            #region Recuperaï¿½ï¿½o
             builder.Property(x => x.ConsciousnessScore)
                 .HasColumnName("consciousness_score");
 
@@ -341,7 +341,7 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
             #region Assinatura
             builder.Property(x => x.SignatureDate)
                 .HasColumnName("signature_date")
-                .HasColumnType("date");
+                .HasColumnType("timestamptz");
             #endregion
 
             builder.Property(x => x.Status)

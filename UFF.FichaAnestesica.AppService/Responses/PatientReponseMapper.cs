@@ -8,38 +8,6 @@ namespace UFF.FichaAnestesica.Service.Mappers
 {
     public static class PatientResponseMapper
     {
-        public static PatientSurgeryResponse Map(PatientDetailDto patient, User? user)
-        {
-            if (patient == null)
-                return null;
-
-            return new PatientSurgeryResponse
-            {
-                SurgeryId = patient.SurgeryId,
-                SurgeryDate = patient.SurgeryDate,
-                PatientId = patient.PatientId,
-                MedicalRecordNumber = patient.MedicalRecordNumber,
-                FullName = patient.FullName,
-                BirthDate = patient.BirthDate,
-                Age = CalculateAge(patient.BirthDate),
-                ExpectedAt = patient.ExpectedAt,
-                Room = patient.Room,
-                Status = SurgeryStatusEnumMapping.Parse(patient.Status) != SurgeryStatusEnum.Completed ? SurgeryStatusEnum.InProgress : SurgeryStatusEnumMapping.Parse(patient.Status),
-                Procedures = patient.Procedures?
-                    .Select(p => new ProcedureResponse
-                    {
-                        Id = p.Codigo,
-                        Description = p.Description
-                    })
-                    .ToList() ?? new List<ProcedureResponse>(),
-                Allergies = patient.Allergies?
-                    .Select(MapAllergy)
-                    .ToList() ?? new List<Domain.Response.ListAllergyDto>(),
-                FirstAnesthesiologist = null,
-                SecondAnesthesiologist = null
-            };
-        }
-
         public static List<PatientSurgeryResponse> Map(IEnumerable<PatientDetailDto> patients, Dictionary<int, AnesthesiaRecord> recordsBySurgeryId)
         {
             if (patients == null || !patients.Any())
@@ -86,7 +54,7 @@ namespace UFF.FichaAnestesica.Service.Mappers
                 {
                     SurgeryId = patient.SurgeryId,
                     PatientId = patient.PatientId,
-                    SurgeryDate = (DateTime)(patient.ExpectedAt != DateTime.MinValue ? patient.ExpectedAt : patient.SurgeryDate),
+                    SurgeryDate = (patient.ExpectedAt.HasValue && patient.ExpectedAt.Value != DateTime.MinValue) ? patient.ExpectedAt.Value : patient.SurgeryDate,
                     MedicalRecordNumber = patient.MedicalRecordNumber,
                     FullName = patient.FullName,
                     BirthDate = patient.BirthDate,
@@ -150,9 +118,6 @@ namespace UFF.FichaAnestesica.Service.Mappers
                 Assistant = MapResponsible(assistant)
             };
         }
-
-        public static List<PatientSurgeryResponse> Map(IEnumerable<PatientDetailDto> patients, User user)
-            => patients.Select(p => Map(p, user)).ToList();
 
         private static int CalculateAge(DateTime birthDate)
         {
