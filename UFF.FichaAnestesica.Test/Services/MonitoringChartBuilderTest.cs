@@ -3,7 +3,6 @@ using UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord;
 using UFF.FichaAnestesica.Domain.Entities;
 using UFF.FichaAnestesica.Domain.Enums;
 using UFF.FichaAnestesica.Domain.Response;
-using UFF.FichaAnestesica.Domain.Response.Print;
 using UFF.FichaAnestesica.Infra.Services;
 
 namespace UFF.FichaAnestesica.Test.Services
@@ -15,12 +14,14 @@ namespace UFF.FichaAnestesica.Test.Services
         private static DateTime OnBaseDate(int hour, int minute) =>
             BaseDate.ToDateTime(new TimeOnly(hour, minute));
 
+       
         private static VitalSignRecordResponse Vital(int hour, int minute, int? hr = null, int? sys = null, int? dia = null, int? spo2 = null, decimal? temp = null)
         {
+            var utc = OnBaseDate(hour, minute).ToUniversalTime();
             var entity = VitalSignRecord.Create(new VitalSignRecordCommand
             {
-                Date = BaseDate.ToDateTime(TimeOnly.MinValue),
-                Time = new TimeSpan(hour, minute, 0),
+                Date = utc.Date,
+                Time = utc.TimeOfDay,
                 HeartRate = hr,
                 SystolicBloodPressure = sys,
                 DiastolicBloodPressure = dia,
@@ -31,8 +32,11 @@ namespace UFF.FichaAnestesica.Test.Services
             return VitalSignRecordResponse.ToResponse(entity);
         }
 
-        private static ClinicalEventResponse ClinicalEvent(int hour, int minute, ClinicalEventTypeEnum type, string? observations = null) =>
-            ClinicalEventRaw(BaseDate.ToDateTime(TimeOnly.MinValue), new TimeSpan(hour, minute, 0), type, observations);
+        private static ClinicalEventResponse ClinicalEvent(int hour, int minute, ClinicalEventTypeEnum type, string? observations = null)
+        {
+            var utc = OnBaseDate(hour, minute).ToUniversalTime();
+            return ClinicalEventRaw(utc.Date, utc.TimeOfDay, type, observations);
+        }
 
         private static ClinicalEventResponse ClinicalEventRaw(DateTime date, TimeSpan time, ClinicalEventTypeEnum type, string? observations = null)
         {
@@ -49,10 +53,11 @@ namespace UFF.FichaAnestesica.Test.Services
 
         private static PatientPositionResponse Position(int hour, int minute, SurgicalPositionEnum position)
         {
+            var utc = OnBaseDate(hour, minute).ToUniversalTime();
             var entity = PatientPosition.Create(new PatientPositionCommand
             {
-                Date = BaseDate.ToDateTime(TimeOnly.MinValue),
-                Time = new TimeSpan(hour, minute, 0),
+                Date = utc.Date,
+                Time = utc.TimeOfDay,
                 Position = position
             });
 
@@ -86,8 +91,8 @@ namespace UFF.FichaAnestesica.Test.Services
             {
                 StartedAt = OnBaseDate(8, 0).ToUniversalTime(),
                 SurgeryStartedAt = OnBaseDate(8, 15).ToUniversalTime(),
-                SurgeryEndedAt = OnBaseDate(9, 0).ToUniversalTime(),
-                EndedAt = OnBaseDate(9, 10).ToUniversalTime(),
+                SurgeryEndedAt = OnBaseDate(8, 50).ToUniversalTime(),
+                EndedAt = OnBaseDate(8, 55).ToUniversalTime(),
                 VitalSigns = [Vital(8, 30, hr: 80, sys: 120, dia: 80, spo2: 98, temp: 36.5m)]
             };
 
@@ -98,7 +103,7 @@ namespace UFF.FichaAnestesica.Test.Services
 
             var row = chart.Rows[0];
             Assert.Equal(4, row.TemporalMarkers.Count);
-            Assert.Equal(5, row.VitalPoints.Count); // FC, PAS, PAD, SpO2, Temp (sem PAM neste caso)
+            Assert.Equal(5, row.VitalPoints.Count); 
             Assert.False(row.HasLaneMarkers);
         }
 
@@ -122,12 +127,11 @@ namespace UFF.FichaAnestesica.Test.Services
             var chart = MonitoringChartBuilder.Build(monitoring, NullLogger.Instance);
 
             Assert.True(chart.HasData);
-            Assert.True(chart.Rows.Count >= 3, "uma cirurgia de ~5h40 (janelas de 2h) deve gerar pelo menos 3 blocos");
+            Assert.True(chart.Rows.Count >= 5, "uma cirurgia de ~5h40 (janelas de 1h) deve gerar pelo menos 5 blocos");
 
             var totalVitalPointsAcrossRows = chart.Rows.Sum(r => r.VitalPoints.Count);
             Assert.True(totalVitalPointsAcrossRows > 0);
-
-            // Nenhum registro deve "desaparecer" na quebra: cada vital tem até 4 séries preenchidas (hr,sys,dia,spo2).
+            
             Assert.Equal(12, totalVitalPointsAcrossRows);
         }
 
@@ -138,12 +142,12 @@ namespace UFF.FichaAnestesica.Test.Services
             {
                 StartedAt = OnBaseDate(8, 0).ToUniversalTime(),
                 SurgeryStartedAt = OnBaseDate(8, 10).ToUniversalTime(),
-                SurgeryEndedAt = OnBaseDate(9, 30).ToUniversalTime(),
+                SurgeryEndedAt = OnBaseDate(8, 55).ToUniversalTime(),
                 ClinicalEvents =
                 [
                     ClinicalEvent(8, 5, ClinicalEventTypeEnum.Intubation),
                     ClinicalEvent(8, 20, ClinicalEventTypeEnum.Incision),
-                    ClinicalEvent(9, 0, ClinicalEventTypeEnum.Complication, "Hipotensão transitória"),
+                    ClinicalEvent(8, 50, ClinicalEventTypeEnum.Complication, "Hipotensão transitória"),
                 ],
                 Positions = [Position(8, 12, SurgicalPositionEnum.Supine)]
             };
@@ -204,11 +208,7 @@ namespace UFF.FichaAnestesica.Test.Services
 
         [Fact]
         public void Build_Should_Ignore_A_Single_Record_With_A_Corrupted_Date_Instead_Of_Exploding_Row_Count()
-        {
-            // Reproduz o bug real que travava a impressão: um único registro com Date
-            // "zerada" (default(DateTime), equivalente a um dado corrompido/nunca
-            // preenchido) não pode arrastar timelineStart para o ano 1 e gerar
-            // centenas de milhares de blocos de 2h até timelineEnd (hoje).
+        {          
             var monitoring = new MonitoringRecordResponse
             {
                 StartedAt = OnBaseDate(8, 0).ToUniversalTime(),

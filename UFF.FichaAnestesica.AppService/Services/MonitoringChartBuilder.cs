@@ -6,41 +6,27 @@ using UFF.FichaAnestesica.Domain.Response.Print;
 
 namespace UFF.FichaAnestesica.Infra.Services
 {
-    /// <summary>
-    /// Constrói a representação gráfica (impressa) da monitorização intraoperatória,
-    /// com a mesma semântica do gráfico já existente na tela de Monitorização do app
-    /// (app/src/app/features/monitorizacao/components/vital-signs-chart e events-chart):
-    /// mesmas séries de sinais vitais, mesmos marcadores de início/fim de anestesia e
-    /// cirurgia, e as mesmas 4 categorias de evento (cirúrgico/via aérea/clínico/posição).
-    /// Não duplica regra de negócio: usa os mesmos dados/enums já mapeados em
-    /// <see cref="MonitoringRecordResponse"/>.
-    /// </summary>
+
     public static class MonitoringChartBuilder
     {
         private const double ViewboxWidth = 1000;
-        private const double VitalsPlotHeight = 200;
-        private const double LaneStepY = 16;
+        private const double VitalsPlotHeight = 130;
 
-        // Mesma escala combinada (0–240) usada pelo gráfico da tela para FC/PAS/PAD/PAM/SpO2.
+        private const double EdgeInset = 10;
         private const double VitalsScaleMin = 0;
         private const double VitalsScaleMax = 240;
 
-        // Mesma escala de temperatura (32–42) usada no eixo secundário da tela.
+
+        private static readonly double[] VitalsGridValues = { 0, 40, 80, 120, 160, 200, 240 };
+        private const double HeartRateLabelProximity = 30;
+
+
         private const double TempScaleMin = 32;
         private const double TempScaleMax = 42;
 
-        private static readonly TimeSpan RowSpan = TimeSpan.FromHours(2);
+        private static readonly TimeSpan RowSpan = TimeSpan.FromHours(1);
 
-        // Nenhuma cirurgia real dura mais que alguns dias: isto é uma rede de segurança
-        // (não uma escolha de produto) para garantir que a geração do PDF sempre
-        // termina, mesmo que um registro com data corrompida escape do filtro de
-        // outliers abaixo. 60 blocos de 2h = até 120h de linha do tempo.
         private const int MaxRows = 60;
-
-        // Janela de tolerância ao redor da âncora confiável: um registro cujo horário
-        // caia fora disso é tratado como dado inválido (não plotado), em vez de
-        // distorcer a escala inteira do gráfico. Ver item 6 do pedido original —
-        // "eventos fora do intervalo da cirurgia" / "eventos com DateTime default".
         private static readonly TimeSpan OutlierWindow = TimeSpan.FromHours(72);
 
         public static MonitoringChartViewModel Build(MonitoringRecordResponse? monitoring, ILogger logger)
@@ -53,18 +39,19 @@ namespace UFF.FichaAnestesica.Infra.Services
                 return result;
             }
 
+
             var vitals = monitoring.VitalSigns
-                .Select(v => (Time: Combine(v.Date, v.Time), Vital: v))
+                .Select(v => (Time: Combine(v.Date, v.Time).ToLocalTime(), Vital: v))
                 .OrderBy(x => x.Time)
                 .ToList();
 
             var events = monitoring.ClinicalEvents
-                .Select(e => (Time: Combine(e.Date, e.Time), Event: e))
+                .Select(e => (Time: Combine(e.Date, e.Time).ToLocalTime(), Event: e))
                 .OrderBy(x => x.Time)
                 .ToList();
 
             var positions = monitoring.Positions
-                .Select(p => (Time: Combine(p.Date, p.Time), Position: p))
+                .Select(p => (Time: Combine(p.Date, p.Time).ToLocalTime(), Position: p))
                 .OrderBy(x => x.Time)
                 .ToList();
 
@@ -76,12 +63,7 @@ namespace UFF.FichaAnestesica.Infra.Services
             var anesthesiaEnd = monitoring.EndedAt?.ToLocalTime();
             var surgeryStart = IsSet(monitoring.SurgeryStartedAt) ? monitoring.SurgeryStartedAt.ToLocalTime() : (DateTime?)null;
             var surgeryEnd = monitoring.SurgeryEndedAt?.ToLocalTime();
-
-            // Âncora = a mesma referência que a tela de Monitorização usa para
-            // posicionar o gráfico (início da cirurgia, senão início da anestesia).
-            // Sem nenhum marco confiável, usa a MEDIANA dos registros brutos — ao
-            // contrário de Min()/Max(), a mediana não é arrastada por um único
-            // registro com data errada.
+   
             var anchor = surgeryStart ?? anesthesiaStart ?? surgeryEnd ?? anesthesiaEnd;
 
             if (!anchor.HasValue)
@@ -181,11 +163,13 @@ namespace UFF.FichaAnestesica.Infra.Services
                 var isLastRow = i == rowCount - 1;
 
                 BuildTicks(row, rowStart, rowEnd);
+                BuildValueTicks(row);
 
                 foreach (var (time, vital) in vitals.Where(v => InRange(v.Time, rowStart, rowEnd, isLastRow)))
                 {
                     var x = XFor(time, rowStart, rowEnd);
                     AddVitalPoint(row, x, VitalSeries.HeartRate, vital.HeartRate);
+                    AddHeartRateLabel(row, x, vital.HeartRate);
                     AddVitalPoint(row, x, VitalSeries.SystolicBp, vital.SystolicBloodPressure);
                     AddVitalPoint(row, x, VitalSeries.DiastolicBp, vital.DiastolicBloodPressure);
                     AddVitalPoint(row, x, VitalSeries.MeanBp, vital.MeanArterialPressure);
@@ -230,6 +214,7 @@ namespace UFF.FichaAnestesica.Infra.Services
                 ApplyAntiOverlap(row.AirwayMarkers);
                 ApplyAntiOverlap(row.ClinicalMarkers);
                 ApplyAntiOverlap(row.PositionMarkers);
+                ApplyAntiOverlap(row.HeartRateLabels, HeartRateLabelProximity);
 
                 result.Rows.Add(row);
             }
@@ -240,33 +225,46 @@ namespace UFF.FichaAnestesica.Infra.Services
         private static DateTime Combine(DateTime date, TimeSpan time) => date.Date + time;
 
         private static bool IsSet(DateTime value) => value != default;
-
-        // Intervalo semiaberto [rowStart, rowEnd) para nunca contar um evento em duas
-        // linhas — exceto na última linha, cujo fim é fechado para não perder o
-        // último instante da linha do tempo (timelineEnd).
+    
         private static bool InRange(DateTime time, DateTime rowStart, DateTime rowEnd, bool isLastRow) =>
             time >= rowStart && (isLastRow ? time <= rowEnd : time < rowEnd);
 
         private static double XFor(DateTime time, DateTime rowStart, DateTime rowEnd)
         {
             var span = (rowEnd - rowStart).TotalMinutes;
-            if (span <= 0) return 0;
+            if (span <= 0) return EdgeInset;
             var pct = (time - rowStart).TotalMinutes / span;
-            return Math.Clamp(pct, 0, 1) * ViewboxWidth;
+            var x = Math.Clamp(pct, 0, 1) * ViewboxWidth;
+            return Math.Clamp(x, EdgeInset, ViewboxWidth - EdgeInset);
         }
 
         private static void BuildTicks(MonitoringChartRow row, DateTime rowStart, DateTime rowEnd)
         {
             var totalMinutes = (rowEnd - rowStart).TotalMinutes;
-            var step = totalMinutes > 90 ? 30 : totalMinutes > 40 ? 15 : 10;
-
-            for (var minute = 0; minute <= totalMinutes; minute += step)
+            var step = totalMinutes > 90 ? 15 : totalMinutes > 40 ? 10 : totalMinutes > 20 ? 5 : 2;
+         
+            var index = 0;
+            for (var minute = 0; minute <= totalMinutes; minute += step, index++)
             {
                 var tickTime = rowStart.AddMinutes(minute);
                 row.Ticks.Add(new ChartAxisTick
                 {
                     X = XFor(tickTime, rowStart, rowEnd),
-                    Label = tickTime.ToString("HH:mm")
+                    Label = tickTime.ToString("HH:mm"),
+                    IsMajor = index % 2 == 0
+                });
+            }
+        }
+
+        private static void BuildValueTicks(MonitoringChartRow row)
+        {
+            foreach (var value in VitalsGridValues)
+            {
+                row.ValueTicks.Add(new ChartValueTick
+                {
+                    Y = YForVitalsScale(value),
+                    Value = value,
+                    Label = ((int)value).ToString()
                 });
             }
         }
@@ -295,6 +293,12 @@ namespace UFF.FichaAnestesica.Infra.Services
         {
             if (!value.HasValue) return;
             row.VitalPoints.Add(new VitalChartPoint { X = x, Y = YForTempScale((double)value.Value), Series = VitalSeries.Temperature });
+        }
+
+        private static void AddHeartRateLabel(MonitoringChartRow row, double x, int? value)
+        {
+            if (!value.HasValue) return;
+            row.HeartRateLabels.Add(new HeartRateLabelMarker { X = x, Y = YForVitalsScale(value.Value), Value = value.Value });
         }
 
         private static void AddTemporalMarker(MonitoringChartRow row, DateTime? time, DateTime rowStart, DateTime rowEnd, bool isLastRow, TemporalMarkerKind kind)
@@ -332,10 +336,8 @@ namespace UFF.FichaAnestesica.Infra.Services
             _ => row.ClinicalMarkers
         };
 
-        private static void ApplyAntiOverlap(List<LaneChartMarker> markers)
+        private static void ApplyAntiOverlap<T>(List<T> markers, double proximityThreshold = 35) where T : IStackableMarker
         {
-            const double proximityThreshold = 35;
-
             markers.Sort((a, b) => a.X.CompareTo(b.X));
 
             var lastX = double.NegativeInfinity;

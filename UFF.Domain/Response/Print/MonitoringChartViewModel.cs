@@ -1,10 +1,5 @@
 namespace UFF.FichaAnestesica.Domain.Response.Print
-{
-    /// <summary>
-    /// Representação já "geometrizada" (coordenadas prontas para desenhar) do gráfico de
-    /// monitorização impresso, equivalente ao gráfico da tela de Monitorização do app.
-    /// Coordenadas X/Y são unidades de um viewBox SVG (não pixels de tela).
-    /// </summary>
+{  
     public class MonitoringChartViewModel
     {
         public bool HasData { get; set; }
@@ -15,7 +10,9 @@ namespace UFF.FichaAnestesica.Domain.Response.Print
     {
         public string RangeLabel { get; set; } = string.Empty;
         public List<ChartAxisTick> Ticks { get; set; } = new();
+        public List<ChartValueTick> ValueTicks { get; set; } = new();
         public List<VitalChartPoint> VitalPoints { get; set; } = new();
+        public List<HeartRateLabelMarker> HeartRateLabels { get; set; } = new();
         public List<TemporalChartMarker> TemporalMarkers { get; set; } = new();
         public List<LaneChartMarker> SurgicalMarkers { get; set; } = new();
         public List<LaneChartMarker> AirwayMarkers { get; set; } = new();
@@ -27,10 +24,36 @@ namespace UFF.FichaAnestesica.Domain.Response.Print
             ClinicalMarkers.Count > 0 || PositionMarkers.Count > 0;
     }
 
+ 
+    public interface IStackableMarker
+    {
+        double X { get; }
+        int StackLevel { get; set; }
+    }
+
     public class ChartAxisTick
     {
         public double X { get; set; }
         public string Label { get; set; } = string.Empty;
+
+        public bool IsMajor { get; set; }
+    }
+
+    
+    public class ChartValueTick
+    {
+        public double Y { get; set; }
+        public double Value { get; set; }
+        public string Label { get; set; } = string.Empty;
+    }
+
+    
+    public class HeartRateLabelMarker : IStackableMarker
+    {
+        public double X { get; set; }
+        public double Y { get; set; }
+        public int Value { get; set; }
+        public int StackLevel { get; set; }
     }
 
     public enum VitalSeries { HeartRate, SystolicBp, DiastolicBp, MeanBp, Spo2, Temperature }
@@ -51,7 +74,7 @@ namespace UFF.FichaAnestesica.Domain.Response.Print
         public string TimeLabel { get; set; } = string.Empty;
     }
 
-    public class LaneChartMarker
+    public class LaneChartMarker : IStackableMarker
     {
         public double X { get; set; }
         public int StackLevel { get; set; }
