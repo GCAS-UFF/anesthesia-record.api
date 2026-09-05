@@ -7,6 +7,7 @@ namespace UFF.FichaAnestesica.Domain.Response.Print
         public PreAnesthesiaRecordResponse? PreAnesthesia { get; set; }
         public MonitoringRecordResponse? Monitoring { get; set; }
         public PrintFluidBalanceTotals FluidTotals { get; set; } = new();
+        public MonitoringChartViewModel Chart { get; set; } = new();
         public DateTime PrintedAt { get; set; }
     }
 

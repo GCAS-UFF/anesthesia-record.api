@@ -19,7 +19,15 @@ namespace UFF.FichaAnestesica.Infra.Repositories
 
         public async Task<MonitoringRecord?> GetCompleteByIdAsync(int id)
         {
+            // AsSplitQuery evita explosão cartesiana: sem ela, incluir várias coleções
+            // irmãs (VitalSigns, AdministeredAgents, ClinicalEvents, FluidBalances,
+            // Positions) numa única consulta faz o banco retornar o produto cartesiano
+            // entre elas (ex.: 100 sinais vitais x 50 agentes x 20 eventos vira 100.000+
+            // linhas), deixando a consulta e o mapeamento cada vez mais lentos quanto
+            // maior a monitorização. Com AsSplitQuery, o EF Core faz uma consulta por
+            // coleção incluída — mesmo resultado final, sem o produto cartesiano.
             return await _context.MonitoringRecords
+                .AsSplitQuery()
                 .Include(x => x.AnesthesiaRecord)
                 .Include(x => x.VitalSigns)
                     .ThenInclude(x => x.CustomFields)

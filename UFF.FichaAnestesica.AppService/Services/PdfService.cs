@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using UFF.FichaAnestesica.Application.Interfaces;
 using UFF.FichaAnestesica.Domain.Services;
 
@@ -20,9 +21,10 @@ namespace UFF.FichaAnestesica.Infra.Services
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IServiceProvider _serviceProvider;
         private readonly IConfiguration _configuration;
+        private readonly ILogger<PdfService> _logger;
 
         public PdfService(ICompositeViewEngine viewEngine, ITempDataProvider tempDataProvider, IHttpContextAccessor httpContextAccessor, IServiceProvider serviceProvider,
-            IConfiguration configuration, IAnesthesiaRecordPrintService anesthesiaRecordPrintService)
+            IConfiguration configuration, IAnesthesiaRecordPrintService anesthesiaRecordPrintService, ILogger<PdfService> logger)
         {
             _viewEngine = viewEngine;
             _tempDataProvider = tempDataProvider;
@@ -30,17 +32,26 @@ namespace UFF.FichaAnestesica.Infra.Services
             _serviceProvider = serviceProvider;
             _configuration = configuration;
             _anesthesiaRecordPrintService = anesthesiaRecordPrintService;
+            _logger = logger;
         }
 
         public async Task<(string, string)> GeneratePdfAsync(int id)
         {
+            _logger.LogInformation("[PDF] Requisição de impressão recebida para a ficha {Id}.", id);
+
             var viewModel = await _anesthesiaRecordPrintService.BuildAsync(id);
 
             if (viewModel == null)
+            {
+                _logger.LogWarning("[PDF] ViewModel nulo para a ficha {Id} — abortando geração.", id);
                 return (null, null);
+            }
 
             var layoutBase = _configuration["Pdf:ViewPath"];
+
+            _logger.LogInformation("[PDF] Renderizando view '{ViewPath}'...", layoutBase);
             var html = await RenderViewToStringAsync(layoutBase, viewModel);
+            _logger.LogInformation("[PDF] View renderizada ({Length} caracteres). Geração concluída para a ficha {Id}.", html?.Length ?? 0, id);
 
             return (html, viewModel.Record.ExternalPatientId);
         }

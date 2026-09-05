@@ -1,5 +1,6 @@
 @using UFF.FichaAnestesica.Domain.Extensions
 @using UFF.FichaAnestesica.Domain.Enums
+@using UFF.FichaAnestesica.Domain.Response.Print
 @model UFF.FichaAnestesica.Domain.Response.Print.AnesthesiaRecordPrintViewModel
 @{
     var record = Model.Record;
@@ -12,7 +13,6 @@
     var drugs = (monitoring?.AdministeredAgents ?? new()).OrderBy(d => d.Date).ThenBy(d => d.Time).ToList();
     var events = (monitoring?.ClinicalEvents ?? new()).OrderBy(e => e.Date).ThenBy(e => e.Time).ToList();
     var fluids = (monitoring?.FluidBalances ?? new()).OrderBy(f => f.Date).ThenBy(f => f.Time).ToList();
-    var positions = (monitoring?.Positions ?? new()).OrderBy(p => p.Date).ThenBy(p => p.Time).ToList();
     var showBis = vitals.Any(v => v.Bis.HasValue);
     var showPvc = vitals.Any(v => v.Pvc.HasValue);
     var showPcap = vitals.Any(v => v.Pcap.HasValue);
@@ -23,7 +23,7 @@
     string TxtOrEmpty(string? v) => v ?? string.Empty;
     string TimeOf(TimeOnly? t) => t.HasValue ? t.Value.ToString("HH:mm") : "—";
     string TimeOf(TimeSpan t) => t.ToString(@"hh\:mm");
-    string Lbl<T>(T? e) where T : struct, Enum => e.HasValue ? ((Enum)e.Value).GetDescription() : "Não informado";
+    string Lbl<T>(T? e) where T : struct, Enum => e.SafeDescription();
     string Num(decimal? v, string suffix = "") => v.HasValue ? $"{v.Value}{suffix}" : "—";
     string NumI(int? v, string suffix = "") => v.HasValue ? $"{v.Value}{suffix}" : "—";
     string Bp(int? sys, int? dia)
@@ -33,7 +33,6 @@
         if (dia.HasValue) return $"—/{dia}";
         return "—";
     }
-    string GroupTitle(string? key) => string.IsNullOrWhiteSpace(key) ? "—" : char.ToUpper(key[0]) + key.Substring(1);
     string AldreteText(string component, int? score)
     {
         if (!score.HasValue) return "Não informado";
@@ -56,6 +55,51 @@
             ("saturacao", 0) => "SpO2 < 90% mesmo com O2",
             _ => score.Value.ToString()
         };
+    }
+    string VitalClass(VitalSeries s) => s switch
+    {
+        VitalSeries.HeartRate => "vp-fc",
+        VitalSeries.SystolicBp => "vp-pas",
+        VitalSeries.DiastolicBp => "vp-pad",
+        VitalSeries.MeanBp => "vp-pam",
+        VitalSeries.Spo2 => "vp-spo2",
+        _ => "vp-temp"
+    };
+    string MarkerClass(TemporalMarkerKind k) => k switch
+    {
+        TemporalMarkerKind.AnesthesiaStart => "tm-anes-start",
+        TemporalMarkerKind.AnesthesiaEnd => "tm-anes-end",
+        TemporalMarkerKind.SurgeryStart => "tm-surg-start",
+        _ => "tm-surg-end"
+    };
+    string MarkerSymbol(TemporalMarkerKind k) => k switch
+    {
+        TemporalMarkerKind.AnesthesiaStart => "✕",
+        TemporalMarkerKind.AnesthesiaEnd => "✕",
+        TemporalMarkerKind.SurgeryStart => "○",
+        _ => "●"
+    };
+    string MarkerLabel(TemporalMarkerKind k) => k switch
+    {
+        TemporalMarkerKind.AnesthesiaStart => "Anestesia",
+        TemporalMarkerKind.AnesthesiaEnd => "Fim anestesia",
+        TemporalMarkerKind.SurgeryStart => "Cirurgia",
+        _ => "Fim cirurgia"
+    };
+    // Coordenadas de SVG precisam de "." decimal — nunca usar a formatação
+    // padrão de double aqui, pois em cultura pt-BR ToString() usaria vírgula
+    // e quebraria o atributo "d"/"cx"/"cy" do SVG.
+    int R(double v) => (int)Math.Round(v, MidpointRounding.AwayFromZero);
+    string Pct(double v) => (v / 10.0).ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+    // Razor trata a tag <text> como um marcador de transição de markup próprio
+    // e não aceita atributos nela — por isso o <text> do SVG precisa ser
+    // emitido "cru" via Html.Raw em vez de markup Razor normal.
+    Microsoft.AspNetCore.Html.IHtmlContent SvgText(int x, int y, string fontSize, string extraAttrs, string text)
+    {
+        var escaped = System.Net.WebUtility.HtmlEncode(text);
+        return new Microsoft.AspNetCore.Html.HtmlString(
+            $"<text x=\"{x}\" y=\"{y}\" font-size=\"{fontSize}\" text-anchor=\"middle\" {extraAttrs}>{escaped}</text>");
     }
 }
 <!doctype html>
@@ -133,6 +177,16 @@
             border-bottom: 0.8pt solid var(--brand);
             padding-bottom: 1mm;
             margin: 0 0 1.6mm;
+            break-after: avoid-page;
+            page-break-after: avoid;
+        }
+
+        /* Título de seção nunca pode ficar sozinho no fim da página: se não
+           houver espaço para o título + o início do conteúdo, o navegador
+           empurra os dois juntos para a próxima (sem forçar quebra sempre). */
+        .doc-section > h2 + * {
+            break-before: avoid-page;
+            page-break-before: avoid;
         }
 
         .card { border: 0.6pt solid var(--line); border-radius: 1.6mm; overflow: hidden; background: #fff; break-inside: avoid; page-break-inside: avoid; }
@@ -163,7 +217,15 @@
         .muted { color: var(--muted); }
         .empty-note { color: var(--muted); font-size: 7.4pt; font-style: italic; }
 
-        h3.section-title { margin: 0 0 1.2mm; font-size: 7.6pt; color: var(--brand); text-transform: uppercase; letter-spacing: .4px; border-left: 2pt solid var(--brand); padding-left: 1.6mm; }
+        h3.section-title {
+            margin: 0 0 1.2mm; font-size: 7.6pt; color: var(--brand); text-transform: uppercase; letter-spacing: .4px; border-left: 2pt solid var(--brand); padding-left: 1.6mm;
+            break-after: avoid-page;
+            page-break-after: avoid;
+        }
+        h3.section-title + * {
+            break-before: avoid-page;
+            page-break-before: avoid;
+        }
         .sub-block { margin-bottom: 2mm; }
         .sub-block:last-child { margin-bottom: 0; }
 
@@ -186,6 +248,54 @@
         .sig small { color: var(--muted); }
 
         .doc-footer { margin-top: 3mm; padding-top: 1.6mm; border-top: 0.4pt solid var(--line); display: flex; justify-content: space-between; font-size: 6.6pt; color: var(--muted); }
+
+        /* título + os dois elementos seguintes (ex.: legenda + 1º bloco do gráfico)
+           nunca se separam do título por uma quebra de página */
+        .doc-section > h2 + * + * {
+            break-before: avoid-page;
+            page-break-before: avoid;
+        }
+
+        /* ============ GRÁFICO DE MONITORIZAÇÃO ============ */
+        .chart-legend { display: flex; flex-wrap: wrap; gap: 1.6mm 4mm; font-size: 6.8pt; color: var(--ink); margin-bottom: 2.4mm; padding: 1.6mm 2.2mm; background: var(--band); border-radius: 1.6mm; }
+        .chart-legend .lg-item { display: inline-flex; align-items: center; gap: 1mm; white-space: nowrap; }
+        .chart-legend .lg-sym { display: inline-block; width: 3.4mm; text-align: center; font-weight: 800; }
+
+        .chart-row { break-inside: avoid; page-break-inside: avoid; margin-bottom: 3mm; border: 0.6pt solid var(--line); border-radius: 1.6mm; padding: 1.6mm 2mm 2mm; }
+        .chart-row:last-child { margin-bottom: 0; }
+        .chart-row .row-range { font-size: 7pt; font-weight: 700; color: var(--brand); margin-bottom: 0.8mm; }
+        .chart-row svg { width: 100%; display: block; }
+
+        .vp-fc { fill: #ef4444; }
+        .vp-pas { fill: #ffffff; stroke: #3b82f6; stroke-width: 1.6; }
+        .vp-pad { fill: #ffffff; stroke: #3b82f6; stroke-width: 1.6; }
+        .vp-pam { fill: #1e3a8a; }
+        .vp-spo2 { fill: #10b981; }
+        .vp-temp { fill: #f59e0b; }
+
+        .tm-anes-start { stroke: #7c3aed; fill: #7c3aed; }
+        .tm-anes-end { stroke: #0f172a; fill: #0f172a; }
+        .tm-surg-start { stroke: #0ea5e9; fill: #0ea5e9; }
+        .tm-surg-end { stroke: #0f172a; fill: #0f172a; }
+
+        .lanes { display: flex; flex-direction: column; gap: 1mm; margin-top: 2mm; }
+        .lane { display: flex; align-items: stretch; gap: 1.6mm; }
+        .lane-label { flex: 0 0 15mm; font-size: 6.4pt; font-weight: 700; display: flex; align-items: center; gap: 0.8mm; }
+        .lane-track { position: relative; flex: 1 1 auto; height: 11mm; border-top: 0.4pt solid var(--line); }
+        .lane-marker { position: absolute; top: 1mm; width: 2.2mm; height: 2.2mm; border-radius: 50%; transform: translateX(-50%); }
+        .lane-marker.stack-1 { top: 3.6mm; }
+        .lane-marker.stack-2 { top: 6.2mm; }
+        .lane-time { position: absolute; top: 3.4mm; font-size: 5.6pt; color: var(--muted); transform: translateX(-50%); white-space: nowrap; }
+        .lane-time.stack-1 { top: 6mm; }
+        .lane-time.stack-2 { top: 8.6mm; }
+        .lane.surgical .lane-label { color: #f97316; }
+        .lane.surgical .lane-marker { background: #f97316; }
+        .lane.airway .lane-label { color: #8b5cf6; }
+        .lane.airway .lane-marker { background: #8b5cf6; }
+        .lane.clinical .lane-label { color: #ef4444; }
+        .lane.clinical .lane-marker { background: #ef4444; }
+        .lane.position .lane-label { color: #22c55e; }
+        .lane.position .lane-marker { background: #22c55e; }
     </style>
 </head>
 <body>
@@ -227,7 +337,7 @@
         {
             <span class="chip info">Mallampati @pre.MallampatiClass</span>
         }
-        <span class="chip">@record.Status</span>
+        <span class="chip">@record.Status.DisplayLabel()</span>
     </div>
 
     <section class="doc-section">
@@ -264,7 +374,7 @@
             <div class="card">
                 <div class="body">
                     <dl class="kv">
-                        <dt>Status da cirurgia</dt><dd>@record.Status</dd>
+                        <dt>Status da cirurgia</dt><dd>@record.Status.DisplayLabel()</dd>
                         <dt>Identificador AGHU</dt><dd>@Txt(record.ExternalPatientId)</dd>
                     </dl>
                 </div>
@@ -376,7 +486,6 @@
                     <div class="body">
                         <dl class="kv">
                             <dt>Mallampati</dt><dd>@(pre.MallampatiClass?.ToString() ?? "Não informado")</dd>
-                            <dt>Previsão IOT difícil</dt><dd>@YesNo(pre.DifficultIntubationPrediction)</dd>
                             <dt>ASA</dt><dd>@Lbl((AsaClassificationEnum?)pre.AsaClassification)</dd>
                             <dt>Emergência</dt><dd>@(pre.IsEmergency ? "Sim" : "Não")</dd>
                             <dt>Liberado</dt><dd>@(pre.NotCleared ? $"Não — {Txt(pre.NotClearedReason)}" : "Sim")</dd>
@@ -394,8 +503,8 @@
                             <dl class="kv">
                                 @foreach (var c in comorbidities)
                                 {
-                                    <dt>@GroupTitle(c.GroupKey)</dt>
-                                    <dd>@string.Join(", ", c.Findings) @(!string.IsNullOrWhiteSpace(c.OtherDescription) ? $"— {c.OtherDescription}" : "")</dd>
+                                    <dt>@PreAnesthesiaCatalogLabels.ComorbidityGroupTitle(c.GroupKey)</dt>
+                                    <dd>@string.Join(", ", c.Findings.Select(f => PreAnesthesiaCatalogLabels.ComorbidityFinding(c.GroupKey, f))) @(!string.IsNullOrWhiteSpace(c.OtherDescription) ? $"— {c.OtherDescription}" : "")</dd>
                                 }
                             </dl>
                         }
@@ -409,7 +518,7 @@
                     <header>Conduta</header>
                     <div class="body">
                         <dl class="kv">
-                            <dt>Ações</dt><dd>@(pre.ConductActions.Any() ? string.Join(", ", pre.ConductActions) : "Não informado")</dd>
+                            <dt>Ações</dt><dd>@(pre.ConductActions.Any() ? string.Join("; ", pre.ConductActions.Select(PreAnesthesiaCatalogLabels.ConductAction)) : "Não informado")</dd>
                             <dt>Observações</dt><dd>@Txt(pre.ConductNotes)</dd>
                         </dl>
                     </div>
@@ -523,7 +632,7 @@
                 <div class="sub-block">
                     <h3 class="section-title">Via aérea</h3>
                     <dl class="kv">
-                        <dt>Dispositivos</dt><dd>@(record.AirwayDevices.Any() ? string.Join(", ", record.AirwayDevices.Select(d => d.DeviceType.GetDescription())) : "Não informado") @(!string.IsNullOrWhiteSpace(record.AirwayDeviceNumbers) ? $"nº {record.AirwayDeviceNumbers}" : "")</dd>
+                        <dt>Dispositivos</dt><dd>@(record.AirwayDevices.Any() ? string.Join(", ", record.AirwayDevices.Select(d => d.DeviceType.SafeDescription())) : "Não informado") @(!string.IsNullOrWhiteSpace(record.AirwayDeviceNumbers) ? $"nº {record.AirwayDeviceNumbers}" : "")</dd>
                         <dt>Tipo</dt><dd>@Lbl(record.AirwayType) @(!string.IsNullOrWhiteSpace(record.OtherAirwayTypeDescription) ? $"— {record.OtherAirwayTypeDescription}" : "")</dd>
                         <dt>IOT</dt><dd>@YesNo(record.Iot) @(record.Iot == true ? $"({Lbl(record.IntubationDifficulty)})" : "")</dd>
                         <dt>Cuff / Oral / Nasal</dt><dd>@YesNo(record.Cuff) / @YesNo(record.OralTube) / @YesNo(record.NasalTube)</dd>
@@ -537,7 +646,7 @@
                         <dt>Realizado</dt><dd>@YesNo(record.SpinalBlockPerformed)</dd>
                         @if (record.SpinalBlockPerformed == true)
                         {
-                            <dt>Nível</dt><dd>@(record.PunctureLevels.Any() ? string.Join(", ", record.PunctureLevels.Select(p => p.Level.GetDescription())) : "Não informado")</dd>
+                            <dt>Nível</dt><dd>@(record.PunctureLevels.Any() ? string.Join(", ", record.PunctureLevels.Select(p => p.Level.SafeDescription())) : "Não informado")</dd>
                             <dt>Posição</dt><dd>@Lbl(record.PuncturePosition)</dd>
                             <dt>Cateter / Opióide</dt><dd>@YesNo(record.SpinalCatheter) / @YesNo(record.SpinalOpioid)</dd>
                         }
@@ -550,7 +659,7 @@
                 <h3 class="section-title">Sedação e oxigênio</h3>
                 <dl class="kv">
                     <dt>Sedação</dt><dd>@YesNo(record.SedationPerformed)</dd>
-                    <dt>Suplementação de O₂</dt><dd>@YesNo(record.OxygenSupplementation) @(record.OxygenSupplementation == true && record.OxygenSupplementationTypes.Any() ? $"— {string.Join(", ", record.OxygenSupplementationTypes.Select(t => t.Type.GetDescription()))}" : "") @(record.HasOxygenSupplementationOther == true ? $"— {record.OxygenSupplementationOther}" : "")</dd>
+                    <dt>Suplementação de O₂</dt><dd>@YesNo(record.OxygenSupplementation) @(record.OxygenSupplementation == true && record.OxygenSupplementationTypes.Any() ? $"— {string.Join(", ", record.OxygenSupplementationTypes.Select(t => t.Type.SafeDescription()))}" : "") @(record.HasOxygenSupplementationOther == true ? $"— {record.OxygenSupplementationOther}" : "")</dd>
                 </dl>
             </div></div>
             <div class="card"><div class="body">
@@ -560,7 +669,7 @@
                     @if (record.PlexusBlockPerformed == true)
                     {
                         <dt>Neuroestimulador</dt><dd>@YesNo(record.NeurostimulatorUsed)</dd>
-                        <dt>Nervos estimulados</dt><dd>@(record.StimulatedNerves.Any() ? string.Join(", ", record.StimulatedNerves.Select(n => n.Nerve.GetDescription())) : "Não informado")</dd>
+                        <dt>Nervos estimulados</dt><dd>@(record.StimulatedNerves.Any() ? string.Join(", ", record.StimulatedNerves.Select(n => n.Nerve.SafeDescription())) : "Não informado")</dd>
                     }
                 </dl>
             </div></div>
@@ -608,13 +717,6 @@
         {
             <p class="empty-note">Nenhum sinal vital registrado na monitorização.</p>
         }
-        @if (positions.Any())
-        {
-            <div style="margin-top:2mm;">
-                <b style="font-size:7.4pt;">Posições registradas:</b>
-                <span style="font-size:7.4pt;">@string.Join(" · ", positions.Select(p => $"{TimeOf(p.Time)} — {p.Position.GetDescription()}"))</span>
-            </div>
-        }
     </section>
 
     <section class="doc-section">
@@ -629,7 +731,7 @@
                         <tr>
                             <td><b>@d.DrugName</b></td>
                             <td class="num">@d.Dose @d.Unit</td>
-                            <td>@d.Route.GetDescription()</td>
+                            <td>@d.Route.SafeDescription()</td>
                             <td>@TimeOf(d.Time)</td>
                         </tr>
                     }
@@ -653,7 +755,7 @@
                     {
                         <tr>
                             <td>@TimeOf(e.Time)</td>
-                            <td><b>@(string.IsNullOrWhiteSpace(e.CatalogEventName) ? e.EventType.GetDescription() : e.CatalogEventName)</b></td>
+                            <td><b>@(string.IsNullOrWhiteSpace(e.CatalogEventName) ? e.EventType.SafeDescription() : e.CatalogEventName)</b></td>
                             <td>@Txt(e.Observations)</td>
                         </tr>
                     }
@@ -677,8 +779,8 @@
                     {
                         <tr>
                             <td>@TimeOf(f.Time)</td>
-                            <td>@f.Type.GetDescription()</td>
-                            <td>@f.Category.GetDescription()</td>
+                            <td>@f.Type.SafeDescription()</td>
+                            <td>@f.Category.SafeDescription()</td>
                             <td>@Txt(f.Details)</td>
                             <td class="num">@f.VolumeMl mL</td>
                         </tr>
@@ -813,6 +915,119 @@
             <small>Data da assinatura</small>
         </div>
     </div>
+
+    <section class="doc-section">
+        <h2>Gráfico de Monitorização</h2>
+        <div class="chart-legend">
+            <span class="lg-item"><span class="lg-sym" style="color:#ef4444;">●</span>FC</span>
+            <span class="lg-item"><span class="lg-sym" style="color:#3b82f6;">▽</span>PAS</span>
+            <span class="lg-item"><span class="lg-sym" style="color:#3b82f6;">△</span>PAD</span>
+            <span class="lg-item"><span class="lg-sym" style="color:#1e3a8a;">▲</span>PAM</span>
+            <span class="lg-item"><span class="lg-sym" style="color:#10b981;">●</span>SpO₂</span>
+            <span class="lg-item"><span class="lg-sym" style="color:#f59e0b;">●</span>T°C</span>
+            <span class="lg-item"><span class="lg-sym" style="color:#7c3aed;">✕</span>Anestesia (início/fim)</span>
+            <span class="lg-item"><span class="lg-sym" style="color:#0ea5e9;">○</span>Cirurgia (início/fim)</span>
+            <span class="lg-item"><span class="lg-sym" style="color:#f97316;">✚</span>Evento cirúrgico</span>
+            <span class="lg-item"><span class="lg-sym" style="color:#8b5cf6;">◈</span>Evento de via aérea</span>
+            <span class="lg-item"><span class="lg-sym" style="color:#ef4444;">⚠</span>Evento clínico</span>
+            <span class="lg-item"><span class="lg-sym" style="color:#22c55e;">↺</span>Mudança de posição</span>
+        </div>
+
+        @if (!Model.Chart.HasData)
+        {
+            <p class="empty-note">Sem registros de monitorização suficientes para gerar o gráfico.</p>
+        }
+        else
+        {
+            @foreach (var row in Model.Chart.Rows)
+            {
+                <div class="chart-row">
+                    <div class="row-range">@row.RangeLabel</div>
+                    <svg viewBox="0 0 1000 260" preserveAspectRatio="none">
+                        <line x1="0" y1="240" x2="1000" y2="240" stroke="#cbd5e1" stroke-width="1.5" />
+                        @foreach (var tick in row.Ticks)
+                        {
+                            <line x1="@R(tick.X)" y1="235" x2="@R(tick.X)" y2="245" stroke="#cbd5e1" stroke-width="1" />
+                            @SvgText(R(tick.X), 256, "9", "fill=\"#64748b\"", tick.Label)
+                        }
+                        @foreach (var m in row.TemporalMarkers)
+                        {
+                            <line x1="@R(m.X)" y1="40" x2="@R(m.X)" y2="240" stroke-width="1" stroke-dasharray="4,4" class="@MarkerClass(m.Kind)" />
+                            @SvgText(R(m.X), 33, "13", $"font-weight=\"700\" class=\"{MarkerClass(m.Kind)}\"", MarkerSymbol(m.Kind))
+                            @SvgText(R(m.X), 14, "8.5", $"class=\"{MarkerClass(m.Kind)}\"", $"{MarkerLabel(m.Kind)} {m.TimeLabel}")
+                        }
+                        @foreach (var p in row.VitalPoints)
+                        {
+                            var y = p.Y + 40;
+                            if (p.Series == VitalSeries.SystolicBp)
+                            {
+                                <path d="M @R(p.X - 6),@R(y - 4) L @R(p.X + 6),@R(y - 4) L @R(p.X),@R(y + 7) Z" class="@VitalClass(p.Series)" />
+                            }
+                            else if (p.Series == VitalSeries.DiastolicBp)
+                            {
+                                <path d="M @R(p.X - 6),@R(y + 4) L @R(p.X + 6),@R(y + 4) L @R(p.X),@R(y - 7) Z" class="@VitalClass(p.Series)" />
+                            }
+                            else if (p.Series == VitalSeries.MeanBp)
+                            {
+                                <path d="M @R(p.X - 5),@R(y + 4) L @R(p.X + 5),@R(y + 4) L @R(p.X),@R(y - 6) Z" class="@VitalClass(p.Series)" />
+                            }
+                            else
+                            {
+                                var radius = p.Series == VitalSeries.HeartRate ? 5 : 4;
+                                <circle cx="@R(p.X)" cy="@R(y)" r="@radius" class="@VitalClass(p.Series)" />
+                            }
+                        }
+                    </svg>
+
+                    @if (row.HasLaneMarkers)
+                    {
+                        <div class="lanes">
+                            <div class="lane surgical">
+                                <div class="lane-label"><span>✚</span>Cirúrgico</div>
+                                <div class="lane-track">
+                                    @foreach (var m in row.SurgicalMarkers)
+                                    {
+                                        <span class="lane-marker stack-@m.StackLevel" style="left:@(Pct(m.X))%" title="@m.Description"></span>
+                                        <span class="lane-time stack-@m.StackLevel" style="left:@(Pct(m.X))%">@m.TimeLabel</span>
+                                    }
+                                </div>
+                            </div>
+                            <div class="lane airway">
+                                <div class="lane-label"><span>◈</span>Via aérea</div>
+                                <div class="lane-track">
+                                    @foreach (var m in row.AirwayMarkers)
+                                    {
+                                        <span class="lane-marker stack-@m.StackLevel" style="left:@(Pct(m.X))%" title="@m.Description"></span>
+                                        <span class="lane-time stack-@m.StackLevel" style="left:@(Pct(m.X))%">@m.TimeLabel</span>
+                                    }
+                                </div>
+                            </div>
+                            <div class="lane clinical">
+                                <div class="lane-label"><span>⚠</span>Clínico</div>
+                                <div class="lane-track">
+                                    @foreach (var m in row.ClinicalMarkers)
+                                    {
+                                        <span class="lane-marker stack-@m.StackLevel" style="left:@(Pct(m.X))%" title="@m.Description"></span>
+                                        <span class="lane-time stack-@m.StackLevel" style="left:@(Pct(m.X))%">@m.TimeLabel</span>
+                                    }
+                                </div>
+                            </div>
+                            <div class="lane position">
+                                <div class="lane-label"><span>↺</span>Posição</div>
+                                <div class="lane-track">
+                                    @foreach (var m in row.PositionMarkers)
+                                    {
+                                        <span class="lane-marker stack-@m.StackLevel" style="left:@(Pct(m.X))%" title="@m.Description"></span>
+                                        <span class="lane-time stack-@m.StackLevel" style="left:@(Pct(m.X))%">@m.TimeLabel</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        }
+    </section>
 
     <footer class="doc-footer">
         <span>@Model.Hospital.Name @(string.IsNullOrWhiteSpace(Model.Hospital.Cnpj) ? "" : $"· CNPJ {Model.Hospital.Cnpj}") · Ficha Anestésica</span>

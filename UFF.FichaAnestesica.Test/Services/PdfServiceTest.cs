@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using UFF.FichaAnestesica.Domain.Response;
 using UFF.FichaAnestesica.Domain.Response.Print;
@@ -24,7 +25,8 @@ namespace UFF.FichaAnestesica.Test.Services
                 null!,
                 null!,
                 _configMock.Object,
-                _printServiceMock.Object);
+                _printServiceMock.Object,
+                NullLogger<PdfService>.Instance);
         }
 
         [Fact]

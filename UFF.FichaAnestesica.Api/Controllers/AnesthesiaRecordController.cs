@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using UFF.FichaAnestesica.Application.Interfaces;
 using UFF.FichaAnestesica.Domain.Commands;
 using UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord;
@@ -17,16 +18,17 @@ namespace UFF.FichaAnestesica.Api.Controllers
 
         private readonly IRazorViewRenderer _razorViewRenderer;
         private readonly IPdfService _pdfService;
+        private readonly ILogger<AnesthesiaRecordController> _logger;
 
         public AnesthesiaRecordController(IAnesthesiaRecordService anesthesiaRecordService, IRazorViewRenderer razorViewRenderer,
-            IPdfService pdfService, ISurgeryService surgeryService)
+            IPdfService pdfService, ISurgeryService surgeryService, ILogger<AnesthesiaRecordController> logger)
         {
             _anesthesiaRecordService = anesthesiaRecordService;
 
             _razorViewRenderer = razorViewRenderer;
             _pdfService = pdfService;
             _surgeryService = surgeryService;
-
+            _logger = logger;
         }
 
         [HttpPost]
@@ -85,7 +87,12 @@ namespace UFF.FichaAnestesica.Api.Controllers
         [HttpGet("{id}/print")]
         public async Task<IActionResult> Print([FromRoute] int id)
         {
+            _logger.LogInformation("[PDF] Endpoint /print acionado para a ficha {Id}.", id);
+
             (string html, string extenalPatientId) = await _pdfService.GeneratePdfAsync(id);
+
+            _logger.LogInformation("[PDF] Endpoint /print finalizado para a ficha {Id}, enviando response.", id);
+
             return Content(html, "text/html");
         }
     }
