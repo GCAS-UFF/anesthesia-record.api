@@ -379,7 +379,9 @@ namespace UFF.FichaAnestesica.Domain.Entities
             #endregion
 
             #region Assinatura
-            SignatureDate = command.SignatureDate;
+            SignatureDate = command.SignatureDate.HasValue
+                ? DateTime.SpecifyKind(command.SignatureDate.Value, DateTimeKind.Utc)
+                : null;
             #endregion
 
             PatientId = command.PatientId;
