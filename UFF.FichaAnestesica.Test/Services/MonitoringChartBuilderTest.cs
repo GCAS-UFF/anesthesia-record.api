@@ -103,7 +103,7 @@ namespace UFF.FichaAnestesica.Test.Services
 
             var row = chart.Rows[0];
             Assert.Equal(4, row.TemporalMarkers.Count);
-            Assert.Equal(5, row.VitalPoints.Count); 
+            Assert.Equal(3, row.VitalPoints.Count);
             Assert.False(row.HasLaneMarkers);
         }
 
@@ -132,7 +132,7 @@ namespace UFF.FichaAnestesica.Test.Services
             var totalVitalPointsAcrossRows = chart.Rows.Sum(r => r.VitalPoints.Count);
             Assert.True(totalVitalPointsAcrossRows > 0);
             
-            Assert.Equal(12, totalVitalPointsAcrossRows);
+            Assert.Equal(9, totalVitalPointsAcrossRows);
         }
 
         [Fact]

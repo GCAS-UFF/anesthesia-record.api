@@ -17,6 +17,7 @@
     var showPvc = vitals.Any(v => v.Pvc.HasValue);
     var showPcap = vitals.Any(v => v.Pcap.HasValue);
     var customFieldNames = vitals.SelectMany(v => v.CustomFields).Select(cf => cf.Name).Distinct().ToList();
+    var airwayDeviceNumbersText = AirwayDeviceNumbersText(record.AirwayDeviceNumbers);
 }
 @functions {
    
@@ -37,13 +38,6 @@
     string Lbl<T>(T? e) where T : struct, Enum => e.SafeDescription();
     string Num(decimal? v, string suffix = "") => v.HasValue ? $"{v.Value}{suffix}" : "—";
     string NumI(int? v, string suffix = "") => v.HasValue ? $"{v.Value}{suffix}" : "—";
-    string Bp(int? sys, int? dia)
-    {
-        if (sys.HasValue && dia.HasValue) return $"{sys}/{dia}";
-        if (sys.HasValue) return $"{sys}/—";
-        if (dia.HasValue) return $"—/{dia}";
-        return "—";
-    }
     string AldreteText(string component, int? score)
     {
         if (!score.HasValue) return "Não informado";
@@ -73,9 +67,52 @@
         VitalSeries.SystolicBp => "vp-pas",
         VitalSeries.DiastolicBp => "vp-pad",
         VitalSeries.MeanBp => "vp-pam",
-        VitalSeries.Spo2 => "vp-spo2",
-        _ => "vp-temp"
+        _ => "vp-fc"
     };
+   
+    string VitalSymbol(VitalSeries s) => s switch
+    {
+        VitalSeries.SystolicBp => "▼",
+        VitalSeries.DiastolicBp => "▲",
+        VitalSeries.MeanBp => "■",
+        _ => "●"
+    };
+
+  
+    string AirwayDeviceNumbersText(string? raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw)) return string.Empty;
+
+        var labels = new (string Key, string Label)[]
+        {
+            ("tubo", "Tubo"),
+            ("guedel", "Guedel"),
+            ("mascFacial", "Máscara facial"),
+            ("mascLaringea", "Máscara laríngea")
+        };
+
+        try
+        {
+            using var doc = System.Text.Json.JsonDocument.Parse(raw);
+            if (doc.RootElement.ValueKind != System.Text.Json.JsonValueKind.Object) return raw!;
+
+            var parts = new List<string>();
+            foreach (var (key, label) in labels)
+            {
+                if (doc.RootElement.TryGetProperty(key, out var prop) && prop.ValueKind == System.Text.Json.JsonValueKind.String)
+                {
+                    var value = prop.GetString();
+                    if (!string.IsNullOrWhiteSpace(value))
+                        parts.Add($"{label}: {value}");
+                }
+            }
+            return parts.Count > 0 ? string.Join(", ", parts) : string.Empty;
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            return raw!;
+        }
+    }
     string MarkerClass(TemporalMarkerKind k) => k switch
     {
         TemporalMarkerKind.AnesthesiaStart => "tm-anes-start",
@@ -585,27 +622,15 @@
         }
 
         .vp-pas {
-            fill: #ffffff;
-            stroke: #3b82f6;
-            stroke-width: 2.2;
+            fill: #3b82f6;
         }
 
         .vp-pad {
-            fill: #ffffff;
-            stroke: #3b82f6;
-            stroke-width: 2.2;
+            fill: #3b82f6;
         }
 
         .vp-pam {
             fill: #1e3a8a;
-        }
-
-        .vp-spo2 {
-            fill: #10b981;
-        }
-
-        .vp-temp {
-            fill: #f59e0b;
         }
 
         .tm-anes-start {
@@ -1030,7 +1055,7 @@
                         <h3 class="section-title">Via aérea</h3>
                         <dl class="kv">
                             <dt>Dispositivos</dt>
-                            <dd>@(record.AirwayDevices.Any() ? string.Join(", ", record.AirwayDevices.Select(d => d.DeviceType.SafeDescription())) : "Não informado") @(!string.IsNullOrWhiteSpace(record.AirwayDeviceNumbers) ? $"nº {record.AirwayDeviceNumbers}" : "")</dd>
+                            <dd>@(record.AirwayDevices.Any() ? string.Join(", ", record.AirwayDevices.Select(d => d.DeviceType.SafeDescription())) : "Não informado") @(!string.IsNullOrWhiteSpace(airwayDeviceNumbersText) ? $"nº {airwayDeviceNumbersText}" : "")</dd>
                             <dt>Tipo</dt>
                             <dd>@Lbl(record.AirwayType) @(!string.IsNullOrWhiteSpace(record.OtherAirwayTypeDescription) ? $"— {record.OtherAirwayTypeDescription}" : "")</dd>
                             <dt>IOT</dt>
@@ -1102,8 +1127,6 @@
                 <thead>
                     <tr>
                         <th>Horário</th>
-                        <th class="emphasis">Pressão Arterial</th>
-                        <th class="emphasis">FC</th>
                         <th>SpO₂</th>
                         <th>EtCO₂</th>
                         <th>Temp.</th>
@@ -1130,8 +1153,6 @@
                     {
                         <tr>
                             <td>@TimeOf(v.Time)</td>
-                            <td class="emphasis">@Bp(v.SystolicBloodPressure, v.DiastolicBloodPressure)</td>
-                            <td class="emphasis">@NumI(v.HeartRate)</td>
                             <td>@NumI(v.Spo2, "%")</td>
                             <td>@NumI(v.Etco2)</td>
                             <td>@Num(v.Temperature, " °C")</td>
@@ -1386,11 +1407,9 @@
         <h2>Gráfico de Monitorização</h2>
         <div class="chart-legend">
             <span class="lg-item"><span class="lg-sym" style="color:#ef4444;">●</span>FC</span>
-            <span class="lg-item"><span class="lg-sym" style="color:#3b82f6;">▽</span>PAS</span>
-            <span class="lg-item"><span class="lg-sym" style="color:#3b82f6;">△</span>PAD</span>
-            <span class="lg-item"><span class="lg-sym" style="color:#1e3a8a;">▲</span>PAM</span>
-            <span class="lg-item"><span class="lg-sym" style="color:#10b981;">●</span>SpO₂</span>
-            <span class="lg-item"><span class="lg-sym" style="color:#f59e0b;">●</span>T°C</span>
+            <span class="lg-item"><span class="lg-sym" style="color:#3b82f6;">v</span>PAS</span>
+            <span class="lg-item"><span class="lg-sym" style="color:#3b82f6;">^</span>PAD</span>
+            <span class="lg-item"><span class="lg-sym" style="color:#1e3a8a;">■</span>PAM</span>
             <span class="lg-item"><span class="lg-sym" style="color:#7c3aed;">✕</span>Anestesia (início/fim)</span>
             <span class="lg-item"><span class="lg-sym" style="color:#0ea5e9;">○</span>Cirurgia (início/fim)</span>
         </div>
@@ -1405,15 +1424,16 @@
             {
                 <div class="chart-row">
                     <div class="row-range">@row.RangeLabel</div>
-                    <svg viewBox="0 0 1000 200" preserveAspectRatio="none">
-                        @* Grade horizontal (eixo dos valores 0–240 de FC/PAS/PAD/PAM/SpO2) — desenhada
+                    <svg viewBox="0 0 1000 200" preserveAspectRatio="none">                     
+                        <line x1="@R(Model.Chart.LeftAxisWidth)" y1="0" x2="@R(Model.Chart.LeftAxisWidth)" y2="200" stroke="#cbd5e1" stroke-width="1" />
+                        @* Grade horizontal (eixo dos valores 0–240 de FC/PAS/PAD/PAM) — desenhada
                            primeiro, para ficar atrás da curva e dos marcadores. A linha do valor 0
                            também serve de base do gráfico (equivalente à antiga linha fixa em y=156). *@
                         @foreach (var vt in row.ValueTicks)
                         {
                             var gy = R(vt.Y + 26);
                             var isBaseline = vt.Value <= 0;
-                            <line x1="0" y1="@gy" x2="1000" y2="@gy" stroke="@(isBaseline ? "#94a3b8" : "#e2e8f0")" stroke-width="@(isBaseline ? "1.6" : "0.8")" />
+                            <line x1="@R(Model.Chart.LeftAxisWidth)" y1="@gy" x2="1000" y2="@gy" stroke="@(isBaseline ? "#94a3b8" : "#e2e8f0")" stroke-width="@(isBaseline ? "1.6" : "0.8")" />
                             @if (!isBaseline)
                             {
                                 @SvgText(4, gy + 9, "7.5", "fill=\"#64748b\"", vt.Label, "start")
@@ -1433,36 +1453,23 @@
                             <line x1="@R(m.X)" y1="26" x2="@R(m.X)" y2="156" stroke-width="1.3" stroke-dasharray="4,4" class="@MarkerClass(m.Kind)" />
                             @SvgText(R(m.X), 20, "16", $"font-weight=\"700\" class=\"{MarkerClass(m.Kind)}\"", MarkerSymbol(m.Kind), EdgeAnchor(m.X))
                             <line x1="@R(m.X)" y1="151" x2="@R(m.X)" y2="161" stroke-width="1.8" class="@MarkerClass(m.Kind)" />
-                            @* Horário do marcador fica numa linha própria, abaixo dos horários padrão do
-                               eixo (y=172) — nunca se sobrepõe a eles, esteja o marcador perto ou não de
-                               uma marca de hora comum. *@
+                           
                             @SvgText(R(m.X), 192, "9.5", $"font-weight=\"700\" class=\"{MarkerClass(m.Kind)}\"", m.TimeLabel, EdgeAnchor(m.X))
                         }
+                       
                         @foreach (var p in row.VitalPoints)
                         {
                             var y = p.Y + 26;
-                            if (p.Series == VitalSeries.SystolicBp)
+                            if (p.Series == VitalSeries.HeartRate)
                             {
-                                <path d="M @R(p.X - 7),@R(y - 4) L @R(p.X + 7),@R(y - 4) L @R(p.X),@R(y + 9) Z" class="@VitalClass(p.Series)" />
-                            }
-                            else if (p.Series == VitalSeries.DiastolicBp)
-                            {
-                                <path d="M @R(p.X - 7),@R(y + 4) L @R(p.X + 7),@R(y + 4) L @R(p.X),@R(y - 9) Z" class="@VitalClass(p.Series)" />
-                            }
-                            else if (p.Series == VitalSeries.MeanBp)
-                            {
-                                <path d="M @R(p.X - 6),@R(y + 4) L @R(p.X + 6),@R(y + 4) L @R(p.X),@R(y - 8) Z" class="@VitalClass(p.Series)" />
+                                <circle cx="@R(p.X)" cy="@R(y)" r="5" class="@VitalClass(p.Series)" />
                             }
                             else
                             {
-                                var radius = p.Series == VitalSeries.HeartRate ? 6 : 4.5;
-                                <circle cx="@R(p.X)" cy="@R(y)" r="@radius" class="@VitalClass(p.Series)" />
+                                @SvgText(R(p.X), R(y) + 3, "11", $"font-weight=\"700\" class=\"{VitalClass(p.Series)}\"", VitalSymbol(p.Series))
                             }
                         }
-                        @* Rótulo do valor de FC, alinhado no mesmo X do ponto — desenhado por último
-                           para ficar sempre legível por cima da grade/curva. StackLevel (calculado em
-                           MonitoringChartBuilder.ApplyAntiOverlap) afasta o rótulo verticalmente do seu
-                           próprio ponto quando duas medições de FC ficam próximas demais no tempo. *@
+                       
                         @foreach (var hl in row.HeartRateLabels)
                         {
                             var hy = R(hl.Y + 26) - 11 - (hl.StackLevel * 11);

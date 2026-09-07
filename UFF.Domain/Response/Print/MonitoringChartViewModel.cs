@@ -4,6 +4,8 @@ namespace UFF.FichaAnestesica.Domain.Response.Print
     {
         public bool HasData { get; set; }
         public List<MonitoringChartRow> Rows { get; set; } = new();
+
+        public double LeftAxisWidth { get; set; }
     }
 
     public class MonitoringChartRow

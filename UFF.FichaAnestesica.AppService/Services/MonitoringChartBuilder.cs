@@ -15,14 +15,11 @@ namespace UFF.FichaAnestesica.Infra.Services
         private const double EdgeInset = 10;
         private const double VitalsScaleMin = 0;
         private const double VitalsScaleMax = 240;
-
+        
+        private const double LeftAxisWidth = 34;
 
         private static readonly double[] VitalsGridValues = { 0, 40, 80, 120, 160, 200, 240 };
         private const double HeartRateLabelProximity = 30;
-
-
-        private const double TempScaleMin = 32;
-        private const double TempScaleMax = 42;
 
         private static readonly TimeSpan RowSpan = TimeSpan.FromHours(1);
 
@@ -31,7 +28,7 @@ namespace UFF.FichaAnestesica.Infra.Services
 
         public static MonitoringChartViewModel Build(MonitoringRecordResponse? monitoring, ILogger logger)
         {
-            var result = new MonitoringChartViewModel();
+            var result = new MonitoringChartViewModel { LeftAxisWidth = LeftAxisWidth };
 
             if (monitoring == null)
             {
@@ -173,8 +170,6 @@ namespace UFF.FichaAnestesica.Infra.Services
                     AddVitalPoint(row, x, VitalSeries.SystolicBp, vital.SystolicBloodPressure);
                     AddVitalPoint(row, x, VitalSeries.DiastolicBp, vital.DiastolicBloodPressure);
                     AddVitalPoint(row, x, VitalSeries.MeanBp, vital.MeanArterialPressure);
-                    AddVitalPoint(row, x, VitalSeries.Spo2, vital.Spo2);
-                    AddTempPoint(row, x, vital.Temperature);
                 }
 
                 AddTemporalMarker(row, anesthesiaStart, rowStart, rowEnd, isLastRow, TemporalMarkerKind.AnesthesiaStart);
@@ -229,11 +224,13 @@ namespace UFF.FichaAnestesica.Infra.Services
 
         private static double XFor(DateTime time, DateTime rowStart, DateTime rowEnd)
         {
+            var plotStart = LeftAxisWidth + EdgeInset;
+            var plotEnd = ViewboxWidth - EdgeInset;
             var span = (rowEnd - rowStart).TotalMinutes;
-            if (span <= 0) return EdgeInset;
+            if (span <= 0) return plotStart;
             var pct = (time - rowStart).TotalMinutes / span;
-            var x = Math.Clamp(pct, 0, 1) * ViewboxWidth;
-            return Math.Clamp(x, EdgeInset, ViewboxWidth - EdgeInset);
+            var x = plotStart + Math.Clamp(pct, 0, 1) * (plotEnd - plotStart);
+            return Math.Clamp(x, plotStart, plotEnd);
         }
 
         private static void BuildTicks(MonitoringChartRow row, DateTime rowStart, DateTime rowEnd)
@@ -274,23 +271,10 @@ namespace UFF.FichaAnestesica.Infra.Services
             return VitalsPlotHeight - (pct * VitalsPlotHeight);
         }
 
-        private static double YForTempScale(double value)
-        {
-            var clamped = Math.Clamp(value, TempScaleMin, TempScaleMax);
-            var pct = (clamped - TempScaleMin) / (TempScaleMax - TempScaleMin);
-            return VitalsPlotHeight - (pct * VitalsPlotHeight);
-        }
-
         private static void AddVitalPoint(MonitoringChartRow row, double x, VitalSeries series, int? value)
         {
             if (!value.HasValue) return;
             row.VitalPoints.Add(new VitalChartPoint { X = x, Y = YForVitalsScale(value.Value), Series = series });
-        }
-
-        private static void AddTempPoint(MonitoringChartRow row, double x, decimal? value)
-        {
-            if (!value.HasValue) return;
-            row.VitalPoints.Add(new VitalChartPoint { X = x, Y = YForTempScale((double)value.Value), Series = VitalSeries.Temperature });
         }
 
         private static void AddHeartRateLabel(MonitoringChartRow row, double x, int? value)
