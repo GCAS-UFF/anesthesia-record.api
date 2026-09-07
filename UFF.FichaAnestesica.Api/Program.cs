@@ -51,6 +51,7 @@ builder.Services.AddCors(options =>
                 "http://10.0.2.2:8100",
                 "http://localhost:4200",
                 "capacitor://localhost",
+                "https://localhost",
                 "https://anesthesia-record-app-ionic.web.app",
                 "https://anesthesia-record-app-ionic.firebaseapp.com"
             )
