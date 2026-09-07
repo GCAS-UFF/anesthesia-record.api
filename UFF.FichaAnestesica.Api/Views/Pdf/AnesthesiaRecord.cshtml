@@ -16,8 +16,19 @@
     var showBis = vitals.Any(v => v.Bis.HasValue);
     var showPvc = vitals.Any(v => v.Pvc.HasValue);
     var showPcap = vitals.Any(v => v.Pcap.HasValue);
+    var customFieldNames = vitals.SelectMany(v => v.CustomFields).Select(cf => cf.Name).Distinct().ToList();
 }
 @functions {
+   
+    string HumanizeCustomFieldName(string name)
+    {
+        var match = System.Text.RegularExpressions.Regex.Match(name ?? string.Empty, @"^custom_\d+_(.+)$", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        if (!match.Success) return name ?? string.Empty;
+        var words = match.Groups[1].Value
+            .Split('_', StringSplitOptions.RemoveEmptyEntries)
+            .Select(w => char.ToUpper(w[0]) + w.Substring(1));
+        return string.Join(' ', words);
+    }
     string YesNo(bool? v) => v switch { true => "Sim", false => "Não", _ => "Não informado" };
     string Txt(string? v) => string.IsNullOrWhiteSpace(v) ? "Não informado" : v!;
     string TxtOrEmpty(string? v) => v ?? string.Empty;
@@ -1108,6 +1119,10 @@
                         {
                             <th>PCAP</th>
                         }
+                        @foreach (var name in customFieldNames)
+                        {
+                            <th>@HumanizeCustomFieldName(name)</th>
+                        }
                     </tr>
                 </thead>
                 <tbody>
@@ -1131,6 +1146,11 @@
                             @if (showPcap)
                             {
                                 <td>@Num(v.Pcap)</td>
+                            }
+                            @foreach (var name in customFieldNames)
+                            {
+                                var cfValue = v.CustomFields.FirstOrDefault(cf => cf.Name == name)?.Value;
+                                <td>@(string.IsNullOrWhiteSpace(cfValue) ? "—" : cfValue)</td>
                             }
                         </tr>
                     }
