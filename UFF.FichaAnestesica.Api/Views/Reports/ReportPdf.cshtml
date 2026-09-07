@@ -185,7 +185,7 @@
     <script>@Html.Raw(UFF.FichaAnestesica.Service.Services.Pdf.ChartJsAssetLoader.GetSource())</script>
     <script>
         (function () {
-            var chartData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Charts));
+            var chartData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Charts, new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
 
             chartData.forEach(function (c, i) {
                 var ctx = document.getElementById('chart-' + i).getContext('2d');
