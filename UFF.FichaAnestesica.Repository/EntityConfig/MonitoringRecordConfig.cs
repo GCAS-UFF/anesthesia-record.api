@@ -31,12 +31,9 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
             builder.Property(x => x.RecordedByProfessionalId)
                 .HasColumnName("recorded_by_professional_id")
                 .IsRequired();
-
-
             builder.Property(x => x.StartedAt)
                 .HasColumnName("started_at")
-                .HasColumnType("timestamptz")
-                .IsRequired();
+                .HasColumnType("timestamptz");
 
 
             builder.Property(x => x.EndedAt)
@@ -78,12 +75,7 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
 
             builder.Property(x => x.LastUpdate)
                 .HasColumnName("last_update")
-                .HasColumnType("timestamptz");
-
-
-            /*
-             * Relacionamentos filhos
-             */
+                .HasColumnType("timestamptz");           
 
             builder.HasMany(x => x.VitalSigns)
                 .WithOne(x => x.MonitoringRecord)

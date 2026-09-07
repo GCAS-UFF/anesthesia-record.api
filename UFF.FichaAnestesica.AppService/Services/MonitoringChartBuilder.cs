@@ -59,9 +59,9 @@ namespace UFF.FichaAnestesica.Infra.Services
                 "[PDF][Chart] Registros carregados: {Vitals} sinais vitais, {Events} eventos, {Positions} posições.",
                 vitals.Count, events.Count, positions.Count);
 
-            var anesthesiaStart = IsSet(monitoring.StartedAt) ? monitoring.StartedAt.ToLocalTime() : (DateTime?)null;
+            var anesthesiaStart = monitoring.StartedAt?.ToLocalTime();
             var anesthesiaEnd = monitoring.EndedAt?.ToLocalTime();
-            var surgeryStart = IsSet(monitoring.SurgeryStartedAt) ? monitoring.SurgeryStartedAt.ToLocalTime() : (DateTime?)null;
+            var surgeryStart = monitoring.SurgeryStartedAt?.ToLocalTime();
             var surgeryEnd = monitoring.SurgeryEndedAt?.ToLocalTime();
    
             var anchor = surgeryStart ?? anesthesiaStart ?? surgeryEnd ?? anesthesiaEnd;
@@ -224,8 +224,6 @@ namespace UFF.FichaAnestesica.Infra.Services
 
         private static DateTime Combine(DateTime date, TimeSpan time) => date.Date + time;
 
-        private static bool IsSet(DateTime value) => value != default;
-    
         private static bool InRange(DateTime time, DateTime rowStart, DateTime rowEnd, bool isLastRow) =>
             time >= rowStart && (isLastRow ? time <= rowEnd : time < rowEnd);
 

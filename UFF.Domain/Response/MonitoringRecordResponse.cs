@@ -17,12 +17,12 @@ namespace UFF.FichaAnestesica.Domain.Response
 
         public SurgeryStatusEnum Status { get; set; }
 
-        public DateTime StartedAt { get; set; }
+        public DateTime? StartedAt { get; set; }
 
         public DateTime? EndedAt { get; set; }
 
 
-        public DateTime SurgeryStartedAt { get; set; }
+        public DateTime? SurgeryStartedAt { get; set; }
 
         public DateTime? SurgeryEndedAt { get; set; }
 
@@ -47,10 +47,10 @@ namespace UFF.FichaAnestesica.Domain.Response
                 FirstAnesthesiologistId = entity.AnesthesiaRecord?.FirstAnesthesiologistId,
                 Status = entity.Status,
                 RecordedByProfessionalId = entity.RecordedByProfessionalId,
-                StartedAt = entity.StartedAt,
+                StartedAt = NormalizeDate(entity.StartedAt),
                 EndedAt = entity.EndedAt,
-                SurgeryStartedAt = entity.SurgeryStartedAt ?? default,
-                SurgeryEndedAt = entity.SurgeryEndedAt ?? default,
+                SurgeryStartedAt = NormalizeDate(entity.SurgeryStartedAt),
+                SurgeryEndedAt = entity.SurgeryEndedAt,
                 VitalSigns = entity.VitalSigns
                     .Select(VitalSignRecordResponse.ToResponse)
                     .ToList(),
@@ -70,5 +70,8 @@ namespace UFF.FichaAnestesica.Domain.Response
                     .ToList()
             };
         }
+     
+        private static DateTime? NormalizeDate(DateTime? value) =>
+            value.HasValue && value.Value != default ? value : null;
     }
 }

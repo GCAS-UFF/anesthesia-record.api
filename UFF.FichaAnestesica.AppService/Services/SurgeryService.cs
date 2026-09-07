@@ -204,12 +204,6 @@ namespace UFF.FichaAnestesica.Service.Services
             if (date.HasValue)
                 date = DateTime.SpecifyKind(date.Value, DateTimeKind.Utc);
 
-            // O paciente atualmente em atendimento (status InProgress) deve sempre ficar na
-            // primeira posição, mesmo em páginas seguintes de pacientes mais antigos ou com
-            // filtro de data aplicado. Isso só é possível paginando pela tabela local (que já
-            // conhece o status "em atendimento") antes de consultar o AGHU. Quando há busca por
-            // termo, a filtragem por nome/prontuário só existe no AGHU, então mantemos o fluxo
-            // antigo (paginação e ordenação delegadas ao AGHU) para não quebrar a busca.
             if (string.IsNullOrWhiteSpace(term))
                 return await GetMyPatientsPrioritizedAsync(doctorId, date, page, size);
 
@@ -280,10 +274,6 @@ namespace UFF.FichaAnestesica.Service.Services
                     TotalItems = totalItems
                 });
             }
-
-            // A ordem já vem definida pela consulta local (em atendimento primeiro,
-            // depois mais recente para o mais antigo). Buscamos no AGHU somente os
-            // detalhes desses ids (já limitados ao tamanho da página).
             var orderedIds = pagedRecordsList.Select(x => x.Id).ToList();
 
             var hospitalData = await _hospitalApiRepository.GetMyPatientsFromHospitalAsync(orderedIds, null, 1, orderedIds.Count);
@@ -311,9 +301,7 @@ namespace UFF.FichaAnestesica.Service.Services
 
             AttachResponsibles(responseData, recordsBySurgeryId);
             ApplyPreAnesthesiaRecordDone(responseData, completedPreAnesthesiaRecordIds);
-
-            // O AGHU retorna os dados ordenados por nome; restauramos a prioridade
-            // (em atendimento primeiro, depois mais recente) antes de responder.
+            
             var orderIndex = orderedIds
                 .Select((id, index) => (id, index))
                 .ToDictionary(x => x.id, x => x.index);
@@ -433,10 +421,7 @@ namespace UFF.FichaAnestesica.Service.Services
                     }, patient.SurgeryDate);
 
                     await _anesthesiaRecordRepository.AddAsync(anesthesiaRecord);
-                }
-                // Cirurgia já concluída/cancelada: "assumir"/"abandonar" não deve reabrir nem
-                // reverter o status — só chegam aqui por engano (ex.: clique duplo, tela
-                // desatualizada).
+                }               
                 else if (anesthesiaRecord.Status != SurgeryStatusEnum.Completed && anesthesiaRecord.Status != SurgeryStatusEnum.Canceled)
                 {
                     if (responsibleAnesthesiologistId > 0)
@@ -445,25 +430,21 @@ namespace UFF.FichaAnestesica.Service.Services
                         anesthesiaRecord.SetStatus(SurgeryStatusEnum.Preparing);
                     }
                     else
-                    {
-                        // responsableId 0/null = "abandonar paciente": sem médico responsável, a
-                        // cirurgia volta a ficar disponível ("Agendada"), não presa em "Em Preparo"
-                        // como se ainda estivesse sendo preparada por alguém.
+                    {                      
                         anesthesiaRecord.AssignFirstAnesthesiologistId(null);
                         anesthesiaRecord.SetStatus(SurgeryStatusEnum.Scheduled);
                     }
 
                     _anesthesiaRecordRepository.Update(anesthesiaRecord);
                 }
-
-                // AssumePatientAsync pode ser chamado várias vezes pra mesma cirurgia (assumir,
-                // abandonar, assumir de novo...) — sem essa checagem, cada chamada criava um
-                // MonitoringRecord novo e duplicado para o mesmo AnesthesiaRecordId.
                 var hasMonitoring = await _monitoringRecordRepository.GetByAnesthesiaRecordIdAsync(anesthesiaRecord.Id) != null;
 
                 if (!hasMonitoring)
-                {
-                    var monitoring = MonitoringRecord.Create(new MonitoringRecordCommand(anesthesiaRecord.Id));
+                {                   
+                    var monitoring = MonitoringRecord.Create(new MonitoringRecordCommand(anesthesiaRecord.Id)
+                    {
+                        RecordedByProfessionalId = responsibleAnesthesiologistId ?? 0
+                    });
 
                     monitoring.SetAnesthesiaRecord(anesthesiaRecord);
 

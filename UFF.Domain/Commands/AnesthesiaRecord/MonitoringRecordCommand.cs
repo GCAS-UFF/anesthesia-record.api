@@ -12,8 +12,8 @@ namespace UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord
 
         public int AnesthesiaRecordId { get; set; }
         public int SurgeryId { get; set; }
-        public int RecordedByProfessionalId { get; set; }        
-        public DateTime StartedAt { get; set; }
+        public int RecordedByProfessionalId { get; set; }
+        public DateTime? StartedAt { get; set; }
         public DateTime? EndedAt { get; set; }        
         public DateTime? SurgeryStartedAt { get; set; }
         public DateTime? SurgeryEndedAt { get; set; }        
