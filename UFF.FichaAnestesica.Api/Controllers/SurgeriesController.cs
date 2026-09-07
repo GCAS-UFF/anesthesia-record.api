@@ -36,8 +36,12 @@ namespace UFF.FichaAnestesica.Api.Controllers
         [Authorize]
         public async Task<IActionResult> AssumePatient([FromRoute] string patientId, int surgeryId, int? responsableId)
         {
-            var mappedList = await _surgeriesService.AssumePatientAsync(patientId, surgeryId, responsableId);
-            return Ok(mappedList);
+            var result = await _surgeriesService.AssumePatientAsync(patientId, surgeryId, responsableId);
+
+            if (!result.Valid)
+                return BadRequest(result);
+
+            return Ok(result);
         }
     }
 }
