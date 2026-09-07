@@ -214,17 +214,7 @@
                     }
                 });
             });
-
-            requestAnimationFrame(function () {
-                requestAnimationFrame(function () {
-                    window.__chartsReady = true;
-                });
-            });
         })();
-
-        if (@(Model.Charts.Count == 0 ? "true" : "false")) {
-            window.__chartsReady = true;
-        }
     </script>
 </body>
 </html>

@@ -1,5 +1,3 @@
-using PuppeteerSharp;
-using PuppeteerSharp.Media;
 using UFF.FichaAnestesica.Application.Interfaces;
 using UFF.FichaAnestesica.Domain.Commands.Reports;
 using UFF.FichaAnestesica.Domain.Enums;
@@ -14,23 +12,20 @@ namespace UFF.FichaAnestesica.Service.Services.Pdf
         private readonly IReportService _reportService;
         private readonly IReportRepository _reportRepository;
         private readonly IRazorViewRenderer _viewRenderer;
-        private readonly IPdfBrowserProvider _browserProvider;
 
         private const string ViewPath = "~/Views/Reports/ReportPdf.cshtml";
 
         public ReportPdfService(
             IReportService reportService,
             IReportRepository reportRepository,
-            IRazorViewRenderer viewRenderer,
-            IPdfBrowserProvider browserProvider)
+            IRazorViewRenderer viewRenderer)
         {
             _reportService = reportService;
             _reportRepository = reportRepository;
             _viewRenderer = viewRenderer;
-            _browserProvider = browserProvider;
         }
 
-        public async Task<(byte[]? Bytes, string? Error)> GenerateAsync(string reportKey, ReportFilterQuery filter, DrugCategoryEnum? category)
+        public async Task<(string? Html, string? Error)> GenerateAsync(string reportKey, ReportFilterQuery filter, DrugCategoryEnum? category)
         {
             var validationError = filter.Validate();
             if (validationError != null)
@@ -41,28 +36,8 @@ namespace UFF.FichaAnestesica.Service.Services.Pdf
                 return (null, "Relatório não encontrado.");
 
             var html = await _viewRenderer.RenderAsync(ViewPath, viewModel);
-            var bytes = await RenderPdfAsync(html);
 
-            return (bytes, null);
-        }
-
-        private async Task<byte[]> RenderPdfAsync(string html)
-        {
-            var browser = await _browserProvider.GetBrowserAsync();
-            await using var page = await browser.NewPageAsync();
-
-            await page.SetContentAsync(html);
-            await page.WaitForFunctionAsync("() => window.__chartsReady === true", new WaitForFunctionOptions { Timeout = 8000 });
-
-            return await page.PdfDataAsync(new PdfOptions
-            {
-                Format = PaperFormat.A4,
-                PrintBackground = true,
-                DisplayHeaderFooter = true,
-                HeaderTemplate = "<span></span>",
-                FooterTemplate = "<div style=\"width:100%;font-size:8px;color:#94a3b8;text-align:center;\">Página <span class=\"pageNumber\"></span> de <span class=\"totalPages\"></span></div>",
-                MarginOptions = new MarginOptions { Top = "14mm", Bottom = "14mm", Left = "12mm", Right = "12mm" }
-            });
+            return (html, null);
         }
 
         private async Task<ReportPdfViewModel?> BuildViewModelAsync(string reportKey, ReportFilterQuery filter, DrugCategoryEnum? category)

@@ -105,19 +105,18 @@ namespace UFF.FichaAnestesica.Api.Controllers
             return result.Valid ? Ok(result) : BadRequest(result);
         }
 
-        [HttpGet("{reportKey}/pdf")]
-        public async Task<IActionResult> GetPdf([FromRoute] string reportKey, [FromQuery] ReportFilterQuery filter, [FromQuery] DrugCategoryEnum? category)
+        [HttpGet("{reportKey}/print")]
+        public async Task<IActionResult> Print([FromRoute] string reportKey, [FromQuery] ReportFilterQuery filter, [FromQuery] DrugCategoryEnum? category)
         {
-            var (bytes, error) = await _reportPdfService.GenerateAsync(reportKey, filter, category);
+            var (html, error) = await _reportPdfService.GenerateAsync(reportKey, filter, category);
 
             if (error != null)
                 return BadRequest(CommandResult.Fail(error));
 
-            if (bytes == null)
+            if (html == null)
                 return NotFound(CommandResult.Fail("Relatório não encontrado."));
 
-            var fileName = $"relatorio-{reportKey}-{DateTime.Now:yyyyMMdd-HHmm}.pdf";
-            return File(bytes, "application/pdf", fileName);
+            return Content(html, "text/html");
         }
     }
 }

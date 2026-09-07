@@ -66,7 +66,6 @@ namespace UFF.FichaAnestesica.Infra.DependencyInjection
             services.AddScoped<IReportService, ReportService>();
             services.AddScoped<IReportRepository, ReportRepository>();
             services.AddScoped<IReportPdfService, ReportPdfService>();
-            services.AddSingleton<IPdfBrowserProvider, PdfBrowserProvider>();
 
             services.AddHttpContextAccessor();
             services.AddHttpClient("HospitalApi", client =>
