@@ -18,7 +18,7 @@ namespace UFF.FichaAnestesica.Infra.Services
         
         private const double LeftAxisWidth = 34;
 
-        private static readonly double[] VitalsGridValues = { 0, 40, 80, 120, 160, 200, 240 };
+        private static readonly double[] VitalsGridValues = { 0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240 };
         private const double HeartRateLabelProximity = 30;
 
         private static readonly TimeSpan RowSpan = TimeSpan.FromHours(1);
