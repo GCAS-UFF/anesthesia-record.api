@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using UFF.FichaAnestesica.Application.Interfaces;
 using UFF.FichaAnestesica.Domain.Commands.PreAnesthesiaRecord;
 using UFF.FichaAnestesica.Domain.Services;
 
@@ -10,10 +12,22 @@ namespace UFF.FichaAnestesica.Api.Controllers
     public class PreAnesthesiaRecordController : ControllerBase
     {
         private readonly IPreAnesthesiaRecordService _preAnesthesiaRecordService;
+        private readonly IPreAnesthesiaRecordPrintService _printService;
+        private readonly IRazorViewRenderer _razorViewRenderer;
+        private readonly ILogger<PreAnesthesiaRecordController> _logger;
 
-        public PreAnesthesiaRecordController(IPreAnesthesiaRecordService preAnesthesiaRecordService)
+        private const string PrintViewPath = "~/Views/Pdf/PreAnesthesiaRecord.cshtml";
+
+        public PreAnesthesiaRecordController(
+            IPreAnesthesiaRecordService preAnesthesiaRecordService,
+            IPreAnesthesiaRecordPrintService printService,
+            IRazorViewRenderer razorViewRenderer,
+            ILogger<PreAnesthesiaRecordController> logger)
         {
             _preAnesthesiaRecordService = preAnesthesiaRecordService;
+            _printService = printService;
+            _razorViewRenderer = razorViewRenderer;
+            _logger = logger;
         }
 
     
@@ -60,6 +74,26 @@ namespace UFF.FichaAnestesica.Api.Controllers
             if (!result.Valid)
                 return result.Forbidden ? StatusCode(403, result) : BadRequest(result);
             return Ok(result);
+        }
+
+        [HttpGet("by-anesthesia-record/{anesthesiaRecordId}/print")]
+        public async Task<IActionResult> Print([FromRoute] int anesthesiaRecordId)
+        {
+            _logger.LogInformation("[PDF] Endpoint /print acionado para a avaliação pré-anestésica da ficha {Id}.", anesthesiaRecordId);
+
+            var viewModel = await _printService.BuildAsync(anesthesiaRecordId);
+
+            if (viewModel == null)
+            {
+                _logger.LogWarning("[PDF] Avaliação pré-anestésica não encontrada para a ficha {Id} — abortando impressão.", anesthesiaRecordId);
+                return NotFound();
+            }
+
+            var html = await _razorViewRenderer.RenderAsync(PrintViewPath, viewModel);
+
+            _logger.LogInformation("[PDF] Endpoint /print finalizado para a avaliação pré-anestésica da ficha {Id}, enviando response.", anesthesiaRecordId);
+
+            return Content(html, "text/html");
         }
     }
 }

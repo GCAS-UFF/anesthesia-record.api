@@ -1,0 +1,1007 @@
+@using UFF.FichaAnestesica.Domain.Extensions
+@using UFF.FichaAnestesica.Domain.Enums
+@using UFF.FichaAnestesica.Domain.Response
+@using UFF.FichaAnestesica.Domain.Response.Print
+@model UFF.FichaAnestesica.Domain.Response.Print.PreAnesthesiaRecordPrintViewModel
+@{
+    var record = Model.Record;
+    var patient = record.Patient;
+    var pre = Model.PreAnesthesia;
+    var primarySurgery = record.Surgeries?.FirstOrDefault();
+    var comorbidities = pre.Comorbidities
+        .Where(c => c.Findings.Any() || !string.IsNullOrWhiteSpace(c.OtherDescription) || !string.IsNullOrWhiteSpace(c.Observations))
+        .ToList();
+    var physicalExamAreas = pre.PhysicalExamAreas
+        .Where(c => c.Findings.Any() || !string.IsNullOrWhiteSpace(c.OtherDescription) || !string.IsNullOrWhiteSpace(c.Observations))
+        .ToList();
+}
+@functions {
+    string YesNo(bool? v) => v switch { true => "Sim", false => "Não", _ => "Não informado" };
+    string Txt(string? v) => string.IsNullOrWhiteSpace(v) ? "Não informado" : v!;
+    string Num(decimal? v, string suffix = "") => v.HasValue ? $"{v.Value}{suffix}" : "—";
+    string NumI(int? v, string suffix = "") => v.HasValue ? $"{v.Value}{suffix}" : "—";
+    string Lbl<T>(T? e) where T : struct, Enum => e.SafeDescription();
+    string DateStr(string? isoDate)
+    {
+        if (string.IsNullOrWhiteSpace(isoDate)) return "Não informado";
+        return DateOnly.TryParse(isoDate, out var d) ? d.ToString("dd/MM/yyyy") : isoDate!;
+    }
+    string Roman(int? v) => v switch { 1 => "I", 2 => "II", 3 => "III", 4 => "IV", _ => "Não informado" };
+    string JoinLabels(IEnumerable<string> keys, Func<string, string> labelFn)
+    {
+        var list = keys?.Select(labelFn).ToList() ?? new List<string>();
+        return list.Count > 0 ? string.Join(", ", list) : "Nenhum";
+    }
+}
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <title>Avaliação Pré-Anestésica — @patient.FullName</title>
+    <style>
+        @@page {
+            size: A4 portrait;
+            margin: 12mm 10mm;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+            font-size: 8.6pt;
+            color: #0f172a;
+            line-height: 1.35;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        :root {
+            --ink: #0f172a;
+            --muted: #64748b;
+            --line: #cbd5e1;
+            --line-strong: #94a3b8;
+            --brand: #1e3a8a;
+            --brand-soft: #eef2ff;
+            --band: #f1f5f9;
+            --danger: #b91c1c;
+            --warn: #b45309;
+            --ok: #166534;
+            --accent: #0369a1;
+        }
+
+        .doc-header {
+            display: grid;
+            grid-template-columns: 1.2fr 1.4fr 1.2fr auto;
+            gap: 5mm;
+            align-items: center;
+            padding-bottom: 2mm;
+            border-bottom: 1.4pt solid var(--brand);
+            margin-bottom: 3mm;
+        }
+
+            .doc-header .brand {
+                font-weight: 700;
+                color: var(--brand);
+                font-size: 10pt;
+                line-height: 1.2;
+            }
+
+                .doc-header .brand small {
+                    display: block;
+                    color: var(--muted);
+                    font-weight: 500;
+                    font-size: 6.6pt;
+                }
+
+            .doc-header .title {
+                text-align: center;
+                font-weight: 800;
+                font-size: 11.5pt;
+                letter-spacing: .4px;
+                color: var(--brand);
+            }
+
+                .doc-header .title small {
+                    display: block;
+                    font-size: 7pt;
+                    color: var(--muted);
+                    font-weight: 500;
+                    letter-spacing: 0;
+                }
+
+            .doc-header .patient-mini {
+                font-size: 7.2pt;
+                color: var(--ink);
+            }
+
+                .doc-header .patient-mini b {
+                    color: var(--brand);
+                }
+
+            .doc-header .badge {
+                border: 1pt solid var(--line-strong);
+                border-radius: 2mm;
+                padding: 1.6mm 2.6mm;
+                text-align: center;
+                min-width: 22mm;
+            }
+
+                .doc-header .badge small {
+                    display: block;
+                    color: var(--muted);
+                    font-size: 6.2pt;
+                    letter-spacing: .4px;
+                    text-transform: uppercase;
+                }
+
+                .doc-header .badge b {
+                    font-size: 9pt;
+                }
+
+        .grid {
+            display: grid;
+            gap: 2.4mm;
+        }
+
+        .cols-4 {
+            grid-template-columns: repeat(4, minmax(0,1fr));
+        }
+
+        .cols-3 {
+            grid-template-columns: repeat(3, minmax(0,1fr));
+        }
+
+        .cols-2 {
+            grid-template-columns: repeat(2, minmax(0,1fr));
+        }
+
+        .doc-section {
+            margin-bottom: 3mm;
+        }
+
+            .doc-section > h2 {
+                font-size: 8.8pt;
+                color: var(--brand);
+                text-transform: uppercase;
+                letter-spacing: .5px;
+                border-bottom: 0.8pt solid var(--brand);
+                padding-bottom: 1mm;
+                margin: 0 0 1.6mm;
+                break-after: avoid-page;
+                page-break-after: avoid;
+            }
+
+                .doc-section > h2 + * {
+                    break-before: avoid-page;
+                    page-break-before: avoid;
+                }
+
+        .card {
+            border: 0.6pt solid var(--line);
+            border-radius: 1.6mm;
+            overflow: hidden;
+            background: #fff;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+            .card > header {
+                background: var(--brand-soft);
+                color: var(--brand);
+                font-weight: 700;
+                font-size: 7.6pt;
+                letter-spacing: .4px;
+                text-transform: uppercase;
+                padding: 1.3mm 2.2mm;
+                border-bottom: 0.6pt solid var(--line);
+            }
+
+            .card .body {
+                padding: 2mm 2.4mm;
+            }
+
+        .kv {
+            display: grid;
+            grid-template-columns: 46% 1fr;
+            row-gap: 0.9mm;
+            column-gap: 2mm;
+            font-size: 7.8pt;
+        }
+
+            .kv dt {
+                color: var(--muted);
+            }
+
+            .kv dd {
+                margin: 0;
+                color: var(--ink);
+                font-weight: 500;
+            }
+
+                .kv dd.strong {
+                    font-weight: 700;
+                }
+
+        .alerts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.4mm;
+            margin-bottom: 2mm;
+        }
+
+            .alerts .chip {
+                border: 0.6pt solid var(--line-strong);
+                border-radius: 6mm;
+                padding: 1mm 2.4mm;
+                font-size: 7.2pt;
+                font-weight: 600;
+                display: inline-flex;
+                align-items: center;
+                gap: 1.4mm;
+                background: #fff;
+            }
+
+        .chip.danger {
+            color: var(--danger);
+            border-color: #fecaca;
+            background: #fef2f2;
+        }
+
+        .chip.warn {
+            color: var(--warn);
+            border-color: #fed7aa;
+            background: #fffbeb;
+        }
+
+        .chip.ok {
+            color: var(--ok);
+            border-color: #bbf7d0;
+            background: #f0fdf4;
+        }
+
+        .chip.info {
+            color: var(--accent);
+            border-color: #bae6fd;
+            background: #f0f9ff;
+        }
+
+        table.data {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 7.6pt;
+        }
+
+            table.data thead {
+                display: table-header-group;
+            }
+
+            table.data tr {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+            table.data th, table.data td {
+                border-bottom: 0.4pt solid var(--line);
+                padding: 1.3mm 2mm;
+                text-align: left;
+                vertical-align: top;
+            }
+
+            table.data th {
+                background: var(--band);
+                color: var(--muted);
+                font-weight: 600;
+                font-size: 6.8pt;
+                letter-spacing: .3px;
+                text-transform: uppercase;
+            }
+
+            table.data tr:last-child td {
+                border-bottom: 0;
+            }
+
+        .muted {
+            color: var(--muted);
+        }
+
+        .empty-note {
+            color: var(--muted);
+            font-size: 7.6pt;
+            font-style: italic;
+        }
+
+        h3.section-title {
+            margin: 0 0 1.2mm;
+            font-size: 7.8pt;
+            color: var(--brand);
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            border-left: 2pt solid var(--brand);
+            padding-left: 1.6mm;
+            break-after: avoid-page;
+            page-break-after: avoid;
+        }
+
+            h3.section-title + * {
+                break-before: avoid-page;
+                page-break-before: avoid;
+            }
+
+        .sub-block {
+            margin-bottom: 2mm;
+        }
+
+            .sub-block:last-child {
+                margin-bottom: 0;
+            }
+
+        .checklist {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8mm;
+        }
+
+            .checklist .check-item {
+                display: flex;
+                justify-content: space-between;
+                gap: 3mm;
+                font-size: 7.8pt;
+                padding: 0.8mm 0;
+                border-bottom: 0.3pt dashed var(--line);
+            }
+
+                .checklist .check-item b {
+                    color: var(--ink);
+                }
+
+        .signatures {
+            margin-top: 4mm;
+            display: grid;
+            grid-template-columns: repeat(2,1fr);
+            gap: 8mm;
+            padding-top: 4mm;
+        }
+
+        .sig {
+            text-align: center;
+            font-size: 7.6pt;
+        }
+
+            .sig .line {
+                border-top: 0.6pt solid var(--ink);
+                margin-bottom: 1mm;
+                height: 0;
+            }
+
+            .sig b {
+                display: block;
+                font-size: 8.2pt;
+            }
+
+            .sig small {
+                color: var(--muted);
+            }
+
+        .doc-footer {
+            margin-top: 3mm;
+            padding-top: 1.6mm;
+            border-top: 0.4pt solid var(--line);
+            display: flex;
+            justify-content: space-between;
+            font-size: 6.8pt;
+            color: var(--muted);
+        }
+    </style>
+</head>
+<body>
+
+    <header class="doc-header">
+        <div class="brand">
+            @Model.Hospital.Name
+            @if (!string.IsNullOrWhiteSpace(Model.Hospital.Sector))
+            {
+                <small>@Model.Hospital.Sector</small>
+            }
+        </div>
+        <div class="title">
+            AVALIAÇÃO PRÉ-ANESTÉSICA
+            <small>Ficha Pré-Anestésica</small>
+        </div>
+        <div class="patient-mini">
+            <div><b>Paciente:</b> @Txt(patient.FullName)</div>
+            <div><b>Prontuário:</b> @Txt(patient.MedicalRecordNumber) · <b>Nasc.:</b> @patient.BirthDate.ToString("dd/MM/yyyy") (@patient.Age a)</div>
+            <div><b>Sala:</b> @Txt(primarySurgery?.Location?.Room)</div>
+        </div>
+        <div class="badge">
+            <small>Registro</small>
+            <b>PA-@record.SurgeryId</b>
+        </div>
+    </header>
+
+    <div class="alerts">
+        @if (pre.AsaClassification.HasValue)
+        {
+            <span class="chip ok"><b>@Lbl((AsaClassificationEnum?)pre.AsaClassification)</b></span>
+        }
+        @if (pre.IsEmergency)
+        {
+            <span class="chip warn">⚡ Caráter de emergência</span>
+        }
+        @if (patient.Allergies != null && patient.Allergies.Any())
+        {
+            <span class="chip danger">⚠ Alergias (AGHU): @string.Join("; ", patient.Allergies.Select(a => a.Description))</span>
+        }
+        @if (pre.HasAllergy == true)
+        {
+            <span class="chip danger">⚠ Alergias referidas: @JoinLabels(pre.AllergySubstances, PreAnesthesiaCatalogLabels.AllergySubstance)</span>
+        }
+        else if (pre.HasAllergy == false)
+        {
+            <span class="chip">Sem alergias referidas</span>
+        }
+        @if (pre.NotCleared)
+        {
+            <span class="chip danger">Não liberado para o procedimento</span>
+        }
+        else
+        {
+            <span class="chip ok">Liberado para o procedimento</span>
+        }
+    </div>
+
+    <section class="doc-section">
+        <h2>Identificação do Paciente</h2>
+        <div class="grid cols-4">
+            <div class="card">
+                <div class="body">
+                    <dl class="kv">
+                        <dt>Nome</dt>
+                        <dd class="strong">@Txt(patient.FullName)</dd>
+                        <dt>Prontuário</dt>
+                        <dd>@Txt(patient.MedicalRecordNumber)</dd>
+                        <dt>Data nasc.</dt>
+                        <dd>@patient.BirthDate.ToString("dd/MM/yyyy") (@patient.Age anos)</dd>
+                        <dt>Sexo</dt>
+                        <dd>@Txt(patient.Gender)</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="card">
+                <div class="body">
+                    <dl class="kv">
+                        <dt>Unidade</dt>
+                        <dd>@Txt(patient.CurrentLocation?.Unit?.Description)</dd>
+                        <dt>Leito</dt>
+                        <dd>@Txt(patient.CurrentLocation?.Bed)</dd>
+                        <dt>Andar</dt>
+                        <dd>@Txt(patient.CurrentLocation?.Floor)</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="card">
+                <div class="body">
+                    <dl class="kv">
+                        <dt>Especialidade</dt>
+                        <dd>@Txt(primarySurgery?.Specialty?.Description)</dd>
+                        <dt>Centro cirúrgico</dt>
+                        <dd>@Txt(primarySurgery?.Location?.SurgicalCenter?.Description)</dd>
+                        <dt>Sala</dt>
+                        <dd>@Txt(primarySurgery?.Location?.Room)</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="card">
+                <div class="body">
+                    <dl class="kv">
+                        <dt>Status da cirurgia</dt>
+                        <dd>@record.Status.DisplayLabel()</dd>
+                        <dt>Identificador AGHU</dt>
+                        <dd>@Txt(record.ExternalPatientId)</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="doc-section">
+        <h2>Procedimento</h2>
+        <div class="grid cols-2">
+            <div class="card">
+                <header>Cirurgia(s) proposta(s)</header>
+                <div class="body">
+                    @if (pre.Surgeries.Any())
+                    {
+                        <dl class="kv">
+                            @foreach (var s in pre.Surgeries)
+                            {
+                                <dt>@(s.IsPrimary ? "Principal" : "Procedimento")</dt>
+                                <dd class="strong">@Txt(s.Name)</dd>
+                            }
+                        </dl>
+                    }
+                    else
+                    {
+                        <span class="empty-note">Nenhuma cirurgia informada.</span>
+                    }
+                </div>
+            </div>
+            <div class="card">
+                <header>Detalhes</header>
+                <div class="body">
+                    <dl class="kv">
+                        <dt>Lateralidade</dt>
+                        <dd>@PreAnesthesiaCatalogLabels.Laterality(pre.Laterality)</dd>
+                        <dt>Diagnóstico pré-operatório</dt>
+                        <dd>@Txt(pre.PreOperativeDiagnosis)</dd>
+                        <dt>Data da consulta</dt>
+                        <dd>@DateStr(pre.ConsultationDate)</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(pre.ProcedureObservation))
+        {
+            <div class="card" style="margin-top:2.4mm;">
+                <header>Observação</header>
+                <div class="body">@pre.ProcedureObservation</div>
+            </div>
+        }
+    </section>
+
+    <section class="doc-section">
+        <h2>Antropometria e Sinais Vitais</h2>
+        <div class="grid cols-4">
+            <div class="card">
+                <div class="body">
+                    <dl class="kv">
+                        <dt>Peso</dt>
+                        <dd>@Num(pre.WeightKg, " kg")</dd>
+                        <dt>Altura</dt>
+                        <dd>@Num(pre.HeightCm, " cm")</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="card">
+                <div class="body">
+                    <dl class="kv">
+                        <dt>IMC</dt>
+                        <dd>@Num(pre.Bmi)</dd>
+                        <dt>Freq. cardíaca</dt>
+                        <dd>@NumI(pre.HeartRate, " bpm")</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="card">
+                <div class="body">
+                    <dl class="kv">
+                        <dt>PA</dt>
+                        <dd>@(pre.SystolicBloodPressure.HasValue || pre.DiastolicBloodPressure.HasValue ? $"{NumI(pre.SystolicBloodPressure)}/{NumI(pre.DiastolicBloodPressure)} mmHg" : "Não informado")</dd>
+                        <dt>SpO₂</dt>
+                        <dd>@NumI(pre.Spo2, "%")</dd>
+                        <dt>Temperatura</dt>
+                        <dd>@Num(pre.Temperature, " °C")</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="card">
+                <div class="body">
+                    <dl class="kv">
+                        <dt>Jejum sólidos</dt>
+                        <dd>@Num(pre.FastingSolidsHours, "h")</dd>
+                        <dt>Jejum líquidos</dt>
+                        <dd>@Num(pre.FastingLiquidsHours, "h")</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="doc-section">
+        <h2>Comorbidades</h2>
+        @if (comorbidities.Any())
+        {
+            <div class="grid cols-2">
+                @foreach (var c in comorbidities)
+                {
+                    <div class="card">
+                        <header>@PreAnesthesiaCatalogLabels.ComorbidityGroupTitle(c.GroupKey)</header>
+                        <div class="body">
+                            <dl class="kv">
+                                <dt>Achados</dt>
+                                <dd>@JoinLabels(c.Findings, f => PreAnesthesiaCatalogLabels.ComorbidityFinding(c.GroupKey, f))</dd>
+                                @if (!string.IsNullOrWhiteSpace(c.OtherDescription))
+                                {
+                                    <dt>Outros</dt>
+                                    <dd>@c.OtherDescription</dd>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(c.Observations))
+                                {
+                                    <dt>Observações</dt>
+                                    <dd>@c.Observations</dd>
+                                }
+                            </dl>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="empty-note">Sem comorbidades registradas.</p>
+        }
+        @if (!string.IsNullOrWhiteSpace(pre.ComorbiditiesOtherDescription) || !string.IsNullOrWhiteSpace(pre.FamilyHistory))
+        {
+            <div class="grid cols-2" style="margin-top:2.4mm;">
+                <div class="card">
+                    <header>Outras comorbidades</header>
+                    <div class="body">@Txt(pre.ComorbiditiesOtherDescription)</div>
+                </div>
+                <div class="card">
+                    <header>História familiar</header>
+                    <div class="body">@Txt(pre.FamilyHistory)</div>
+                </div>
+            </div>
+        }
+    </section>
+
+    <section class="doc-section">
+        <h2>Hábitos</h2>
+        <div class="grid cols-3">
+            <div class="card">
+                <div class="body">
+                    <dl class="kv">
+                        <dt>Uso de drogas ilícitas</dt>
+                        <dd>@YesNo(pre.IllicitDrugUse)</dd>
+                        @if (pre.IllicitDrugUse == true)
+                        {
+                            <dt>Tipos</dt>
+                            <dd>@JoinLabels(pre.DrugTypes, PreAnesthesiaCatalogLabels.DrugType)</dd>
+                            @if (!string.IsNullOrWhiteSpace(pre.DrugsOtherDescription))
+                            {
+                                <dt>Outros</dt>
+                                <dd>@pre.DrugsOtherDescription</dd>
+                            }
+                        }
+                    </dl>
+                </div>
+            </div>
+            <div class="card">
+                <div class="body">
+                    <dl class="kv">
+                        <dt>Tabagista</dt>
+                        <dd>@YesNo(pre.Smoker)</dd>
+                        @if (pre.Smoker == true)
+                        {
+                            <dt>Carga tabágica</dt>
+                            <dd>@Txt(pre.SmokingLoad)</dd>
+                        }
+                    </dl>
+                </div>
+            </div>
+            <div class="card">
+                <div class="body">
+                    <dl class="kv">
+                        <dt>Etilista</dt>
+                        <dd>@YesNo(pre.AlcoholUse)</dd>
+                        @if (pre.AlcoholUse == true)
+                        {
+                            <dt>Gramas/dia</dt>
+                            <dd>@Txt(pre.AlcoholGramsPerDay)</dd>
+                        }
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="doc-section">
+        <h2>Alergias e Reações Adversas</h2>
+        <div class="grid cols-2">
+            <div class="card">
+                <div class="body">
+                    <dl class="kv">
+                        <dt>Possui alergia</dt>
+                        <dd class="strong">@YesNo(pre.HasAllergy)</dd>
+                        @if (pre.HasAllergy == true)
+                        {
+                            <dt>Substâncias</dt>
+                            <dd>@JoinLabels(pre.AllergySubstances, PreAnesthesiaCatalogLabels.AllergySubstance)</dd>
+                            @if (!string.IsNullOrWhiteSpace(pre.AllergyOtherDescription))
+                            {
+                                <dt>Outros</dt>
+                                <dd>@pre.AllergyOtherDescription</dd>
+                            }
+                            <dt>Tipo de reação</dt>
+                            <dd>@Txt(pre.AllergyReactionType)</dd>
+                        }
+                    </dl>
+                </div>
+            </div>
+            <div class="card">
+                <header>Antecedentes anestésicos</header>
+                <div class="body">@Txt(pre.AnestheticHistory)</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="doc-section">
+        <h2>Medicações em Uso</h2>
+        <div class="card" style="margin-bottom:2mm;">
+            <div class="body" style="padding:2mm 2.4mm;">
+                <dl class="kv"><dt>Faz uso de medicação contínua</dt><dd>@YesNo(pre.UsesMedication)</dd></dl>
+            </div>
+        </div>
+        @if (pre.UsesMedication == true && pre.Medications.Any())
+        {
+            <table class="data">
+                <thead><tr><th>Medicamento</th><th>Dose</th><th>Via</th><th>Frequência</th></tr></thead>
+                <tbody>
+                    @foreach (var m in pre.Medications)
+                    {
+                        <tr>
+                            <td><b>@Txt(m.Name)</b></td>
+                            <td>@Txt(m.Dose)</td>
+                            <td>@Txt(m.Route)</td>
+                            <td>@Txt(m.Frequency)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else if (pre.UsesMedication == true)
+        {
+            <p class="empty-note">Uso de medicação informado, porém nenhum item foi detalhado.</p>
+        }
+    </section>
+
+    <section class="doc-section">
+        <h2>Exame Físico</h2>
+        @if (physicalExamAreas.Any())
+        {
+            <div class="grid cols-2">
+                @foreach (var a in physicalExamAreas)
+                {
+                    <div class="card">
+                        <header>@PreAnesthesiaCatalogLabels.PhysicalExamGroupTitle(a.GroupKey)</header>
+                        <div class="body">
+                            <dl class="kv">
+                                <dt>Achados</dt>
+                                <dd>@JoinLabels(a.Findings, f => PreAnesthesiaCatalogLabels.PhysicalExamFinding(a.GroupKey, f))</dd>
+                                @if (!string.IsNullOrWhiteSpace(a.OtherDescription))
+                                {
+                                    <dt>Outros</dt>
+                                    <dd>@a.OtherDescription</dd>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(a.Observations))
+                                {
+                                    <dt>Observações</dt>
+                                    <dd>@a.Observations</dd>
+                                }
+                            </dl>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="empty-note">Sem alterações registradas no exame físico geral.</p>
+        }
+
+        <div class="sub-block" style="margin-top:2.4mm;">
+            <h3 class="section-title">Via aérea</h3>
+            <div class="grid cols-3">
+                <div class="card">
+                    <div class="body">
+                        <dl class="kv">
+                            <dt>Mucosas</dt>
+                            <dd>@JoinLabels(pre.AirwayMucosa, PreAnesthesiaCatalogLabels.Mucosa)</dd>
+                            <dt>Dentição</dt>
+                            <dd>@PreAnesthesiaCatalogLabels.Dentition(pre.Dentition)</dd>
+                            <dt>Mallampati</dt>
+                            <dd class="strong">Classe @Roman(pre.MallampatiClass)</dd>
+                        </dl>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="body">
+                        <dl class="kv">
+                            <dt>Dist. inter-incisivos</dt>
+                            <dd>@PreAnesthesiaCatalogLabels.InterIncisorDistance(pre.InterIncisorDistance)</dd>
+                            <dt>Comp. incisivos sup.</dt>
+                            <dd>@PreAnesthesiaCatalogLabels.UpperIncisorLength(pre.UpperIncisorLength)</dd>
+                            <dt>Relação incisivos</dt>
+                            <dd>@PreAnesthesiaCatalogLabels.IncisorRelation(pre.IncisorRelation)</dd>
+                            <dt>Palato</dt>
+                            <dd>@PreAnesthesiaCatalogLabels.Palate(pre.Palate)</dd>
+                            <dt>Protrusão mandíbula</dt>
+                            <dd>@PreAnesthesiaCatalogLabels.YesNoNa(pre.MandibleProtrusion)</dd>
+                        </dl>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="body">
+                        <dl class="kv">
+                            <dt>Pescoço (compr./larg.)</dt>
+                            <dd>@PreAnesthesiaCatalogLabels.NeckLength(pre.NeckLength) / @PreAnesthesiaCatalogLabels.NeckWidth(pre.NeckWidth)</dd>
+                            <dt>Dist. esternomentoniana</dt>
+                            <dd>@PreAnesthesiaCatalogLabels.SternomentalDistance(pre.SternomentalDistance)</dd>
+                            <dt>Dist. tireomentoniana</dt>
+                            <dd>@PreAnesthesiaCatalogLabels.ThyromentalDistance(pre.ThyromentalDistance)</dd>
+                            <dt>Flexão / extensão pescoço</dt>
+                            <dd>@PreAnesthesiaCatalogLabels.YesNoNa(pre.NeckFlexion) / @PreAnesthesiaCatalogLabels.YesNoNa(pre.NeckExtension)</dd>
+                            <dt>Complac. espaço mandibular</dt>
+                            <dd>@PreAnesthesiaCatalogLabels.NormalAbnormal(pre.MandibularSpaceCompliance)</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+            @if (!string.IsNullOrWhiteSpace(pre.AirwayObservations))
+            {
+                <p style="margin:1.6mm 0 0;"><b>Observações da via aérea:</b> @pre.AirwayObservations</p>
+            }
+        </div>
+
+        <div class="grid cols-2" style="margin-top:2.4mm;">
+            <div class="card">
+                <div class="body">
+                    <dl class="kv">
+                        <dt>Anomalia da caixa torácica</dt>
+                        <dd>@YesNo(pre.ThoracicCageAbnormality)</dd>
+                        @if (pre.ThoracicCageAbnormality == true)
+                        {
+                            <dt>Descrição</dt>
+                            <dd>@Txt(pre.ThoracicCageAbnormalityDescription)</dd>
+                        }
+                    </dl>
+                </div>
+            </div>
+            <div class="card">
+                <div class="body">
+                    <dl class="kv">
+                        <dt>Previsão de IOT difícil</dt>
+                        <dd class="strong">@YesNo(pre.DifficultIntubationPrediction)</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="doc-section">
+        <h2>Exames Complementares e Pareceres</h2>
+        <div class="grid cols-2">
+            <div class="card">
+                <header>Exames laboratoriais</header>
+                <div class="body">
+                    <dl class="kv">
+                        <dt>Hemoglobina / Hematócrito</dt>
+                        <dd>@Num(pre.Hemoglobin, " g/dL") / @Num(pre.Hematocrit, "%")</dd>
+                        <dt>Leucócitos / Plaquetas</dt>
+                        <dd>@Num(pre.Leukocytes) / @Num(pre.Platelets)</dd>
+                        <dt>TAP/INR / TTPA</dt>
+                        <dd>@Num(pre.TapInr) / @Num(pre.Aptt)</dd>
+                        <dt>Glicemia</dt>
+                        <dd>@Num(pre.Glucose, " mg/dL")</dd>
+                        <dt>Ureia / Creatinina</dt>
+                        <dd>@Num(pre.Urea) / @Num(pre.Creatinine)</dd>
+                        <dt>Sódio / Potássio</dt>
+                        <dd>@Num(pre.Sodium) / @Num(pre.Potassium)</dd>
+                        <dt>TP</dt>
+                        <dd>@Txt(pre.Tp)</dd>
+                        <dt>EAS</dt>
+                        <dd>@Txt(pre.Urinalysis)</dd>
+                        <dt>Função hepática</dt>
+                        <dd>@Txt(pre.LiverFunctionTests)</dd>
+                        <dt>Teste de gravidez</dt>
+                        <dd>@Txt(pre.PregnancyTest)</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="card">
+                <header>Exames de imagem / função</header>
+                <div class="body">
+                    <dl class="kv">
+                        <dt>ECG</dt>
+                        <dd>@Txt(pre.Ecg)</dd>
+                        <dt>RX de tórax</dt>
+                        <dd>@Txt(pre.ChestXRay)</dd>
+                        <dt>Ecocardiograma</dt>
+                        <dd>@Txt(pre.Echocardiogram)</dd>
+                        <dt>Prova de função respiratória</dt>
+                        <dd>@Txt(pre.PulmonaryFunctionTest)</dd>
+                        <dt>Outros exames</dt>
+                        <dd>@Txt(pre.OtherImaging)</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <div class="sub-block" style="margin-top:2.4mm;">
+            <h3 class="section-title">Pareceres</h3>
+            @if (pre.Reports.Any())
+            {
+                <table class="data">
+                    <thead><tr><th>Especialidade</th><th>Descrição</th></tr></thead>
+                    <tbody>
+                        @foreach (var r in pre.Reports)
+                        {
+                            <tr>
+                                <td><b>@PreAnesthesiaCatalogLabels.HuapSpecialty(r.Specialty)</b></td>
+                                <td>@Txt(r.Description)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p class="empty-note">Nenhum parecer registrado.</p>
+            }
+        </div>
+    </section>
+
+    <section class="doc-section">
+        <h2>Classificação e Conduta</h2>
+        <div class="grid cols-2">
+            <div class="card">
+                <div class="body">
+                    <dl class="kv">
+                        <dt>Classificação ASA</dt>
+                        <dd class="strong">@Lbl((AsaClassificationEnum?)pre.AsaClassification)</dd>
+                        <dt>Caráter de emergência</dt>
+                        <dd>@YesNo(pre.IsEmergency)</dd>
+                        <dt>Liberado para o procedimento</dt>
+                        <dd>@(pre.NotCleared ? $"Não — {Txt(pre.NotClearedReason)}" : "Sim")</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="card">
+                <header>Conduta</header>
+                <div class="body">
+                    <div class="checklist">
+                        @if (pre.ConductActions.Any())
+                        {
+                            @foreach (var action in pre.ConductActions)
+                            {
+                                <div class="check-item"><span>@PreAnesthesiaCatalogLabels.ConductAction(action)</span></div>
+                            }
+                        }
+                        else
+                        {
+                            <span class="empty-note">Nenhuma ação de conduta registrada.</span>
+                        }
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(pre.ConductNotes))
+                    {
+                        <p style="margin:1.6mm 0 0;"><b>Anotações:</b> @pre.ConductNotes</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="signatures">
+        <div class="sig">
+            <div class="line"></div>
+            <b>@Txt(pre.SignedByName)</b>
+            <small>Médico responsável pela avaliação</small>
+        </div>
+        <div class="sig">
+            <div class="line"></div>
+            <b>@(pre.SignedAt.HasValue ? pre.SignedAt.Value.ToString("dd/MM/yyyy HH:mm") : "Não assinado")</b>
+            <small>Data/hora da assinatura</small>
+        </div>
+    </div>
+
+    <footer class="doc-footer">
+        <span>@Model.Hospital.Name @(string.IsNullOrWhiteSpace(Model.Hospital.Cnpj) ? "" : $"· CNPJ {Model.Hospital.Cnpj}") · Avaliação Pré-anestésica</span>
+        <span>Emitido em @Model.PrintedAt.ToString("dd/MM/yyyy HH:mm")</span>
+    </footer>
+</body>
+</html>
