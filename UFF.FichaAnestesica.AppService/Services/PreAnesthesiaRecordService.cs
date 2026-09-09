@@ -42,9 +42,12 @@ public class PreAnesthesiaRecordService : IPreAnesthesiaRecordService
     }
 
     public async Task<CommandResult> Create(PreAnesthesiaRecordCommand command)
-    {        
+    {
         if (command.AsaClassification == null)
             return CommandResult.Fail("Classificação ASA é obrigatória");
+
+        if (command.Surgeries == null || command.Surgeries.Count == 0)
+            return CommandResult.Fail("Informe ao menos uma cirurgia proposta");
 
         var anesthesiaRecord = await _anesthesiaRecordRepository.GetByIdAsync(command.AnesthesiaRecordId);
         if (anesthesiaRecord == null)
@@ -79,12 +82,18 @@ public class PreAnesthesiaRecordService : IPreAnesthesiaRecordService
         if (command.AsaClassification == null)
             return CommandResult.Fail("Classificação ASA é obrigatória");
 
+        if (command.Surgeries == null || command.Surgeries.Count == 0)
+            return CommandResult.Fail("Informe ao menos uma cirurgia proposta");
+
         var record = await _preAnesthesiaRecordRepository.GetCompleteByIdAsync(id);
         if (record == null)
             return CommandResult.Fail("Avaliação pré-anestésica não encontrada");
 
         if (!IsResponsibleDoctor(record.AnesthesiaRecord?.FirstAnesthesiologistId))
             return CommandResult.Forbid("Apenas o médico responsável pode editar a avaliação pré-anestésica.");
+
+        if (record.IsFinalized)
+            return CommandResult.Fail("Esta avaliação pré-anestésica já foi finalizada. Solicite a um administrador que a libere para edição.");
 
         try
         {
@@ -99,5 +108,29 @@ public class PreAnesthesiaRecordService : IPreAnesthesiaRecordService
         {
             return CommandResult.Fail(ex.Message);
         }
+    }
+
+    public async Task<CommandResult> Reopen(int anesthesiaRecordId)
+    {
+        var record = await _preAnesthesiaRecordRepository.GetByAnesthesiaRecordIdAsync(anesthesiaRecordId);
+
+        if (record == null)
+            return CommandResult.Fail("Avaliação pré-anestésica não encontrada");
+
+        if (!record.IsFinalized)
+            return CommandResult.Fail("Esta avaliação pré-anestésica não está finalizada.");
+
+        try
+        {
+            record.Reopen();
+            _preAnesthesiaRecordRepository.Update(record);
+            await _preAnesthesiaRecordRepository.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            return CommandResult.Fail(ex.Message);
+        }
+
+        return CommandResult.Success(new { record.Id, record.AnesthesiaRecordId, record.IsFinalized });
     }
 }

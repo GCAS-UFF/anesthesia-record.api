@@ -125,6 +125,8 @@ namespace UFF.FichaAnestesica.Domain.Response
         public DateTime? SignedAt { get; set; }
         #endregion
 
+        public bool IsFinalized { get; set; }
+
         public DateTime CreatedAt { get; set; }
         public DateTime LastUpdate { get; set; }
 
@@ -230,6 +232,8 @@ namespace UFF.FichaAnestesica.Domain.Response
                 SignedByProfessionalId = entity.SignedByProfessionalId,
                 SignedByName = entity.SignedByName,
                 SignedAt = entity.SignedAt,
+
+                IsFinalized = entity.IsFinalized,
 
                 CreatedAt = entity.CreatedAt,
                 LastUpdate = entity.LastUpdate

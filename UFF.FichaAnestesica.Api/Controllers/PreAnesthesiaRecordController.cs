@@ -76,6 +76,18 @@ namespace UFF.FichaAnestesica.Api.Controllers
             return Ok(result);
         }
 
+        [HttpPatch("by-anesthesia-record/{anesthesiaRecordId}/reopen")]
+        [Authorize(Policy = "AdminOnly")]
+        public async Task<IActionResult> Reopen([FromRoute] int anesthesiaRecordId)
+        {
+            var result = await _preAnesthesiaRecordService.Reopen(anesthesiaRecordId);
+
+            if (!result.Valid)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
         [HttpGet("by-anesthesia-record/{anesthesiaRecordId}/print")]
         public async Task<IActionResult> Print([FromRoute] int anesthesiaRecordId)
         {

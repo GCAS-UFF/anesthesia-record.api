@@ -130,6 +130,8 @@ namespace UFF.FichaAnestesica.Domain.Entities
         public DateTime? SignedAt { get; private set; }
         #endregion
 
+        public bool IsFinalized { get; private set; }
+
         public static PreAnesthesiaRecord Create(PreAnesthesiaRecordCommand command)
         {
             var record = new PreAnesthesiaRecord
@@ -150,6 +152,12 @@ namespace UFF.FichaAnestesica.Domain.Entities
 
         public void SetAnesthesiaRecord(AnesthesiaRecord anesthesiaRecord)
             => AnesthesiaRecord = anesthesiaRecord;
+
+        public void Reopen()
+        {
+            IsFinalized = false;
+            LastUpdate = DateTime.UtcNow;
+        }
 
         private void SetValues(PreAnesthesiaRecordCommand command)
         {
@@ -303,6 +311,12 @@ namespace UFF.FichaAnestesica.Domain.Entities
             SignedByName = command.SignedByName;
             SignedAt = command.SignedAt;
             #endregion
+
+            // A avaliação pré-anestésica não tem um passo de "finalizar" separado do
+            // salvamento: a assinatura digital (feita no modal de confirmação, ver
+            // PreAnesthesicRecordComponent.confirmarESalvar) É o ato de finalização.
+            if (SignedByProfessionalId.HasValue && SignedAt.HasValue)
+                IsFinalized = true;
         }
     }
 }

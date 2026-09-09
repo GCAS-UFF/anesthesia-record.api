@@ -38,7 +38,8 @@ namespace UFF.FichaAnestesica.Test.Services
             {
                 AnesthesiaRecordId = anesthesiaRecordId,
                 AsaClassification = AsaClassificationEnum.ASA_II,
-                PreOperativeDiagnosis = "Colelitíase"
+                PreOperativeDiagnosis = "Colelitíase",
+                Surgeries = new() { new PreAnesthesiaSurgeryCommand { Name = "Colecistectomia", IsPrimary = true } }
             };
         }
 
@@ -144,6 +145,19 @@ namespace UFF.FichaAnestesica.Test.Services
         }
 
         [Fact]
+        public async Task Create_Should_Return_Fail_When_Surgeries_Empty()
+        {
+            var command = BaseCommand(41);
+            command.Surgeries = new();
+
+            var result = await _service.Create(command);
+
+            Assert.False(result.Valid);
+            Assert.Equal("Informe ao menos uma cirurgia proposta", result.Message);
+            _preAnesthesiaRepoMock.Verify(r => r.AddAsync(It.IsAny<PreAnesthesiaRecord>()), Times.Never);
+        }
+
+        [Fact]
         public async Task Create_Should_Return_Fail_When_AnesthesiaRecord_Not_Found()
         {
             var command = BaseCommand(42);
@@ -219,6 +233,19 @@ namespace UFF.FichaAnestesica.Test.Services
         }
 
         [Fact]
+        public async Task Update_Should_Return_Fail_When_Surgeries_Empty()
+        {
+            var updateCommand = BaseCommand(51);
+            updateCommand.Surgeries = new();
+
+            var result = await _service.Update(51, updateCommand);
+
+            Assert.False(result.Valid);
+            Assert.Equal("Informe ao menos uma cirurgia proposta", result.Message);
+            _preAnesthesiaRepoMock.Verify(r => r.GetCompleteByIdAsync(It.IsAny<int>()), Times.Never);
+        }
+
+        [Fact]
         public async Task Update_Should_Return_Fail_When_Record_Not_Found()
         {
             _preAnesthesiaRepoMock.Setup(r => r.GetCompleteByIdAsync(99)).ReturnsAsync((PreAnesthesiaRecord?)null);
@@ -242,7 +269,64 @@ namespace UFF.FichaAnestesica.Test.Services
             Assert.Contains("Erro de atualização", result.Message);
         }
 
-     
+        [Fact]
+        public async Task Update_Should_Return_Fail_When_Record_Is_Finalized()
+        {
+            var signedCommand = BaseCommand(54);
+            signedCommand.SignedByProfessionalId = ResponsibleDoctorId;
+            signedCommand.SignedAt = DateTime.UtcNow;
+            var existing = PreAnesthesiaRecord.Create(signedCommand);
+            existing.SetAnesthesiaRecord(CreateAnesthesiaRecord());
+            _preAnesthesiaRepoMock.Setup(r => r.GetCompleteByIdAsync(54)).ReturnsAsync(existing);
+
+            var result = await _service.Update(54, BaseCommand(54));
+
+            Assert.False(result.Valid);
+            Assert.Equal("Esta avaliação pré-anestésica já foi finalizada. Solicite a um administrador que a libere para edição.", result.Message);
+            _preAnesthesiaRepoMock.Verify(r => r.SaveChangesAsync(), Times.Never);
+        }
+
+        // ========== Reopen ==========
+
+        [Fact]
+        public async Task Reopen_Should_Set_IsFinalized_False_When_Finalized()
+        {
+            var signedCommand = BaseCommand(60);
+            signedCommand.SignedByProfessionalId = ResponsibleDoctorId;
+            signedCommand.SignedAt = DateTime.UtcNow;
+            var existing = PreAnesthesiaRecord.Create(signedCommand);
+            _preAnesthesiaRepoMock.Setup(r => r.GetByAnesthesiaRecordIdAsync(60)).ReturnsAsync(existing);
+            _preAnesthesiaRepoMock.Setup(r => r.SaveChangesAsync());
+
+            var result = await _service.Reopen(60);
+
+            Assert.True(result.Valid);
+            Assert.False(existing.IsFinalized);
+            _preAnesthesiaRepoMock.Verify(r => r.SaveChangesAsync(), Times.Once);
+        }
+
+        [Fact]
+        public async Task Reopen_Should_Return_Fail_When_Record_Not_Found()
+        {
+            _preAnesthesiaRepoMock.Setup(r => r.GetByAnesthesiaRecordIdAsync(99)).ReturnsAsync((PreAnesthesiaRecord?)null);
+
+            var result = await _service.Reopen(99);
+
+            Assert.False(result.Valid);
+        }
+
+        [Fact]
+        public async Task Reopen_Should_Return_Fail_When_Not_Finalized()
+        {
+            var existing = CreateBaseRecord(61);
+            _preAnesthesiaRepoMock.Setup(r => r.GetByAnesthesiaRecordIdAsync(61)).ReturnsAsync(existing);
+
+            var result = await _service.Reopen(61);
+
+            Assert.False(result.Valid);
+            _preAnesthesiaRepoMock.Verify(r => r.SaveChangesAsync(), Times.Never);
+        }
+
 
         [Fact]
         public async Task Create_Should_Return_Forbidden_When_Not_Responsible()

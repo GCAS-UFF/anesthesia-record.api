@@ -167,6 +167,11 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
             builder.Property(x => x.SignedAt).HasColumnName("signed_at").HasColumnType("timestamptz");
             #endregion
 
+            builder.Property(x => x.IsFinalized)
+                .HasColumnName("is_finalized")
+                .IsRequired()
+                .HasDefaultValue(false);
+
             builder.Property(x => x.CreatedAt)
                 .HasColumnName("created_at")
                 .HasColumnType("timestamptz")

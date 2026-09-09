@@ -26,7 +26,7 @@ namespace UFF.FichaAnestesica.Infra.Repositories
             return _context.PreAnesthesiaRecords
                 .Where(x =>
                     anesthesiaRecordIds.Contains(x.AnesthesiaRecordId) &&
-                    x.SignedAt != null)
+                    x.IsFinalized)
                 .Select(x => x.AnesthesiaRecordId)
                 .ToHashSet();
         }
