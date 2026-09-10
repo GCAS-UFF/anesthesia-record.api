@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using UFF.FichaAnestesica.Domain.Commands;
 using UFF.FichaAnestesica.Domain.Commands.PreAnesthesiaRecord;
 using UFF.FichaAnestesica.Domain.Entities;
@@ -10,12 +11,18 @@ public class PreAnesthesiaRecordService : IPreAnesthesiaRecordService
     private readonly IPreAnesthesiaRecordRepository _preAnesthesiaRecordRepository;
     private readonly IAnesthesiaRecordRepository _anesthesiaRecordRepository;
     private readonly ICurrentUserService _currentUserService;
+    private readonly ILogger<PreAnesthesiaRecordService> _logger;
 
-    public PreAnesthesiaRecordService(IPreAnesthesiaRecordRepository preAnesthesiaRecordRepository, IAnesthesiaRecordRepository anesthesiaRecordRepository, ICurrentUserService currentUserService)
+    public PreAnesthesiaRecordService(
+        IPreAnesthesiaRecordRepository preAnesthesiaRecordRepository,
+        IAnesthesiaRecordRepository anesthesiaRecordRepository,
+        ICurrentUserService currentUserService,
+        ILogger<PreAnesthesiaRecordService> logger)
     {
         _preAnesthesiaRecordRepository = preAnesthesiaRecordRepository;
         _anesthesiaRecordRepository = anesthesiaRecordRepository;
         _currentUserService = currentUserService;
+        _logger = logger;
     }
 
     private bool IsResponsibleDoctor(int? firstAnesthesiologistId)
@@ -73,6 +80,7 @@ public class PreAnesthesiaRecordService : IPreAnesthesiaRecordService
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Falha ao criar avaliação pré-anestésica para a ficha {AnesthesiaRecordId}", command.AnesthesiaRecordId);
             return CommandResult.Fail(ex.Message);
         }
     }
@@ -106,6 +114,7 @@ public class PreAnesthesiaRecordService : IPreAnesthesiaRecordService
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Falha ao atualizar avaliação pré-anestésica {Id}", id);
             return CommandResult.Fail(ex.Message);
         }
     }
@@ -128,6 +137,7 @@ public class PreAnesthesiaRecordService : IPreAnesthesiaRecordService
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Falha ao reabrir avaliação pré-anestésica da ficha {AnesthesiaRecordId}", anesthesiaRecordId);
             return CommandResult.Fail(ex.Message);
         }
 

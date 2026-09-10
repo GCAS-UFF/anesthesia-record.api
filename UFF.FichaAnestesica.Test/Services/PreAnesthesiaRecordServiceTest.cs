@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using UFF.FichaAnestesica.Domain.Commands;
 using UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord;
@@ -29,7 +30,8 @@ namespace UFF.FichaAnestesica.Test.Services
             _service = new PreAnesthesiaRecordService(
                 _preAnesthesiaRepoMock.Object,
                 _anesthesiaRepoMock.Object,
-                _currentUserServiceMock.Object);
+                _currentUserServiceMock.Object,
+                NullLogger<PreAnesthesiaRecordService>.Instance);
         }
 
         private static PreAnesthesiaRecordCommand BaseCommand(int anesthesiaRecordId = 10)
