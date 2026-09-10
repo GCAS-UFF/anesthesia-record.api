@@ -21,7 +21,12 @@ namespace UFF.FichaAnestesica.Infra.Services
         private static readonly double[] VitalsGridValues = { 0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240 };
         private const double HeartRateLabelProximity = 30;
 
-        private static readonly TimeSpan RowSpan = TimeSpan.FromHours(1);
+        private static readonly TimeSpan DefaultRowSpan = TimeSpan.FromHours(1);
+
+       .
+        private const int TargetPointsPerRow = 14;
+        private static readonly TimeSpan MinRowSpan = TimeSpan.FromMinutes(20);
+        private static readonly TimeSpan MaxRowSpan = TimeSpan.FromHours(3);
 
         private const int MaxRows = 60;
         private static readonly TimeSpan OutlierWindow = TimeSpan.FromHours(72);
@@ -127,15 +132,21 @@ namespace UFF.FichaAnestesica.Infra.Services
 
             result.HasData = true;
 
-            var rawRowCount = (int)Math.Ceiling((timelineEnd - timelineStart) / RowSpan);
+            var rowSpan = DetermineRowSpan(vitals.Select(v => v.Time).ToList());
+
+            logger.LogInformation(
+                "[PDF][Chart] Duração de linha calculada a partir da cadência das aferições: {Minutes:0} min (alvo de {Target} pontos/linha).",
+                rowSpan.TotalMinutes, TargetPointsPerRow);
+
+            var rawRowCount = (int)Math.Ceiling((timelineEnd - timelineStart) / rowSpan);
 
             if (rawRowCount > MaxRows)
             {
                 logger.LogWarning(
                     "[PDF][Chart] Linha do tempo calculada ({Hours:0}h, {Rows} blocos) excede o limite de segurança de {Cap} blocos — truncando para {CapHours}h. Isso não deveria acontecer para uma cirurgia real; investigar dados de origem.",
-                    (timelineEnd - timelineStart).TotalHours, rawRowCount, MaxRows, MaxRows * RowSpan.TotalHours);
+                    (timelineEnd - timelineStart).TotalHours, rawRowCount, MaxRows, MaxRows * rowSpan.TotalHours);
 
-                timelineEnd = timelineStart + TimeSpan.FromTicks(RowSpan.Ticks * MaxRows);
+                timelineEnd = timelineStart + TimeSpan.FromTicks(rowSpan.Ticks * MaxRows);
             }
 
             var rowCount = Math.Clamp(rawRowCount, 1, MaxRows);
@@ -146,8 +157,8 @@ namespace UFF.FichaAnestesica.Infra.Services
 
             for (var i = 0; i < rowCount; i++)
             {
-                var rowStart = timelineStart + TimeSpan.FromTicks(RowSpan.Ticks * i);
-                var rowEnd = i == rowCount - 1 ? timelineEnd : rowStart + RowSpan;
+                var rowStart = timelineStart + TimeSpan.FromTicks(rowSpan.Ticks * i);
+                var rowEnd = i == rowCount - 1 ? timelineEnd : rowStart + rowSpan;
 
                 if (rowEnd <= rowStart)
                     rowEnd = rowStart + TimeSpan.FromMinutes(1);
@@ -215,6 +226,29 @@ namespace UFF.FichaAnestesica.Infra.Services
             }
 
             return result;
+        }
+
+        private static TimeSpan DetermineRowSpan(List<DateTime> vitalTimes)
+        {
+            if (vitalTimes.Count < 2) return DefaultRowSpan;
+
+            var intervals = new List<double>();
+            for (var i = 1; i < vitalTimes.Count; i++)
+            {
+                var minutes = (vitalTimes[i] - vitalTimes[i - 1]).TotalMinutes;
+                if (minutes > 0) intervals.Add(minutes);
+            }
+
+            if (intervals.Count == 0) return DefaultRowSpan;
+
+            intervals.Sort();
+            var mid = intervals.Count / 2;
+            var medianMinutes = intervals.Count % 2 == 0
+                ? (intervals[mid - 1] + intervals[mid]) / 2.0
+                : intervals[mid];
+
+            var targetMinutes = Math.Clamp(medianMinutes * TargetPointsPerRow, MinRowSpan.TotalMinutes, MaxRowSpan.TotalMinutes);
+            return TimeSpan.FromMinutes(targetMinutes);
         }
 
         private static DateTime Combine(DateTime date, TimeSpan time) => date.Date + time;
