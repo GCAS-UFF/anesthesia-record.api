@@ -23,7 +23,7 @@ namespace UFF.FichaAnestesica.Infra.Services
 
         private static readonly TimeSpan DefaultRowSpan = TimeSpan.FromHours(1);
 
-       .
+       
         private const int TargetPointsPerRow = 14;
         private static readonly TimeSpan MinRowSpan = TimeSpan.FromMinutes(20);
         private static readonly TimeSpan MaxRowSpan = TimeSpan.FromHours(3);
