@@ -104,6 +104,48 @@ namespace UFF.FichaAnestesica.Test.Services
         }
 
         [Fact]
+        public async Task GetPatientsWithSurgeriesAsync_Should_Not_Return_InProgress_When_Filtering_By_Scheduled()
+        {
+            var scheduledDto = new PatientDetailDto
+            {
+                PatientId = "P1",
+                FullName = "João",
+                SurgeryId = 1,
+                Status = "agendado",
+                SurgeryDate = new DateTime(2026, 1, 1),
+            };
+            var alreadyAssumedDto = new PatientDetailDto
+            {
+                PatientId = "P2",
+                FullName = "Maria",
+                SurgeryId = 2,
+                Status = "agendado",
+                SurgeryDate = new DateTime(2026, 1, 1),
+            };
+            _hospitalApiRepoMock
+                .Setup(h => h.GetPatientsFromHospitalAsync(It.IsAny<DateTime?>(), string.Empty, SurgeryStatusEnum.Scheduled, It.IsAny<int>(), It.IsAny<int>()))
+                .ReturnsAsync(new PagedResponse<PatientDetailDto> { Data = new List<PatientDetailDto> { scheduledDto, alreadyAssumedDto }, TotalItems = 2 });
+
+            var recordWithAnesthesiologist = AnesthesiaRecord.Create(new Domain.Commands.AnesthesiaRecord.AnesthesiaRecordCommand { PatientId = "P2", SurgeryId = 2 }, DateTime.MinValue);
+            recordWithAnesthesiologist.SetStatus(SurgeryStatusEnum.Preparing);
+            var anesthesiologist = User.Create(1, "Dr. João", "joao@teste.com", "jsilva", "123", MedicalSpecialtyEnum.Anesthesiology, SectorEnum.SurgicalCenter);
+            typeof(AnesthesiaRecord).GetProperty("FirstAnesthesiologist")!.SetValue(recordWithAnesthesiologist, anesthesiologist);
+
+            _anesthesiaRepoMock.Setup(a => a.GetByIdsAsync(It.IsAny<string[]>())).ReturnsAsync(new List<AnesthesiaRecord> { recordWithAnesthesiologist });
+            _preAnesthesiaRepoMock
+                .Setup(p => p.GetCompletedAnesthesiaRecordIds(It.IsAny<IEnumerable<int>>()))
+                .Returns(new HashSet<int>());
+
+            var result = await _service.GetPatientsWithSurgeriesAsync(1, null, string.Empty, SurgeryStatusEnum.Scheduled);
+
+            var paged = Assert.IsType<PagedResponse<PatientSurgeryResponse>>(result.Data);
+            var patient = Assert.Single(paged.Data);
+            Assert.Equal(1, patient.SurgeryId);
+            Assert.Equal(SurgeryStatusEnum.Scheduled, patient.Status);
+            Assert.Equal(1, paged.TotalItems);
+        }
+
+        [Fact]
         public async Task GetPatientAnesthesiaRecordByIdAsync_Should_Return_Null_When_Patient_Not_Found()
         {
             _hospitalApiRepoMock

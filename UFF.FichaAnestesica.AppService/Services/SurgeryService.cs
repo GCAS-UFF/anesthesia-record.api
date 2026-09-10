@@ -67,7 +67,15 @@ namespace UFF.FichaAnestesica.Service.Services
 
             var recordsBySurgeryId = anesthesiaRecords.GroupBy(x => x.Id).ToDictionary(x => x.Key, x => x.First());
 
-            SetSurgeryStatus(hospitalData, recordsBySurgeryId);
+            var effectiveStatusBySurgeryId = SetSurgeryStatus(hospitalData, recordsBySurgeryId);
+
+            if (status.HasValue && status != SurgeryStatusEnum.Completed)
+            {
+                hospitalData.Data = hospitalData.Data
+                    .Where(x => effectiveStatusBySurgeryId.TryGetValue(x.SurgeryId, out var effectiveStatus) && effectiveStatus == status.Value)
+                    .ToList();
+                hospitalData.TotalItems = hospitalData.Data.Count();
+            }
 
             await AssociateSurgeryProcedures(hospitalData, recordsBySurgeryId);
             await _anesthesiaRecordRepository.SaveChangesAsync();
@@ -143,20 +151,27 @@ namespace UFF.FichaAnestesica.Service.Services
             });
         }
 
-        private static void SetSurgeryStatus(PagedResponse<PatientDetailDto> hospitalData, Dictionary<int, AnesthesiaRecord> recordsBySurgeryId)
+        private static Dictionary<int, SurgeryStatusEnum> SetSurgeryStatus(PagedResponse<PatientDetailDto> hospitalData, Dictionary<int, AnesthesiaRecord> recordsBySurgeryId)
         {
+            var effectiveStatusBySurgeryId = new Dictionary<int, SurgeryStatusEnum>();
+
             foreach (var patient in hospitalData.Data)
             {
-                if (recordsBySurgeryId.TryGetValue(patient.SurgeryId, out var record))
-                {
-                    patient.HaveFirstAnesthesist = record.FirstAnesthesiologist != null;
+                recordsBySurgeryId.TryGetValue(patient.SurgeryId, out var record);
 
-                    var rawStatus = record.Status == 0 ? SurgeryStatusEnumMapping.Parse(patient.Status) : record.Status;
-                    var effectiveStatus = SurgeryStatusDerivation.DeriveEffectiveStatus(rawStatus, patient.HaveFirstAnesthesist);
+                patient.HaveFirstAnesthesist = record?.FirstAnesthesiologist != null;
 
-                    patient.Status = effectiveStatus.GetDescription();
-                }
+                var rawStatus = record == null || record.Status == 0
+                    ? SurgeryStatusEnumMapping.Parse(patient.Status)
+                    : record.Status;
+
+                var effectiveStatus = SurgeryStatusDerivation.DeriveEffectiveStatus(rawStatus, patient.HaveFirstAnesthesist);
+
+                patient.Status = effectiveStatus.GetDescription();
+                effectiveStatusBySurgeryId[patient.SurgeryId] = effectiveStatus;
             }
+
+            return effectiveStatusBySurgeryId;
         }
 
         private async Task AssociateSurgeryProcedures(PagedResponse<PatientDetailDto> hospitalData, Dictionary<int, AnesthesiaRecord> recordsBySurgeryId)
