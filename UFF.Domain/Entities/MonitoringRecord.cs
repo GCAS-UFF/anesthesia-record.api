@@ -17,6 +17,9 @@ namespace UFF.FichaAnestesica.Domain.Entities
         public bool IsMonitoringDraft { get; private set; }
         public DateTime? MonitoringUpdatedAt { get; private set; }
         public List<PatientPosition> Positions { get; private set; } = new();
+        public List<OxygenFlow> OxygenFlows { get; private set; } = new();
+        public List<CompressedAirFlow> CompressedAirFlows { get; private set; } = new();
+        public List<InfusionPump> InfusionPumps { get; private set; } = new();
         public int AnesthesiaRecordId { get; private set; }
         public AnesthesiaRecord AnesthesiaRecord { get; private set; }
         public SurgeryStatusEnum Status { get; private set; }
@@ -103,6 +106,45 @@ namespace UFF.FichaAnestesica.Domain.Entities
             }
 
 
+            if (command.OxygenFlows != null)
+            {
+                foreach (var oxygenCommand in command.OxygenFlows)
+                {
+                    var oxygenFlow = OxygenFlow.Create(oxygenCommand);
+
+                    oxygenFlow.SetMonitoringRecord(monitoringRecord);
+
+                    monitoringRecord.OxygenFlows.Add(oxygenFlow);
+                }
+            }
+
+
+            if (command.CompressedAirFlows != null)
+            {
+                foreach (var airCommand in command.CompressedAirFlows)
+                {
+                    var airFlow = CompressedAirFlow.Create(airCommand);
+
+                    airFlow.SetMonitoringRecord(monitoringRecord);
+
+                    monitoringRecord.CompressedAirFlows.Add(airFlow);
+                }
+            }
+
+
+            if (command.InfusionPumps != null)
+            {
+                foreach (var pumpCommand in command.InfusionPumps)
+                {
+                    var pump = InfusionPump.Create(pumpCommand);
+
+                    pump.SetMonitoringRecord(monitoringRecord);
+
+                    monitoringRecord.InfusionPumps.Add(pump);
+                }
+            }
+
+
             return monitoringRecord;
         }
 
@@ -172,6 +214,39 @@ namespace UFF.FichaAnestesica.Domain.Entities
                 position.SetMonitoringRecord(this);
 
                 Positions.Add(position);
+            }
+
+            OxygenFlows.Clear();
+
+            foreach (var commandOxygen in command.OxygenFlows)
+            {
+                var oxygenFlow = OxygenFlow.Create(commandOxygen);
+
+                oxygenFlow.SetMonitoringRecord(this);
+
+                OxygenFlows.Add(oxygenFlow);
+            }
+
+            CompressedAirFlows.Clear();
+
+            foreach (var commandAir in command.CompressedAirFlows)
+            {
+                var airFlow = CompressedAirFlow.Create(commandAir);
+
+                airFlow.SetMonitoringRecord(this);
+
+                CompressedAirFlows.Add(airFlow);
+            }
+
+            InfusionPumps.Clear();
+
+            foreach (var commandPump in command.InfusionPumps)
+            {
+                var pump = InfusionPump.Create(commandPump);
+
+                pump.SetMonitoringRecord(this);
+
+                InfusionPumps.Add(pump);
             }
 
             LastUpdate = DateTime.UtcNow;

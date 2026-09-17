@@ -23,7 +23,10 @@ namespace UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord
         public List<AdministeredAgentCommand> AdministeredAgents { get; set; } = new();
         public List<ClinicalEventCommand> ClinicalEvents { get; set; } = new();
         public List<FluidBalanceCommand> FluidBalances { get; set; } = new();
-        public List<PatientPositionCommand> Positions { get; set; } = new();       
+        public List<PatientPositionCommand> Positions { get; set; } = new();
+        public List<OxygenFlowCommand> OxygenFlows { get; set; } = new();
+        public List<CompressedAirFlowCommand> CompressedAirFlows { get; set; } = new();
+        public List<InfusionPumpCommand> InfusionPumps { get; set; } = new();
 
         public SurgeryStatusEnum Status { get; private set; }
     }
@@ -60,6 +63,34 @@ namespace UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord
         public MedicationUnitEnum Unit { get; set; }
         public AdministrationRouteEnum Route { get; set; }
         public int DrugId { get; set; }
+        public bool IsBolus { get; set; }
+    }
+
+    public class OxygenFlowCommand
+    {
+        public TimeSpan Time { get; set; }
+        public DateTime Date { get; set; }
+        public decimal? FlowRateLPerMin { get; set; }
+        public bool IsActive { get; set; }
+    }
+
+    public class CompressedAirFlowCommand
+    {
+        public TimeSpan Time { get; set; }
+        public DateTime Date { get; set; }
+        public decimal? FlowRateLPerMin { get; set; }
+        public bool IsActive { get; set; }
+    }
+
+    public class InfusionPumpCommand
+    {
+        public TimeSpan Time { get; set; }
+        public DateTime Date { get; set; }
+        public int DrugId { get; set; }
+        public decimal Rate { get; set; }
+        public InfusionRateUnitEnum RateUnit { get; set; }
+        public decimal VolumeMl { get; set; }
+        public DateTime EndAt { get; set; }
     }
 
     public class ClinicalEventCommand

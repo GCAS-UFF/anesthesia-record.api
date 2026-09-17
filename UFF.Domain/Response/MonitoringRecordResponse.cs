@@ -36,6 +36,12 @@ namespace UFF.FichaAnestesica.Domain.Response
 
         public List<PatientPositionResponse> Positions { get; set; } = new();
 
+        public List<OxygenFlowResponse> OxygenFlows { get; set; } = new();
+
+        public List<CompressedAirFlowResponse> CompressedAirFlows { get; set; } = new();
+
+        public List<InfusionPumpResponse> InfusionPumps { get; set; } = new();
+
         public static MonitoringRecordResponse ToResponse(
             MonitoringRecord entity)
         {
@@ -67,6 +73,18 @@ namespace UFF.FichaAnestesica.Domain.Response
 
                 Positions = entity.Positions
                     .Select(PatientPositionResponse.ToResponse)
+                    .ToList(),
+
+                OxygenFlows = entity.OxygenFlows
+                    .Select(OxygenFlowResponse.ToResponse)
+                    .ToList(),
+
+                CompressedAirFlows = entity.CompressedAirFlows
+                    .Select(CompressedAirFlowResponse.ToResponse)
+                    .ToList(),
+
+                InfusionPumps = entity.InfusionPumps
+                    .Select(InfusionPumpResponse.ToResponse)
                     .ToList()
             };
         }

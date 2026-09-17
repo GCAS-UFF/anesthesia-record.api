@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using UFF.FichaAnestesica.Infra.Context;
@@ -12,9 +13,11 @@ using UFF.FichaAnestesica.Infra.Context;
 namespace UFF.FichaAnestesica.Infra.Migrations
 {
     [DbContext(typeof(SigaDbCtx))]
-    partial class SigaDbCtxModelSnapshot : ModelSnapshot
+    [Migration("20260912151623_AddOxygenAirInfusionPumpTimelines")]
+    partial class AddOxygenAirInfusionPumpTimelines
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,12 +51,6 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                     b.Property<int>("DrugId")
                         .HasColumnType("integer")
                         .HasColumnName("drug_id");
-
-                    b.Property<bool>("IsBolus")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("is_bolus");
 
                     b.Property<DateTime>("LastUpdate")
                         .HasColumnType("timestamptz")
@@ -117,161 +114,6 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                     b.HasIndex("ProcedureId");
 
                     b.ToTable("anesthesia_record_procedures", "siga_db");
-                });
-
-            modelBuilder.Entity("CompressedAirFlow", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("created_at");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("timestamp");
-
-                    b.Property<decimal?>("FlowRateLPerMin")
-                        .HasColumnType("numeric(6,2)")
-                        .HasColumnName("flow_rate_l_per_min");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
-
-                    b.Property<DateTime>("LastUpdate")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("last_update");
-
-                    b.Property<int>("MonitoringRecordId")
-                        .HasColumnType("integer")
-                        .HasColumnName("monitoring_record_id");
-
-                    b.Property<TimeSpan>("Time")
-                        .HasColumnType("time without time zone")
-                        .HasColumnName("time");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Date")
-                        .HasDatabaseName("IX_compressed_air_flows_timestamp");
-
-                    b.HasIndex("MonitoringRecordId");
-
-                    b.ToTable("compressed_air_flows", "siga_db");
-                });
-
-            modelBuilder.Entity("InfusionPump", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("created_at");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("timestamp");
-
-                    b.Property<int>("DrugId")
-                        .HasColumnType("integer")
-                        .HasColumnName("drug_id");
-
-                    b.Property<DateTime>("EndAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("end_at");
-
-                    b.Property<DateTime>("LastUpdate")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("last_update");
-
-                    b.Property<int>("MonitoringRecordId")
-                        .HasColumnType("integer")
-                        .HasColumnName("monitoring_record_id");
-
-                    b.Property<decimal>("Rate")
-                        .HasColumnType("numeric(10,2)")
-                        .HasColumnName("rate");
-
-                    b.Property<int>("RateUnit")
-                        .HasColumnType("integer")
-                        .HasColumnName("rate_unit");
-
-                    b.Property<TimeSpan>("Time")
-                        .HasColumnType("time without time zone")
-                        .HasColumnName("time");
-
-                    b.Property<decimal>("VolumeMl")
-                        .HasColumnType("numeric(10,2)")
-                        .HasColumnName("volume_ml");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Date")
-                        .HasDatabaseName("IX_infusion_pumps_timestamp");
-
-                    b.HasIndex("DrugId");
-
-                    b.HasIndex("MonitoringRecordId");
-
-                    b.ToTable("infusion_pumps", "siga_db");
-                });
-
-            modelBuilder.Entity("OxygenFlow", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("created_at");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("timestamp");
-
-                    b.Property<decimal?>("FlowRateLPerMin")
-                        .HasColumnType("numeric(6,2)")
-                        .HasColumnName("flow_rate_l_per_min");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
-
-                    b.Property<DateTime>("LastUpdate")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("last_update");
-
-                    b.Property<int>("MonitoringRecordId")
-                        .HasColumnType("integer")
-                        .HasColumnName("monitoring_record_id");
-
-                    b.Property<TimeSpan>("Time")
-                        .HasColumnType("time without time zone")
-                        .HasColumnName("time");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Date")
-                        .HasDatabaseName("IX_oxygen_flows_timestamp");
-
-                    b.HasIndex("MonitoringRecordId");
-
-                    b.ToTable("oxygen_flows", "siga_db");
                 });
 
             modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.AnesthesiaRecord", b =>
@@ -922,6 +764,52 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                     b.ToTable("clinical_events", "siga_db");
                 });
 
+            modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.CompressedAirFlow", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("timestamp");
+
+                    b.Property<decimal?>("FlowRateLPerMin")
+                        .HasColumnType("numeric(6,2)")
+                        .HasColumnName("flow_rate_l_per_min");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<DateTime>("LastUpdate")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("last_update");
+
+                    b.Property<int>("MonitoringRecordId")
+                        .HasColumnType("integer")
+                        .HasColumnName("monitoring_record_id");
+
+                    b.Property<TimeSpan>("Time")
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("time");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Date");
+
+                    b.HasIndex("MonitoringRecordId");
+
+                    b.ToTable("compressed_air_flows", "siga_db");
+                });
+
             modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.CustomField", b =>
                 {
                     b.Property<int>("Id")
@@ -1114,6 +1002,62 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                     b.ToTable("fluid_balances", "siga_db");
                 });
 
+            modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.InfusionPump", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("timestamp");
+
+                    b.Property<int>("DrugId")
+                        .HasColumnType("integer")
+                        .HasColumnName("drug_id");
+
+                    b.Property<DateTime>("EndAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("end_at");
+
+                    b.Property<DateTime>("LastUpdate")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("last_update");
+
+                    b.Property<int>("MonitoringRecordId")
+                        .HasColumnType("integer")
+                        .HasColumnName("monitoring_record_id");
+
+                    b.Property<decimal>("RateMlPerHour")
+                        .HasColumnType("numeric(10,2)")
+                        .HasColumnName("rate_ml_per_hour");
+
+                    b.Property<TimeSpan>("Time")
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("time");
+
+                    b.Property<decimal>("VolumeMl")
+                        .HasColumnType("numeric(10,2)")
+                        .HasColumnName("volume_ml");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Date");
+
+                    b.HasIndex("DrugId");
+
+                    b.HasIndex("MonitoringRecordId");
+
+                    b.ToTable("infusion_pumps", "siga_db");
+                });
+
             modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.InstitutionSettings", b =>
                 {
                     b.Property<int>("Id")
@@ -1264,6 +1208,52 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                     b.HasIndex("StartedAt");
 
                     b.ToTable("monitoring_records", "siga_db");
+                });
+
+            modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.OxygenFlow", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("timestamp");
+
+                    b.Property<decimal?>("FlowRateLPerMin")
+                        .HasColumnType("numeric(6,2)")
+                        .HasColumnName("flow_rate_l_per_min");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<DateTime>("LastUpdate")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("last_update");
+
+                    b.Property<int>("MonitoringRecordId")
+                        .HasColumnType("integer")
+                        .HasColumnName("monitoring_record_id");
+
+                    b.Property<TimeSpan>("Time")
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("time");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Date");
+
+                    b.HasIndex("MonitoringRecordId");
+
+                    b.ToTable("oxygen_flows", "siga_db");
                 });
 
             modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.PatientPosition", b =>
@@ -2184,51 +2174,6 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                     b.Navigation("Procedure");
                 });
 
-            modelBuilder.Entity("CompressedAirFlow", b =>
-                {
-                    b.HasOne("UFF.FichaAnestesica.Domain.Entities.MonitoringRecord", "MonitoringRecord")
-                        .WithMany("CompressedAirFlows")
-                        .HasForeignKey("MonitoringRecordId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("f_k_compressed_air_flows__monitoring_records_monitoring_record_id");
-
-                    b.Navigation("MonitoringRecord");
-                });
-
-            modelBuilder.Entity("InfusionPump", b =>
-                {
-                    b.HasOne("UFF.FichaAnestesica.Domain.Entities.Drug", "Drug")
-                        .WithMany()
-                        .HasForeignKey("DrugId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("f_k_infusion_pumps__drugs_drug_id");
-
-                    b.HasOne("UFF.FichaAnestesica.Domain.Entities.MonitoringRecord", "MonitoringRecord")
-                        .WithMany("InfusionPumps")
-                        .HasForeignKey("MonitoringRecordId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("f_k_infusion_pumps__monitoring_records_monitoring_record_id");
-
-                    b.Navigation("Drug");
-
-                    b.Navigation("MonitoringRecord");
-                });
-
-            modelBuilder.Entity("OxygenFlow", b =>
-                {
-                    b.HasOne("UFF.FichaAnestesica.Domain.Entities.MonitoringRecord", "MonitoringRecord")
-                        .WithMany("OxygenFlows")
-                        .HasForeignKey("MonitoringRecordId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("f_k_oxygen_flows__monitoring_records_monitoring_record_id");
-
-                    b.Navigation("MonitoringRecord");
-                });
-
             modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.AnesthesiaRecord", b =>
                 {
                     b.HasOne("UFF.FichaAnestesica.Domain.Entities.User", "Assistant")
@@ -2348,6 +2293,18 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                     b.Navigation("MonitoringRecord");
                 });
 
+            modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.CompressedAirFlow", b =>
+                {
+                    b.HasOne("UFF.FichaAnestesica.Domain.Entities.MonitoringRecord", "MonitoringRecord")
+                        .WithMany("CompressedAirFlows")
+                        .HasForeignKey("MonitoringRecordId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("f_k_compressed_air_flows__monitoring_records_monitoring_record_id");
+
+                    b.Navigation("MonitoringRecord");
+                });
+
             modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.CustomField", b =>
                 {
                     b.HasOne("UFF.FichaAnestesica.Domain.Entities.VitalSignRecord", null)
@@ -2365,6 +2322,27 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("f_k_fluid_balances__monitoring_records_monitoring_record_id");
+
+                    b.Navigation("MonitoringRecord");
+                });
+
+            modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.InfusionPump", b =>
+                {
+                    b.HasOne("UFF.FichaAnestesica.Domain.Entities.Drug", "Drug")
+                        .WithMany()
+                        .HasForeignKey("DrugId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("f_k_infusion_pumps_drugs_drug_id");
+
+                    b.HasOne("UFF.FichaAnestesica.Domain.Entities.MonitoringRecord", "MonitoringRecord")
+                        .WithMany("InfusionPumps")
+                        .HasForeignKey("MonitoringRecordId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("f_k_infusion_pumps__monitoring_records_monitoring_record_id");
+
+                    b.Navigation("Drug");
 
                     b.Navigation("MonitoringRecord");
                 });
@@ -2387,6 +2365,18 @@ namespace UFF.FichaAnestesica.Infra.Migrations
                         .HasConstraintName("f_k_monitoring_records_anesthesia_records_anesthesia_record_id");
 
                     b.Navigation("AnesthesiaRecord");
+                });
+
+            modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.OxygenFlow", b =>
+                {
+                    b.HasOne("UFF.FichaAnestesica.Domain.Entities.MonitoringRecord", "MonitoringRecord")
+                        .WithMany("OxygenFlows")
+                        .HasForeignKey("MonitoringRecordId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("f_k_oxygen_flows_monitoring_records_monitoring_record_id");
+
+                    b.Navigation("MonitoringRecord");
                 });
 
             modelBuilder.Entity("UFF.FichaAnestesica.Domain.Entities.PatientPosition", b =>

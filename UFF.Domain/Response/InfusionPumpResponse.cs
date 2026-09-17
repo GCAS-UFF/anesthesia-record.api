@@ -1,40 +1,32 @@
-﻿using UFF.FichaAnestesica.Domain.Enums;
 using UFF.FichaAnestesica.Domain.Extensions;
 
 namespace UFF.FichaAnestesica.Domain.Response
 {
-    public class AdministeredAgentResponse
+    public class InfusionPumpResponse
     {
         public int Id { get; set; }
-
         public TimeSpan Time { get; set; }
         public DateTime Date { get; set; }
-
         public int DrugId { get; set; }
-
         public string DrugName { get; set; } = string.Empty;
+        public decimal Rate { get; set; }
+        public string RateUnit { get; set; } = string.Empty;
+        public decimal VolumeMl { get; set; }
+        public DateTime EndAt { get; set; }
 
-        public decimal Dose { get; set; }
-
-        public string Unit { get; set; }
-
-        public AdministrationRouteEnum Route { get; set; }
-
-        public bool IsBolus { get; set; }
-
-        public static AdministeredAgentResponse ToResponse(AdministeredAgent entity)
+        public static InfusionPumpResponse ToResponse(InfusionPump entity)
         {
-            return new AdministeredAgentResponse
+            return new InfusionPumpResponse
             {
                 Id = entity.Id,
                 Time = entity.Time,
                 Date = entity.Date,
                 DrugId = entity.DrugId,
                 DrugName = entity.Drug?.Description ?? string.Empty,
-                Dose = entity.Dose,
-                Unit = entity.Unit.GetDescription(),
-                Route = entity.Route,
-                IsBolus = entity.IsBolus
+                Rate = entity.Rate,
+                RateUnit = entity.RateUnit.GetDescription(),
+                VolumeMl = entity.VolumeMl,
+                EndAt = entity.EndAt
             };
         }
     }

@@ -39,6 +39,11 @@ namespace UFF.FichaAnestesica.Infra.EntityConfig
                 .HasColumnName("drug_id")
                 .IsRequired();
 
+            builder.Property(x => x.IsBolus)
+                .HasColumnName("is_bolus")
+                .HasDefaultValue(false)
+                .IsRequired();
+
 
             builder.Property(x => x.CreatedAt)
                 .HasColumnName("created_at")

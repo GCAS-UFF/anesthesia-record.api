@@ -1,29 +1,29 @@
-﻿using UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord;
+using UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord;
 using UFF.FichaAnestesica.Domain.Entities;
 using UFF.FichaAnestesica.Domain.Enums;
 
-public class AdministeredAgent : Base
+public class InfusionPump : Base
 {
     public TimeSpan Time { get; set; }
     public DateTime Date { get; set; }
     public int DrugId { get; private set; }
     public Drug Drug { get; private set; } = null!;
-    public decimal Dose { get; private set; }
-    public MedicationUnitEnum Unit { get; private set; }
-    public AdministrationRouteEnum Route { get; private set; }
-    public bool IsBolus { get; private set; }
+    public decimal Rate { get; private set; }
+    public InfusionRateUnitEnum RateUnit { get; private set; }
+    public decimal VolumeMl { get; private set; }
+    public DateTime EndAt { get; private set; }
     public int MonitoringRecordId { get; private set; }
     public MonitoringRecord MonitoringRecord { get; private set; }
 
-    public static AdministeredAgent Create(AdministeredAgentCommand command) => new AdministeredAgent
+    public static InfusionPump Create(InfusionPumpCommand command) => new InfusionPump
     {
         Date = command.Date,
         Time = command.Time,
         DrugId = command.DrugId,
-        Dose = command.Dose,
-        Unit = command.Unit,
-        Route = command.Route,
-        IsBolus = command.IsBolus,
+        Rate = command.Rate,
+        RateUnit = command.RateUnit,
+        VolumeMl = command.VolumeMl,
+        EndAt = command.EndAt,
         CreatedAt = DateTime.UtcNow
     };
 
@@ -32,15 +32,15 @@ public class AdministeredAgent : Base
         MonitoringRecord = monitoringRecord;
     }
 
-    public void Update(AdministeredAgentCommand command)
+    public void Update(InfusionPumpCommand command)
     {
         Time = command.Time;
         Date = command.Date;
         DrugId = command.DrugId;
-        Dose = command.Dose;
-        Unit = command.Unit;
-        Route = command.Route;
-        IsBolus = command.IsBolus;
+        Rate = command.Rate;
+        RateUnit = command.RateUnit;
+        VolumeMl = command.VolumeMl;
+        EndAt = command.EndAt;
 
         LastUpdate = DateTime.UtcNow;
     }

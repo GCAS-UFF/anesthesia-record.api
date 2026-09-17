@@ -18,6 +18,9 @@ namespace UFF.FichaAnestesica.Infra.Context
         public DbSet<FluidBalance> FluidBalances { get; }
         public DbSet<MonitoringRecord> MonitoringRecords { get; }
         public DbSet<VitalSignRecord> VitalSignRecords { get; }
+        public DbSet<OxygenFlow> OxygenFlows { get; }
+        public DbSet<CompressedAirFlow> CompressedAirFlows { get; }
+        public DbSet<InfusionPump> InfusionPumps { get; }
         public DbSet<AnesthesiaRecordAirwayDevice> AnesthesiaRecordAirwayDevices { get; }
         public DbSet<AnesthesiaRecordPunctureLevel> AnesthesiaRecordPunctureLevels { get; }
         public DbSet<AnesthesiaRecordOxygenSupplementation> AnesthesiaRecordOxygenSupplementations { get; }
