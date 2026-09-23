@@ -1,4 +1,4 @@
-﻿using UFF.FichaAnestesica.CrossCutting.Extensions;
+using UFF.FichaAnestesica.CrossCutting.Extensions;
 using UFF.FichaAnestesica.Domain.Entities;
 using UFF.FichaAnestesica.Domain.Response;
 
@@ -14,7 +14,9 @@ namespace UFF.FichaAnestesica.Service.Mappers
             return drugs.Select(drug => new MedicationResponse
             {
                 Description = drug.Description,
-                Id = drug.Id
+                Id = drug.Id,
+                DefaultUnit = drug.DefaultUnit,
+                CategoryId = (int)drug.Category
             }).ToList();
         }
 

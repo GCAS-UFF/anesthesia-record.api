@@ -1,8 +1,10 @@
-﻿namespace UFF.FichaAnestesica.Domain.Response
+namespace UFF.FichaAnestesica.Domain.Response
 {
     public class MedicationResponse
     {
         public string? Description { get; set; }
         public int Id { get; set; }
+        public string? DefaultUnit { get; set; }
+        public int CategoryId { get; set; }
     }
 }

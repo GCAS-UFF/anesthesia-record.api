@@ -19,8 +19,15 @@ namespace UFF.FichaAnestesica.Service.Services
 
         public async Task<CommandResult> GetAllDrugsForAnethesiaRecord()
         {
+            var excludedUnits = new[] { "cmp", "cap", "env", "bsn" };
             var drugs = await _drugRepository.GetAllAsync();
-            return CommandResult.Success(DrugResponseMapper.Map(drugs));
+            
+            var distinctDrugs = drugs
+                .Where(d => string.IsNullOrEmpty(d.DefaultUnit) || !excludedUnits.Contains(d.DefaultUnit.ToLower()))
+                .GroupBy(d => d.Description?.Trim().ToLowerInvariant())
+                .Select(g => g.First())
+                .ToList();
+            return CommandResult.Success(DrugResponseMapper.Map(distinctDrugs));
         }
 
         public async Task<DateTime?> GetLasIntegrationTime()

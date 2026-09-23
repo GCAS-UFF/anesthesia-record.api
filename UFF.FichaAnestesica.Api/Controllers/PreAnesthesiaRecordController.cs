@@ -47,7 +47,7 @@ namespace UFF.FichaAnestesica.Api.Controllers
         {
             var result = await _preAnesthesiaRecordService.GetByAnesthesiaRecordIdAsync(anesthesiaRecordId);
             if (!result.Valid)
-                return NotFound(result);
+                return NoContent();
             return Ok(result);
         }
 
