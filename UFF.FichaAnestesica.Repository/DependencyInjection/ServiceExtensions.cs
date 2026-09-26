@@ -56,6 +56,9 @@ namespace UFF.FichaAnestesica.Infra.DependencyInjection
             services.AddScoped<IVitalSignRecordRepository, VitalSignRecordRepository>();
             services.AddScoped<IPreAnesthesiaRecordRepository, PreAnesthesiaRecordRepository>();
             services.AddScoped<IPreAnesthesiaRecordService, PreAnesthesiaRecordService>();
+            services.AddScoped<IPreAnesthesiaLabExamRepository, PreAnesthesiaLabExamRepository>();
+            services.AddScoped<IPreAnesthesiaLabExamService, PreAnesthesiaLabExamService>();
+            services.AddScoped<ILabExamReadOnlyRepository, LabExamReadOnlyRepository>();
             services.AddScoped<IPdfService, PdfService>();
             services.AddScoped<ISurgeryService, SurgeryService>();
             services.AddScoped<IAuthService, AuthService>();

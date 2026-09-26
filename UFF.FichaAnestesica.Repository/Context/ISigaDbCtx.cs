@@ -32,6 +32,8 @@ namespace UFF.FichaAnestesica.Infra.Context
         public DbSet<PreAnesthesiaReport> PreAnesthesiaReports { get; }
         public DbSet<UserSettings> UserSettings { get; }
         public DbSet<InstitutionSettings> InstitutionSettings { get; }
+        public DbSet<PreAnesthesiaLabExam> PreAnesthesiaLabExams { get; }
+        public DbSet<PreAnesthesiaLabResult> PreAnesthesiaLabResults { get; }
 
         EntityEntry Entry(object entity);
         int SaveChanges();

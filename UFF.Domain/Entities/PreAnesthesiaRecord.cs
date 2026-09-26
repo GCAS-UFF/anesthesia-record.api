@@ -132,6 +132,16 @@ namespace UFF.FichaAnestesica.Domain.Entities
 
         public bool IsFinalized { get; private set; }
 
+        /// <summary>
+        /// Verdadeiro quando a avaliação já tem algum dos exames laboratoriais que também são
+        /// importados do AGHU (fichas anteriores à importação). Nesses casos a importação
+        /// automática não é feita, para não sobrepor os valores já registrados.
+        /// </summary>
+        public bool HasImportableLabValues =>
+            Hemoglobin.HasValue || Hematocrit.HasValue || Leukocytes.HasValue || Platelets.HasValue ||
+            TapInr.HasValue || Aptt.HasValue || Urea.HasValue || Creatinine.HasValue ||
+            !string.IsNullOrWhiteSpace(Tp);
+
         public static PreAnesthesiaRecord Create(PreAnesthesiaRecordCommand command)
         {
             var record = new PreAnesthesiaRecord

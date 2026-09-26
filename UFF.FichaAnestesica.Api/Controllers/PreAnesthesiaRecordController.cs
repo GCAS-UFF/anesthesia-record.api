@@ -12,6 +12,7 @@ namespace UFF.FichaAnestesica.Api.Controllers
     public class PreAnesthesiaRecordController : ControllerBase
     {
         private readonly IPreAnesthesiaRecordService _preAnesthesiaRecordService;
+        private readonly IPreAnesthesiaLabExamService _labExamService;
         private readonly IPreAnesthesiaRecordPrintService _printService;
         private readonly IRazorViewRenderer _razorViewRenderer;
         private readonly ILogger<PreAnesthesiaRecordController> _logger;
@@ -20,11 +21,13 @@ namespace UFF.FichaAnestesica.Api.Controllers
 
         public PreAnesthesiaRecordController(
             IPreAnesthesiaRecordService preAnesthesiaRecordService,
+            IPreAnesthesiaLabExamService labExamService,
             IPreAnesthesiaRecordPrintService printService,
             IRazorViewRenderer razorViewRenderer,
             ILogger<PreAnesthesiaRecordController> logger)
         {
             _preAnesthesiaRecordService = preAnesthesiaRecordService;
+            _labExamService = labExamService;
             _printService = printService;
             _razorViewRenderer = razorViewRenderer;
             _logger = logger;
@@ -85,6 +88,31 @@ namespace UFF.FichaAnestesica.Api.Controllers
             if (!result.Valid)
                 return BadRequest(result);
 
+            return Ok(result);
+        }
+
+     
+        [HttpGet("by-anesthesia-record/{anesthesiaRecordId}/lab-exams")]
+        [Authorize]
+        public async Task<IActionResult> GetLabExams([FromRoute] int anesthesiaRecordId)
+        {
+            var result = await _labExamService.GetOrImportAsync(anesthesiaRecordId);
+            if (!result.Valid)
+                return NotFound(result);
+            return Ok(result);
+        }
+
+        
+        [HttpPut("by-anesthesia-record/{anesthesiaRecordId}/lab-exams")]
+        [Authorize]
+        public async Task<IActionResult> SaveLabExams([FromRoute] int anesthesiaRecordId, [FromBody] PreAnesthesiaLabExamCommand command)
+        {
+            if (command == null)
+                return BadRequest(command);
+
+            var result = await _labExamService.SaveAsync(anesthesiaRecordId, command);
+            if (!result.Valid)
+                return result.Forbidden ? StatusCode(403, result) : BadRequest(result);
             return Ok(result);
         }
 

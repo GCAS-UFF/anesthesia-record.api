@@ -38,6 +38,8 @@ namespace UFF.FichaAnestesica.Infra.Context
         public DbSet<PreAnesthesiaReport> PreAnesthesiaReports { get; set; }
         public DbSet<UserSettings> UserSettings { get; set; }
         public DbSet<InstitutionSettings> InstitutionSettings { get; set; }
+        public DbSet<PreAnesthesiaLabExam> PreAnesthesiaLabExams { get; set; }
+        public DbSet<PreAnesthesiaLabResult> PreAnesthesiaLabResults { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
