@@ -96,5 +96,15 @@ namespace UFF.FichaAnestesica.Infra.Repositories
                     x.AnesthesiaRecordId == surgeryId &&
                     x.EndedAt == null);
         }
+
+        public HashSet<int> GetStartedAnesthesiaRecordIds(IEnumerable<int> anesthesiaRecordIds)
+        {
+            return _context.MonitoringRecords
+                .Where(x =>
+                    anesthesiaRecordIds.Contains(x.AnesthesiaRecordId) &&
+                    x.StartedAt != null)
+                .Select(x => x.AnesthesiaRecordId)
+                .ToHashSet();
+        }
     }
 }

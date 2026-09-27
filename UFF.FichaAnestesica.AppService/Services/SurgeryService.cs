@@ -64,6 +64,7 @@ namespace UFF.FichaAnestesica.Service.Services
             var anesthesiaRecords = await _anesthesiaRecordRepository.GetByIdsAsync(patientIds);
             var anesthesiaRecordIds = anesthesiaRecords.Select(x => x.Id).ToArray();
             var completedPreAnesthesiaRecordIds = _preAnesthesiaRecordRepository.GetCompletedAnesthesiaRecordIds(anesthesiaRecordIds);
+            var startedMonitoringIds = GetStartedMonitoringIds(anesthesiaRecordIds);
 
             var recordsBySurgeryId = anesthesiaRecords.GroupBy(x => x.Id).ToDictionary(x => x.Key, x => x.First());
 
@@ -89,6 +90,7 @@ namespace UFF.FichaAnestesica.Service.Services
             foreach (var patient in responseData)
             {
                 patient.IsPreAnesthesiaRecordDone = completedPreAnesthesiaRecordIds.Contains(patient.SurgeryId);
+                patient.IsMonitoringStarted = startedMonitoringIds.Contains(patient.SurgeryId);
 
                 if (!recordsByPatientId.TryGetValue(patient.SurgeryId, out var record))
                 {
@@ -262,6 +264,7 @@ namespace UFF.FichaAnestesica.Service.Services
 
             AttachResponsibles(responseData, recordsBySurgeryId);
             ApplyPreAnesthesiaRecordDone(responseData, completedPreAnesthesiaRecordIds);
+            ApplyMonitoringStarted(responseData, GetStartedMonitoringIds(responseData.Select(x => x.SurgeryId)));
 
             return CommandResult.Success(new PagedResponse<PatientSurgeryResponse>
             {
@@ -316,6 +319,7 @@ namespace UFF.FichaAnestesica.Service.Services
 
             AttachResponsibles(responseData, recordsBySurgeryId);
             ApplyPreAnesthesiaRecordDone(responseData, completedPreAnesthesiaRecordIds);
+            ApplyMonitoringStarted(responseData, GetStartedMonitoringIds(responseData.Select(x => x.SurgeryId)));
             
             var orderIndex = orderedIds
                 .Select((id, index) => (id, index))
@@ -333,6 +337,17 @@ namespace UFF.FichaAnestesica.Service.Services
                 TotalItems = totalItems,
                 CanAssumePatient = !canAssumePatient
             });
+        }
+
+        private HashSet<int> GetStartedMonitoringIds(IEnumerable<int> anesthesiaRecordIds)
+        {
+            return _monitoringRecordRepository.GetStartedAnesthesiaRecordIds(anesthesiaRecordIds.ToList()) ?? new HashSet<int>();
+        }
+
+        private static void ApplyMonitoringStarted(List<PatientSurgeryResponse> responseData, HashSet<int> startedMonitoringIds)
+        {
+            foreach (var patient in responseData)
+                patient.IsMonitoringStarted = startedMonitoringIds.Contains(patient.SurgeryId);
         }
 
         private static void ApplyPreAnesthesiaRecordDone(List<PatientSurgeryResponse> responseData, HashSet<int> completedPreAnesthesiaRecordIds)
@@ -422,6 +437,18 @@ namespace UFF.FichaAnestesica.Service.Services
 
             var anesthesiaRecord = await _anesthesiaRecordRepository.GetByIdAsync(surgeryId);
             var isNewAnesthesiaRecord = anesthesiaRecord == null;
+
+            
+            var isRemovingResponsible = !(responsibleAnesthesiologistId > 0);
+            if (isRemovingResponsible && !isNewAnesthesiaRecord)
+            {
+                if (anesthesiaRecord.Status == SurgeryStatusEnum.Completed || anesthesiaRecord.Status == SurgeryStatusEnum.Canceled)
+                    return CommandResult.Fail("Não é possível remover o médico responsável de uma cirurgia finalizada.");
+
+                var currentMonitoring = await _monitoringRecordRepository.GetByAnesthesiaRecordIdAsync(anesthesiaRecord.Id);
+                if (currentMonitoring?.StartedAt != null)
+                    return CommandResult.Fail("Não é possível remover o médico responsável: o monitoramento já começou.");
+            }
 
             try
             {

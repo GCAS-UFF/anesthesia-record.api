@@ -20,7 +20,8 @@ namespace UFF.FichaAnestesica.Domain.Response
         public List<ListAllergyDto> Allergies { get; set; }
         public ResponsibleResponse? Surgeon { get; set; }
         public SurgeryStatusEnum Status { get; set; }
-        public bool IsPreAnesthesiaRecordDone { get; set; }
+        public bool IsPreAnesthesiaRecordDone { get; set; }        
+        public bool IsMonitoringStarted { get; set; }
 
         public ResponsibleResponse? Assistant { get; set; }
 

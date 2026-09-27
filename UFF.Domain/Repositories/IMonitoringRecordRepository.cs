@@ -17,5 +17,7 @@ namespace UFF.FichaAnestesica.Domain.Repositories
         Task<List<MonitoringRecord>> GetByPeriodAsync(DateTime start, DateTime end);
 
         Task<MonitoringRecord?> GetActiveBySurgeryIdAsync(int surgeryId);
+
+        HashSet<int> GetStartedAnesthesiaRecordIds(IEnumerable<int> anesthesiaRecordIds);
     }
 }
