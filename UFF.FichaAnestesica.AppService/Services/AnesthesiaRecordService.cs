@@ -1,5 +1,6 @@
 using UFF.FichaAnestesica.Domain.Commands;
 using UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord;
+using UFF.FichaAnestesica.Domain.Dto;
 using UFF.FichaAnestesica.Domain.Entities;
 using UFF.FichaAnestesica.Domain.Enums;
 using UFF.FichaAnestesica.Domain.Repositories;
@@ -66,7 +67,6 @@ public class AnesthesiaRecordService : IAnesthesiaRecordService
     public async Task<CommandResult> Update(int id, AnesthesiaRecordCommand command)
     {
         var anesthesiaRecord = await _anesthesiaRecordRepository.GetByIdAsync(id);
-        var patient = await _hospitalApiRepository.GetFromHospitalByPatientIdAndSurgeryIdAsync(command.PatientId, command.SurgeryId);
 
         if (anesthesiaRecord == null)
             throw new Exception("Ficha anestésica não encontrada");
@@ -94,19 +94,31 @@ public class AnesthesiaRecordService : IAnesthesiaRecordService
                 var monitoringRecord = await _monitoringRecordRepository.GetByAnesthesiaRecordIdAsync(id);
 
                 if (monitoringRecord == null || monitoringRecord.Status != SurgeryStatusEnum.Completed)
-                    return new CommandResult(false, "O monitoramento ainda não foi finalizado. Finalize a anestesia na tela de Monitoramento antes de concluir a ficha.");
+                    return CommandResult.Fail("O monitoramento ainda não foi finalizado. Finalize a anestesia na tela de Monitoramento antes de concluir a ficha.");
 
                 anesthesiaRecord.SetStatus(SurgeryStatusEnum.Completed);
             }
 
-            _anesthesiaRecordRepository.Update(anesthesiaRecord);
-
+         
             await _anesthesiaRecordRepository.SaveChangesAsync();
         }
         catch (Exception ex)
         {
-            return new CommandResult(false, ex.Message);
+            return CommandResult.Fail(ex.Message);
         }
+       
+        PatientDetailDto? patient = null;
+        try
+        {
+            patient = await _hospitalApiRepository.GetFromHospitalByPatientIdAndSurgeryIdAsync(command.PatientId, command.SurgeryId);
+        }
+        catch (Exception)
+        {
+            patient = null;
+        }
+
+        if (patient == null)
+            return CommandResult.Success(new { SurgeryId = anesthesiaRecord.Id, anesthesiaRecord.Status });
 
         return CommandResult.Success(AnesthesiaRecordResponse.ToResponse(anesthesiaRecord, patient));
     }
