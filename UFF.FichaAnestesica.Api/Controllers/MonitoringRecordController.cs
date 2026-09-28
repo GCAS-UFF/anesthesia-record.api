@@ -28,6 +28,19 @@ namespace UFF.FichaAnestesica.Api.Controllers
             return Ok(result);
         }
 
+        /// <summary>Fontes do resumo de insumos/consumo da cirurgia (somente leitura).</summary>
+        [HttpGet("{id}/consumption")]
+        [Authorize]
+        public async Task<IActionResult> GetConsumption([FromRoute] int id)
+        {
+            var result = await _monitoringRecordService.GetConsumptionAsync(id);
+
+            if (!result.Valid)
+                return result.Forbidden ? StatusCode(403, result) : NotFound(result);
+
+            return Ok(result);
+        }
+
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> Create([FromBody] MonitoringRecordCommand command)

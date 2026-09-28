@@ -6,6 +6,8 @@ namespace UFF.FichaAnestesica.Domain.Repositories
     {
         Task<MonitoringRecord?> GetCompleteByIdAsync(int id);
 
+        Task<MonitoringRecord?> GetConsumptionSourcesByIdAsync(int id);
+
         Task<MonitoringRecord?> GetByAnesthesiaRecordIdAsync(int anesthesiaRecordId);
 
         Task<List<MonitoringRecord>> GetBySurgeryIdAsync(int surgeryId);

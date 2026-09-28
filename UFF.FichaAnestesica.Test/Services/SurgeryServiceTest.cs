@@ -230,6 +230,64 @@ namespace UFF.FichaAnestesica.Test.Services
             Assert.Contains("Erro DB", result.Message);
         }
 
+        private void SetupPatient(string patientId, int surgeryId)
+        {
+            _hospitalApiRepoMock
+                .Setup(h => h.GetFromHospitalByPatientIdAndSurgeryIdAsync(patientId, surgeryId))
+                .ReturnsAsync(new PatientDetailDto { PatientId = patientId, FullName = "João", Status = "agendado" });
+        }
+
+        [Fact]
+        public async Task AssumePatientAsync_Should_Fail_When_Removing_Responsible_From_Completed_Surgery()
+        {
+            SetupPatient("P1", 1);
+            var record = CreateRecord(1, "P1", SurgeryStatusEnum.Completed, DateTime.Today);
+            _anesthesiaRepoMock.Setup(a => a.GetByIdAsync(1)).ReturnsAsync(record);
+
+            var result = await _service.AssumePatientAsync("P1", 1, 0);
+
+            Assert.False(result.Valid);
+            _anesthesiaRepoMock.Verify(a => a.SaveChangesAsync(), Times.Never);
+        }
+
+        [Fact]
+        public async Task AssumePatientAsync_Should_Fail_When_Removing_Responsible_After_Monitoring_Started()
+        {
+            SetupPatient("P1", 1);
+            var record = CreateRecord(1, "P1", SurgeryStatusEnum.InProgress, DateTime.Today);
+            record.AssignFirstAnesthesiologistId(10);
+            _anesthesiaRepoMock.Setup(a => a.GetByIdAsync(1)).ReturnsAsync(record);
+            var monitoring = MonitoringRecord.Create(new Domain.Commands.AnesthesiaRecord.MonitoringRecordCommand(1)
+            {
+                StartedAt = DateTime.UtcNow.AddMinutes(-30)
+            });
+            _monitoringRepoMock.Setup(m => m.GetByAnesthesiaRecordIdAsync(1)).ReturnsAsync(monitoring);
+
+            var result = await _service.AssumePatientAsync("P1", 1, 0);
+
+            Assert.False(result.Valid);
+            Assert.Equal(10, record.FirstAnesthesiologistId);
+            _anesthesiaRepoMock.Verify(a => a.SaveChangesAsync(), Times.Never);
+        }
+
+        [Fact]
+        public async Task AssumePatientAsync_Should_Remove_Responsible_Before_Monitoring_Starts()
+        {
+            SetupPatient("P1", 1);
+            var record = CreateRecord(1, "P1", SurgeryStatusEnum.Preparing, DateTime.Today);
+            record.AssignFirstAnesthesiologistId(10);
+            _anesthesiaRepoMock.Setup(a => a.GetByIdAsync(1)).ReturnsAsync(record);
+            var monitoring = MonitoringRecord.Create(new Domain.Commands.AnesthesiaRecord.MonitoringRecordCommand(1));
+            _monitoringRepoMock.Setup(m => m.GetByAnesthesiaRecordIdAsync(1)).ReturnsAsync(monitoring);
+
+            var result = await _service.AssumePatientAsync("P1", 1, 0);
+
+            Assert.True(result.Valid);
+            Assert.Null(record.FirstAnesthesiologistId);
+            Assert.Equal(SurgeryStatusEnum.Scheduled, record.Status);
+            _anesthesiaRepoMock.Verify(a => a.SaveChangesAsync(), Times.Once);
+        }
+
         private static AnesthesiaRecord CreateRecord(int surgeryId, string patientId, SurgeryStatusEnum status, DateTime surgeryDate)
         {
             var record = AnesthesiaRecord.Create(new Domain.Commands.AnesthesiaRecord.AnesthesiaRecordCommand

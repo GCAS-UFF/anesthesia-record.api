@@ -43,6 +43,30 @@ namespace UFF.FichaAnestesica.Infra.Repositories
                 .FirstOrDefaultAsync(x => x.AnesthesiaRecordId == id);
         }
 
+        public async Task<MonitoringRecord?> GetConsumptionSourcesByIdAsync(int id)
+        {
+            // Leitura para o resumo de insumos: sem rastreamento (nunca gera gravação) e sem
+            // sinais vitais/posições, que não entram no consumo. Mesmo motivo do AsSplitQuery
+            // de GetCompleteByIdAsync (várias coleções irmãs).
+            return await _context.MonitoringRecords
+                .AsNoTracking()
+                .AsSplitQuery()
+                .Include(x => x.AnesthesiaRecord)
+                    .ThenInclude(x => x.Antibiotics)
+                        .ThenInclude(x => x.Boosters)
+                .Include(x => x.AnesthesiaRecord)
+                    .ThenInclude(x => x.OxygenSupplementationTypes)
+                .Include(x => x.AdministeredAgents)
+                    .ThenInclude(x => x.Drug)
+                .Include(x => x.ClinicalEvents)
+                .Include(x => x.FluidBalances)
+                .Include(x => x.OxygenFlows)
+                .Include(x => x.CompressedAirFlows)
+                .Include(x => x.InfusionPumps)
+                    .ThenInclude(x => x.Drug)
+                .FirstOrDefaultAsync(x => x.AnesthesiaRecordId == id);
+        }
+
         public async Task<MonitoringRecord?> GetByAnesthesiaRecordIdAsync(
             int anesthesiaRecordId)
         {

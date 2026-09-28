@@ -24,6 +24,11 @@ namespace UFF.FichaAnestesica.Domain.Response
         public string? SurgeonRegistration { get; set; }
         public string? AssistantRegistration { get; set; }
         public bool ProceduresCustomized { get; set; }
+        /// <summary>
+        /// True quando <see cref="Surgeries"/> vem dos procedimentos gravados na própria ficha;
+        /// false quando é só o agendamento do AGHU (a ficha ainda não teve procedimento salvo).
+        /// </summary>
+        public bool ProceduresFromRecord { get; set; }
 
         #region Dor
         public bool? DorUsouENV { get; set; }
@@ -167,7 +172,8 @@ namespace UFF.FichaAnestesica.Domain.Response
 
         public static AnesthesiaRecordResponse ToResponse(AnesthesiaRecord anesthesiaRecord, PatientDetailDto patientDetail)
         {
-            var surgeries = anesthesiaRecord.ProceduresCustomized && anesthesiaRecord.Surgeries.Any() ?
+            var proceduresFromRecord = anesthesiaRecord.ProceduresCustomized && anesthesiaRecord.Surgeries.Any();
+            var surgeries = proceduresFromRecord ?
              BuildProceduresFromRecord(anesthesiaRecord) : patientDetail.Surgeries?.Select(MapSurgery).ToList() ?? [];
 
             return new AnesthesiaRecordResponse
@@ -204,6 +210,7 @@ namespace UFF.FichaAnestesica.Domain.Response
                 AssistantRegistration = anesthesiaRecord.Assistant?.Registration,
 
                 ProceduresCustomized = anesthesiaRecord.ProceduresCustomized,
+                ProceduresFromRecord = proceduresFromRecord,
 
                 // Dor
                 DorUsouENV = anesthesiaRecord.DorUsouENV,

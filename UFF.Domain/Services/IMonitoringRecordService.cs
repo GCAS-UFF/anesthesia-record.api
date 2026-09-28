@@ -6,6 +6,7 @@ namespace UFF.FichaAnestesica.Domain.Services
     public interface IMonitoringRecordService
     {
         Task<CommandResult> GetByIdAsync(int id);
+        Task<CommandResult> GetConsumptionAsync(int id);
         Task<CommandResult> Create(MonitoringRecordCommand command);
         Task<CommandResult> Update(int id, MonitoringRecordCommand command);
         Task<CommandResult> FinalizePatientAsync(int anesthesiaRecordId, MonitoringRecordCommand? command);

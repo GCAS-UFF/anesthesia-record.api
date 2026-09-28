@@ -285,5 +285,102 @@ namespace UFF.FichaAnestesica.Test.Services
             Assert.True(result.Forbidden);
             _monitoringRepoMock.Verify(r => r.SaveChangesAsync(), Times.Never);
         }
+
+        private static MonitoringRecord CreateConsumptionRecord(int anesthesiaRecordId, Drug drug)
+        {
+            var cmd = new MonitoringRecordCommand(anesthesiaRecordId)
+            {
+                RecordedByProfessionalId = 5,
+                StartedAt = DateTime.UtcNow,
+                AdministeredAgents = { new AdministeredAgentCommand { DrugId = drug.Id, Dose = 2, Unit = MedicationUnitEnum.Milligram, Route = AdministrationRouteEnum.IV } },
+                InfusionPumps = { new InfusionPumpCommand { DrugId = drug.Id, Rate = 100, RateUnit = InfusionRateUnitEnum.MillilitersPerHour, VolumeMl = 500, EndAt = DateTime.UtcNow.AddHours(5) } },
+                OxygenFlows = { new OxygenFlowCommand { IsActive = true, FlowRateLPerMin = 2 } },
+                FluidBalances = { new FluidBalanceCommand { Type = FluidBalanceTypeEnum.Gain, Category = FluidCategoryEnum.Crystalloid, VolumeMl = 500 } }
+            };
+            var record = MonitoringRecord.Create(cmd);
+            record.SetAnesthesiaRecord(CreateAnesthesiaRecord());
+
+            // O EF preenche a navegação Drug pelo Include; aqui é preenchida à mão.
+            typeof(AdministeredAgent).GetProperty(nameof(AdministeredAgent.Drug))!.SetValue(record.AdministeredAgents[0], drug);
+            typeof(InfusionPump).GetProperty(nameof(InfusionPump.Drug))!.SetValue(record.InfusionPumps[0], drug);
+            return record;
+        }
+
+        private static Drug CreateDrug(int id, DrugCategoryEnum category)
+        {
+            var drug = Drug.Create($"ext-{id}", "Propofol", "mg");
+            drug.Id = id;
+            drug.UpdateCategory(category);
+            return drug;
+        }
+
+        [Fact]
+        public async Task GetConsumptionAsync_Should_Return_Sources_For_Responsible_Doctor()
+        {
+            var record = CreateConsumptionRecord(90, CreateDrug(7, DrugCategoryEnum.Anestesico));
+            _monitoringRepoMock.Setup(r => r.GetConsumptionSourcesByIdAsync(90)).ReturnsAsync(record);
+
+            var result = await _service.GetConsumptionAsync(90);
+            var data = (SurgeryConsumptionResponse)result.Data!;
+
+            Assert.True(result.Valid);
+            Assert.Equal(90, data.SurgeryId);
+            Assert.Equal(DrugCategoryEnum.Anestesico, data.DrugCategories[7]);
+            Assert.Single(data.Monitoring.AdministeredAgents);
+            Assert.Single(data.Monitoring.InfusionPumps);
+            Assert.Single(data.Monitoring.OxygenFlows);
+            Assert.Single(data.Monitoring.FluidBalances);
+            Assert.Null(data.PreAnestheticMedication);
+        }
+
+        [Fact]
+        public async Task GetConsumptionAsync_Should_Forbid_Other_Doctor_While_In_Progress()
+        {
+            _currentUserServiceMock.Setup(x => x.UserId).Returns(OtherDoctorId);
+            var record = CreateConsumptionRecord(91, CreateDrug(7, DrugCategoryEnum.Anestesico));
+            _monitoringRepoMock.Setup(r => r.GetConsumptionSourcesByIdAsync(91)).ReturnsAsync(record);
+
+            var result = await _service.GetConsumptionAsync(91);
+
+            Assert.False(result.Valid);
+            Assert.True(result.Forbidden);
+        }
+
+        [Fact]
+        public async Task GetConsumptionAsync_Should_Allow_Other_User_When_Completed()
+        {
+            _currentUserServiceMock.Setup(x => x.UserId).Returns(OtherDoctorId);
+            var record = CreateConsumptionRecord(92, CreateDrug(7, DrugCategoryEnum.Solucao));
+            record.SetStatus(SurgeryStatusEnum.Completed);
+            _monitoringRepoMock.Setup(r => r.GetConsumptionSourcesByIdAsync(92)).ReturnsAsync(record);
+
+            var result = await _service.GetConsumptionAsync(92);
+
+            Assert.True(result.Valid);
+            Assert.Equal(SurgeryStatusEnum.Completed, ((SurgeryConsumptionResponse)result.Data!).MonitoringStatus);
+        }
+
+        [Fact]
+        public async Task GetConsumptionAsync_Should_Return_Fail_When_Not_Found()
+        {
+            _monitoringRepoMock.Setup(r => r.GetConsumptionSourcesByIdAsync(93)).ReturnsAsync((MonitoringRecord?)null);
+
+            var result = await _service.GetConsumptionAsync(93);
+
+            Assert.False(result.Valid);
+            Assert.False(result.Forbidden);
+        }
+
+        [Fact]
+        public async Task GetConsumptionAsync_Should_Never_Save()
+        {
+            var record = CreateConsumptionRecord(94, CreateDrug(7, DrugCategoryEnum.Anestesico));
+            _monitoringRepoMock.Setup(r => r.GetConsumptionSourcesByIdAsync(94)).ReturnsAsync(record);
+
+            await _service.GetConsumptionAsync(94);
+
+            _monitoringRepoMock.Verify(r => r.SaveChangesAsync(), Times.Never);
+            _monitoringRepoMock.Verify(r => r.Update(It.IsAny<MonitoringRecord>()), Times.Never);
+        }
     }
 }

@@ -38,6 +38,24 @@ public class MonitoringRecordService : IMonitoringRecordService
         return CommandResult.Success(MonitoringRecordResponse.ToResponse(monitoring));
     }
 
+    /// <summary>
+    /// Fontes do resumo de insumos da cirurgia. Mesma regra de acesso de <see cref="GetByIdAsync"/>:
+    /// em andamento só o médico responsável; depois de concluída, qualquer usuário autenticado
+    /// (somente leitura). Nunca grava nada.
+    /// </summary>
+    public async Task<CommandResult> GetConsumptionAsync(int id)
+    {
+        var monitoring = await _monitoringRepository.GetConsumptionSourcesByIdAsync(id);
+
+        if (monitoring == null)
+            return new CommandResult(false, "Monitorização não encontrada");
+
+        if (!IsResponsibleDoctor(monitoring) && monitoring.Status != SurgeryStatusEnum.Completed)
+            return CommandResult.Forbid("Monitorização ainda não concluída.");
+
+        return CommandResult.Success(SurgeryConsumptionResponse.ToResponse(monitoring));
+    }
+
     public async Task<CommandResult> Create(MonitoringRecordCommand command)
     {
         try

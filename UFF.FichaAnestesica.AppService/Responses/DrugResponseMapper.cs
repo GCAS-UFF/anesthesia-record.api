@@ -14,7 +14,8 @@ namespace UFF.FichaAnestesica.Service.Mappers
             return drugs.Select(drug => new MedicationResponse
             {
                 Description = drug.Description,
-                Id = drug.Id
+                Id = drug.Id,
+                Category = drug.Category
             }).ToList();
         }
 

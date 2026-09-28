@@ -56,9 +56,10 @@ namespace UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord
 
         #region Horários
         public TimeOnly RoomEntryTime { get; set; }
-        public TimeOnly AnesthesiaStartTime { get; set; }
-        public TimeOnly SurgeryEndTime { get; set; }
-        public TimeOnly AnesthesiaEndTime { get; set; }
+        // Anuláveis: horário ainda não informado é gravado como nulo, não como 00:00.
+        public TimeOnly? AnesthesiaStartTime { get; set; }
+        public TimeOnly? SurgeryEndTime { get; set; }
+        public TimeOnly? AnesthesiaEndTime { get; set; }
         #endregion
 
         #region Equipe
