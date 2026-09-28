@@ -117,6 +117,8 @@ namespace UFF.FichaAnestesica.Api.Controllers
         }
 
         [HttpGet("by-anesthesia-record/{anesthesiaRecordId}/print")]
+        [Authorize]
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public async Task<IActionResult> Print([FromRoute] int anesthesiaRecordId)
         {
             _logger.LogInformation("[PDF] Endpoint /print acionado para a avaliação pré-anestésica da ficha {Id}.", anesthesiaRecordId);

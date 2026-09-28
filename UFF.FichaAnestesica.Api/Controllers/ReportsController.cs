@@ -106,6 +106,7 @@ namespace UFF.FichaAnestesica.Api.Controllers
         }
 
         [HttpGet("{reportKey}/print")]
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public async Task<IActionResult> Print([FromRoute] string reportKey, [FromQuery] ReportFilterQuery filter, [FromQuery] DrugCategoryEnum? category)
         {
             var (html, error) = await _reportPdfService.GenerateAsync(reportKey, filter, category);

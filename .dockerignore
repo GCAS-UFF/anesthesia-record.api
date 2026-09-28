@@ -1,0 +1,9 @@
+**/bin/
+**/obj/
+**/.vs/
+publish/
+app.zip
+*.PublishSettings
+deploy.ps1
+# A versão exata do SDK fixada aqui não existe na imagem oficial; a imagem sdk:8.0 compila o mesmo net8.0.
+global.json

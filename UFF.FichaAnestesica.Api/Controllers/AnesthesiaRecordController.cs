@@ -84,12 +84,19 @@ namespace UFF.FichaAnestesica.Api.Controllers
             return Ok(result);
         }
 
+        // Documento clínico: exige o mesmo login das demais leituras da ficha (o app envia o Bearer
+        // e exibe o HTML no visualizador interno) e não pode ficar em cache de navegador/proxy.
         [HttpGet("{id}/print")]
+        [Authorize]
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public async Task<IActionResult> Print([FromRoute] int id)
         {
             _logger.LogInformation("[PDF] Endpoint /print acionado para a ficha {Id}.", id);
 
             (string html, string extenalPatientId) = await _pdfService.GeneratePdfAsync(id);
+
+            if (html == null)
+                return NotFound();
 
             _logger.LogInformation("[PDF] Endpoint /print finalizado para a ficha {Id}, enviando response.", id);
 
