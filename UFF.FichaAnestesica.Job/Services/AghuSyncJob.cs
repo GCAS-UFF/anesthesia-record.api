@@ -8,12 +8,14 @@ namespace UFF.FichaAnestesica.Job.Services
     {
         private readonly IMedicineApiService _medicineApiService;
         private readonly IProfessionalApiService _professionalService;
+        private readonly IProcedureApiService _procedureApiService;
         private readonly ILogger<AghuSyncJob> _logger;
 
-        public AghuSyncJob(IMedicineApiService medicineApiService, IProfessionalApiService professionalApiService, ILogger<AghuSyncJob> logger)
+        public AghuSyncJob(IMedicineApiService medicineApiService, IProfessionalApiService professionalApiService, IProcedureApiService procedureApiService, ILogger<AghuSyncJob> logger)
         {
             _medicineApiService = medicineApiService;
             _professionalService = professionalApiService;
+            _procedureApiService = procedureApiService;
             _logger = logger;
         }
 
@@ -27,6 +29,7 @@ namespace UFF.FichaAnestesica.Job.Services
         {
             await _medicineApiService.SyncMedicines();
             await _professionalService.SyncProfessionals();
+            await _procedureApiService.SyncProcedures();
 
             await Task.CompletedTask;
         }
