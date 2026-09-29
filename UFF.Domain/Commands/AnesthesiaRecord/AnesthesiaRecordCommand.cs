@@ -22,6 +22,8 @@ namespace UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord
         #endregion
 
         public List<SurgeryCommand> Surgeries { get; set; } = [];
+               
+        public List<SurgeryCommand>? BaseSurgeries { get; set; }
 
         #region Segurança
         public bool PatientIdentifiedBeforeInduction { get; set; }

@@ -1,5 +1,6 @@
 ﻿using UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord;
 using UFF.FichaAnestesica.Domain.Enums;
+using UFF.FichaAnestesica.Domain.Helpers;
 
 namespace UFF.FichaAnestesica.Domain.Entities
 {
@@ -221,8 +222,7 @@ namespace UFF.FichaAnestesica.Domain.Entities
 
         private void SetValues(AnesthesiaRecordCommand command)
         {
-            ProceduresCustomized = true;
-
+            // ProceduresCustomized só muda em DefineProcedures (escolha efetiva do médico).
             #region Segurança
             PatientIdentifiedBeforeInduction = command.PatientIdentifiedBeforeInduction;
             AnestheticConsentSigned = command.AnestheticConsentSigned;
@@ -387,21 +387,99 @@ namespace UFF.FichaAnestesica.Domain.Entities
             PatientId = command.PatientId;
         }
 
-        public void AddProcedures(IEnumerable<SurgeryCommand> surgeries, IEnumerable<Procedure> procedures)
+        /// <summary>
+        /// Procedimento oficial da cirurgia no SIGA: definido pelo médico (pré-anestésica ou ficha
+        /// anestésica). Enquanto for falso, vale o procedimento agendado no AGHU.
+        /// </summary>
+        public bool HasOfficialProcedures => ProceduresCustomized && Surgeries.Any();
+
+        /// <summary>
+        /// Grava a escolha do médico como procedimento oficial da cirurgia. A partir daqui a
+        /// sincronização com o AGHU não altera mais os procedimentos desta cirurgia.
+        /// Uma seleção vazia é ignorada: nunca apaga o procedimento oficial.
+        /// </summary>
+        public void DefineProcedures(IEnumerable<ProcedureChoice> choices)
         {
-            Surgeries.Clear();
+            var normalized = Normalize(choices);
 
-            var proceduresByExternalId = procedures.ToDictionary(x => x.ExternalId);
+            if (!normalized.Any())
+                return;
 
-            foreach (var surgery in surgeries)
+            ReplaceRelations(normalized);
+            ProceduresCustomized = true;
+            LastUpdate = DateTime.UtcNow;
+        }
+
+        /// <summary>
+        /// Espelha o agendamento do AGHU enquanto o médico não tiver definido o procedimento no SIGA.
+        /// </summary>
+        public void SyncProceduresFromAghu(IEnumerable<ProcedureChoice> choices)
+        {
+            if (ProceduresCustomized)
+                return;
+
+            ReplaceRelations(Normalize(choices));
+        }
+
+        /// <summary>Resolve os ids externos (catálogo) enviados pelo cliente; lança se algum não existir.</summary>
+        public static List<ProcedureChoice> ResolveChoices(IEnumerable<(string? Id, bool IsPrimary, string? Time)> items, IEnumerable<Procedure> catalog)
+        {
+            var byExternalId = catalog
+                .GroupBy(x => x.ExternalId)
+                .ToDictionary(x => x.Key, x => x.First());
+
+            var choices = new List<ProcedureChoice>();
+
+            foreach (var (id, isPrimary, time) in items)
             {
-                if (string.IsNullOrWhiteSpace(surgery.Id))
+                if (string.IsNullOrWhiteSpace(id))
                     continue;
 
-                if (!proceduresByExternalId.TryGetValue(surgery.Id, out var procedure))
-                    throw new Exception($"Procedimento {surgery.Id} não encontrado.");
+                if (!byExternalId.TryGetValue(id.Trim(), out var procedure))
+                    throw new Exception($"Procedimento {id} não encontrado.");
 
-                Surgeries.Add(AnesthesiaRecordSurgery.Create(Id, procedure.Id, surgery.IsPrimary, string.IsNullOrWhiteSpace(surgery.Time) ? null : TimeOnly.Parse(surgery.Time)));
+                choices.Add(new ProcedureChoice(procedure, isPrimary, string.IsNullOrWhiteSpace(time) ? null : TimeOnly.Parse(time)));
+            }
+
+            return choices;
+        }
+
+        private static List<ProcedureChoice> Normalize(IEnumerable<ProcedureChoice> choices)
+        {
+            var distinct = choices
+                .Where(x => x?.Procedure != null)
+                .GroupBy(x => x.Procedure.Id)
+                .Select(x => x.First())
+                .ToList();
+
+            var primaryIndex = Math.Max(0, distinct.FindIndex(x => x.IsPrimary));
+
+            return distinct
+                .Select((x, index) => x with { IsPrimary = index == primaryIndex })
+                .ToList();
+        }
+
+        // Atualiza as relações no lugar (em vez de apagar e recriar) para não conflitar com a
+        // chave composta (anesthesia_record_id, procedure_id) das entidades já rastreadas.
+        private void ReplaceRelations(List<ProcedureChoice> choices)
+        {
+            var procedureIds = choices.Select(x => x.Procedure.Id).ToHashSet();
+
+            foreach (var relation in Surgeries.Where(x => !procedureIds.Contains(x.ProcedureId)).ToList())
+                Surgeries.Remove(relation);
+
+            foreach (var choice in choices)
+            {
+                var relation = Surgeries.FirstOrDefault(x => x.ProcedureId == choice.Procedure.Id);
+
+                if (relation == null)
+                {
+                    Surgeries.Add(AnesthesiaRecordSurgery.Create(Id, choice.Procedure, choice.IsPrimary, choice.Time));
+                    continue;
+                }
+
+                relation.SetPrimary(choice.IsPrimary);
+                relation.SetTime(choice.Time);
             }
         }
     }

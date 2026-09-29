@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using UFF.FichaAnestesica.Domain.Commands;
 using UFF.FichaAnestesica.Domain.Commands.PreAnesthesiaRecord;
 using UFF.FichaAnestesica.Domain.Entities;
+using UFF.FichaAnestesica.Domain.Helpers;
 using UFF.FichaAnestesica.Domain.Repositories;
 using UFF.FichaAnestesica.Domain.Response;
 using UFF.FichaAnestesica.Domain.Services;
@@ -10,17 +11,20 @@ public class PreAnesthesiaRecordService : IPreAnesthesiaRecordService
 {
     private readonly IPreAnesthesiaRecordRepository _preAnesthesiaRecordRepository;
     private readonly IAnesthesiaRecordRepository _anesthesiaRecordRepository;
+    private readonly IProcedureRepository _procedureRepository;
     private readonly ICurrentUserService _currentUserService;
     private readonly ILogger<PreAnesthesiaRecordService> _logger;
 
     public PreAnesthesiaRecordService(
         IPreAnesthesiaRecordRepository preAnesthesiaRecordRepository,
         IAnesthesiaRecordRepository anesthesiaRecordRepository,
+        IProcedureRepository procedureRepository,
         ICurrentUserService currentUserService,
         ILogger<PreAnesthesiaRecordService> logger)
     {
         _preAnesthesiaRecordRepository = preAnesthesiaRecordRepository;
         _anesthesiaRecordRepository = anesthesiaRecordRepository;
+        _procedureRepository = procedureRepository;
         _currentUserService = currentUserService;
         _logger = logger;
     }
@@ -71,6 +75,8 @@ public class PreAnesthesiaRecordService : IPreAnesthesiaRecordService
         {
             var record = PreAnesthesiaRecord.Create(command);
 
+            await ApplyOfficialProceduresAsync(anesthesiaRecord, command);
+
             await _preAnesthesiaRecordRepository.AddAsync(record);
             await _preAnesthesiaRecordRepository.SaveChangesAsync();
 
@@ -108,6 +114,8 @@ public class PreAnesthesiaRecordService : IPreAnesthesiaRecordService
             record.Update(command);
             _preAnesthesiaRecordRepository.Update(record);
 
+            await ApplyOfficialProceduresAsync(record.AnesthesiaRecord, command);
+
             await _preAnesthesiaRecordRepository.SaveChangesAsync();
 
             return CommandResult.Success(PreAnesthesiaRecordResponse.ToResponse(record));
@@ -117,6 +125,32 @@ public class PreAnesthesiaRecordService : IPreAnesthesiaRecordService
             _logger.LogError(ex, "Falha ao atualizar avaliação pré-anestésica {Id}", id);
             return CommandResult.Fail(ex.Message);
         }
+    }
+
+   
+    private async Task ApplyOfficialProceduresAsync(AnesthesiaRecord? anesthesiaRecord, PreAnesthesiaRecordCommand command)
+    {
+        if (anesthesiaRecord == null)
+            return;
+
+        var items = (command.Surgeries ?? new())
+            .Where(x => !string.IsNullOrWhiteSpace(x.ProcedureId))
+            .ToList();
+
+        if (!items.Any())
+            return;
+
+        var changed = ProcedureSelection.HasChanged(
+            items.Select(x => (x.ProcedureId, x.IsPrimary)),
+            command.BaseSurgeries?.Select(x => (x.ProcedureId, x.IsPrimary)));
+
+        if (!changed && anesthesiaRecord.ProceduresCustomized)
+            return;
+
+        var catalog = await _procedureRepository.GetByIdsAsync(items.Select(x => x.ProcedureId!)) ?? new();
+        var choices = AnesthesiaRecord.ResolveChoices(items.Select(x => (x.ProcedureId, x.IsPrimary, (string?)null)), catalog);
+
+        anesthesiaRecord.DefineProcedures(choices);
     }
 
     public async Task<CommandResult> Reopen(int anesthesiaRecordId)

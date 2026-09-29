@@ -35,6 +35,8 @@ namespace UFF.FichaAnestesica.Infra.Repositories
         {
             return await _context.PreAnesthesiaRecords
                 .Include(x => x.AnesthesiaRecord)
+                    .ThenInclude(x => x.Surgeries)
+                        .ThenInclude(x => x.Procedure)
                 .Include(x => x.SignedByProfessional)
                 .Include(x => x.Surgeries)
                 .Include(x => x.Comorbidities)
@@ -49,6 +51,8 @@ namespace UFF.FichaAnestesica.Infra.Repositories
             return await _context.PreAnesthesiaRecords
                 .AsNoTracking()
                 .Include(x => x.AnesthesiaRecord)
+                    .ThenInclude(x => x.Surgeries)
+                        .ThenInclude(x => x.Procedure)
                 .Include(x => x.SignedByProfessional)
                 .Include(x => x.Surgeries)
                 .Include(x => x.Comorbidities)

@@ -3,6 +3,7 @@ using UFF.FichaAnestesica.Domain.Commands.AnesthesiaRecord;
 using UFF.FichaAnestesica.Domain.Dto;
 using UFF.FichaAnestesica.Domain.Entities;
 using UFF.FichaAnestesica.Domain.Enums;
+using UFF.FichaAnestesica.Domain.Helpers;
 using UFF.FichaAnestesica.Domain.Repositories;
 using UFF.FichaAnestesica.Domain.Repositories.ReadOnly;
 using UFF.FichaAnestesica.Domain.Response;
@@ -79,15 +80,9 @@ public class AnesthesiaRecordService : IAnesthesiaRecordService
 
         try
         {
-            var procedureIds = command.Surgeries.Select(x => x.Id).ToList();
-
-            var procedures = await _procedureRepository.GetByIdsAsync(procedureIds);
-
             anesthesiaRecord.Update(command);
 
-            await _anesthesiaRecordRepository.RemoveProceduresAsync(id);
-
-            anesthesiaRecord.AddProcedures(command.Surgeries, procedures);
+            await ApplyOfficialProceduresAsync(anesthesiaRecord, command);
 
             if (command.Finalize)
             {
@@ -121,6 +116,28 @@ public class AnesthesiaRecordService : IAnesthesiaRecordService
             return CommandResult.Success(new { SurgeryId = anesthesiaRecord.Id, anesthesiaRecord.Status });
 
         return CommandResult.Success(AnesthesiaRecordResponse.ToResponse(anesthesiaRecord, patient));
+    }
+
+    private async Task ApplyOfficialProceduresAsync(AnesthesiaRecord anesthesiaRecord, AnesthesiaRecordCommand command)
+    {
+        var items = (command.Surgeries ?? [])
+            .Where(x => !string.IsNullOrWhiteSpace(x.Id))
+            .ToList();
+
+        if (!items.Any())
+            return;
+
+        var changed = ProcedureSelection.HasChanged(
+            items.Select(x => ((string?)x.Id, x.IsPrimary)),
+            command.BaseSurgeries?.Select(x => ((string?)x.Id, x.IsPrimary)));
+
+        if (!changed && anesthesiaRecord.ProceduresCustomized)
+            return;
+
+        var catalog = await _procedureRepository.GetByIdsAsync(items.Select(x => x.Id)) ?? [];
+        var choices = AnesthesiaRecord.ResolveChoices(items.Select(x => ((string?)x.Id, x.IsPrimary, (string?)x.Time)), catalog);
+
+        anesthesiaRecord.DefineProcedures(choices);
     }
 
     public async Task<CommandResult> Reopen(int id)

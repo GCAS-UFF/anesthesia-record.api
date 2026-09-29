@@ -5,6 +5,7 @@ using UFF.FichaAnestesica.Domain.Dto;
 using UFF.FichaAnestesica.Domain.Entities;
 using UFF.FichaAnestesica.Domain.Enums;
 using UFF.FichaAnestesica.Domain.Extensions;
+using UFF.FichaAnestesica.Domain.Helpers;
 using UFF.FichaAnestesica.Domain.Repositories;
 using UFF.FichaAnestesica.Domain.Repositories.ReadOnly;
 using UFF.FichaAnestesica.Domain.Response;
@@ -20,14 +21,16 @@ namespace UFF.FichaAnestesica.Service.Services
         private readonly IAnesthesiaRecordRepository _anesthesiaRecordRepository;
         private readonly IMonitoringRecordRepository _monitoringRecordRepository;
         private readonly IPreAnesthesiaRecordRepository _preAnesthesiaRecordRepository;
+        private readonly IProcedureRepository _procedureRepository;
 
-        public SurgeryService(IUserRepository userRepository, IPatientReadOnlyRepository hospitalApiRepository, IAnesthesiaRecordRepository anesthesiaRecordRepository, IMonitoringRecordRepository monitoringRecordRepository, IPreAnesthesiaRecordRepository preAnesthesiaRecordRepository)
+        public SurgeryService(IUserRepository userRepository, IPatientReadOnlyRepository hospitalApiRepository, IAnesthesiaRecordRepository anesthesiaRecordRepository, IMonitoringRecordRepository monitoringRecordRepository, IPreAnesthesiaRecordRepository preAnesthesiaRecordRepository, IProcedureRepository procedureRepository)
         {
             _userRepository = userRepository;
             _hospitalApiRepository = hospitalApiRepository;
             _anesthesiaRecordRepository = anesthesiaRecordRepository;
             _monitoringRecordRepository = monitoringRecordRepository;
             _preAnesthesiaRecordRepository = preAnesthesiaRecordRepository;
+            _procedureRepository = procedureRepository;
         }
 
         public async Task<CommandResult> GetPatientsWithSurgeriesAsync(int doctorId, DateTime? date, string term, SurgeryStatusEnum? status, int page = 1, int size = 10)
@@ -176,8 +179,19 @@ namespace UFF.FichaAnestesica.Service.Services
             return effectiveStatusBySurgeryId;
         }
 
+    
         private async Task AssociateSurgeryProcedures(PagedResponse<PatientDetailDto> hospitalData, Dictionary<int, AnesthesiaRecord> recordsBySurgeryId)
         {
+            var externalIds = hospitalData.Data
+                .SelectMany(x => x.Procedures ?? [])
+                .Select(x => x.ExternalId.ToString())
+                .Distinct()
+                .ToList();
+
+            var catalog = (await _procedureRepository.GetByIdsAsync(externalIds) ?? [])
+                .GroupBy(x => x.ExternalId)
+                .ToDictionary(x => x.Key, x => x.First());
+
             foreach (var surgery in hospitalData.Data)
             {
                 if (!recordsBySurgeryId.TryGetValue(surgery.SurgeryId, out var record))
@@ -197,22 +211,17 @@ namespace UFF.FichaAnestesica.Service.Services
                 if (record.ProceduresCustomized)
                     continue;
 
-                var aghuProcedures = surgery.Procedures ?? [];
-                var aghuById = aghuProcedures.ToDictionary(x => x.ExternalId);
-                var relationsToRemove = record.Surgeries.Where(x => !aghuById.ContainsKey(x.ProcedureId)).ToList();
+                // O AGHU identifica o procedimento pelo id externo; a relação usa o id local do catálogo.
+                // Procedimento ainda não importado no catálogo fica de fora até a próxima sincronização.
+                var choices = (surgery.Procedures ?? [])
+                    .Where(x => catalog.ContainsKey(x.ExternalId.ToString()))
+                    .Select(x => new ProcedureChoice(catalog[x.ExternalId.ToString()], x.IsPrimary, x.Time))
+                    .ToList();
 
-                foreach (var relation in relationsToRemove)
-                    record.Surgeries.Remove(relation);
+                if (!choices.Any() && surgery.Procedures?.Any() == true)
+                    continue;
 
-                foreach (var procedure in aghuProcedures)
-                {
-                    var relation = record.Surgeries.FirstOrDefault(x => x.ProcedureId == procedure.ExternalId);
-
-                    if (relation == null)
-                        record.Surgeries.Add(AnesthesiaRecordSurgery.Create(record.Id, procedure.ExternalId, procedure.IsPrimary, procedure.Time));
-                    else
-                        relation.SetPrimary(procedure.IsPrimary);
-                }
+                record.SyncProceduresFromAghu(choices);
             }
         }
 
@@ -420,7 +429,7 @@ namespace UFF.FichaAnestesica.Service.Services
                     .ExistsByAnesthesiaRecordIdAsync(surgeryId);
 
             return CommandResult.Success(PatientResponseMapper.MapDetail(patient, anesthesiaRecord?.FirstAnesthesiologist, anesthesiaRecord?.SecondAnesthesiologist,
-                 anesthesiaRecord?.Surgeon, anesthesiaRecord?.Assistant, isPreAnesthesiaRecordDone));
+                 anesthesiaRecord?.Surgeon, anesthesiaRecord?.Assistant, isPreAnesthesiaRecordDone, anesthesiaRecord));
         }
 
         public async Task<CommandResult> AssumePatientAsync(string patientId, int surgeryId, int? responsibleAnesthesiologistId)

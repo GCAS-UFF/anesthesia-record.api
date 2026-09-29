@@ -21,19 +21,19 @@ namespace UFF.FichaAnestesica.Service.Mappers
 
                 List<ProcedureResponse> procedures;
 
-                if (record != null && record.Surgeries.Any() && record.ProceduresCustomized)
+                // Mesma regra da ficha anestésica e da pré-anestésica: o procedimento definido pelo
+                // médico no SIGA prevalece; sem ele, vale o agendamento do AGHU.
+                if (record != null && record.HasOfficialProcedures)
                 {
                     procedures = record.Surgeries
                         .OrderByDescending(x => x.IsPrimary)
-                        .Select(s =>
+                        .Select(s => new ProcedureResponse
                         {
-                            return new ProcedureResponse
-                            {
-                                Id = s.ProcedureId.ToString(),
-                                Description = record.Surgeries.FirstOrDefault(x => x.ProcedureId == s.ProcedureId).Procedure.Description,
-                                Cid = record.Surgeries.FirstOrDefault(x => x.ProcedureId == s.ProcedureId).Procedure.Cid,
-                                IsPrimary = record.Surgeries.FirstOrDefault(x => x.ProcedureId == s.ProcedureId).IsPrimary
-                            };
+                            Id = s.Procedure?.ExternalId ?? s.ProcedureId.ToString(),
+                            Description = s.Procedure?.Description,
+                            Cid = s.Procedure?.Cid,
+                            IsPrimary = s.IsPrimary,
+                            Time = s.Time
                         })
                         .ToList();
                 }
@@ -77,11 +77,37 @@ namespace UFF.FichaAnestesica.Service.Mappers
             return patientsList;
         }
 
-        public static PatientSurgeryResponse MapDetail(PatientDetailDto patient, User? firstAnesthesiologist, User? secondAnesthesiologist, User? surgeon, User? assistant, bool isPreAnesthesiaRecordDone)
+        public static PatientSurgeryResponse MapDetail(PatientDetailDto patient, User? firstAnesthesiologist, User? secondAnesthesiologist, User? surgeon, User? assistant, bool isPreAnesthesiaRecordDone, AnesthesiaRecord? record = null)
         {
             if (patient == null)
                 return null;
 
+            var response = BuildDetail(patient, firstAnesthesiologist, secondAnesthesiologist, surgeon, assistant, isPreAnesthesiaRecordDone);
+
+            // Procedimento oficial do SIGA substitui o do AGHU apenas na cirurgia desta ficha.
+            if (record != null && record.HasOfficialProcedures)
+            {
+                var official = record.Surgeries
+                    .OrderByDescending(x => x.IsPrimary)
+                    .Select(s => new ProcedureResponse
+                    {
+                        Id = s.Procedure?.ExternalId ?? s.ProcedureId.ToString(),
+                        Description = s.Procedure?.Description,
+                        Cid = s.Procedure?.Cid,
+                        IsPrimary = s.IsPrimary,
+                        Time = s.Time
+                    })
+                    .ToList();
+
+                foreach (var surgery in response.Surgeries.Where(x => x.Id == record.Id))
+                    surgery.Procedures = official;
+            }
+
+            return response;
+        }
+
+        private static PatientSurgeryResponse BuildDetail(PatientDetailDto patient, User? firstAnesthesiologist, User? secondAnesthesiologist, User? surgeon, User? assistant, bool isPreAnesthesiaRecordDone)
+        {
             return new PatientSurgeryResponse
             {
                 SurgeryId = patient.SurgeryId,

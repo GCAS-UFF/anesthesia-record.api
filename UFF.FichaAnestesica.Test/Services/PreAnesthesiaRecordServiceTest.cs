@@ -30,6 +30,7 @@ namespace UFF.FichaAnestesica.Test.Services
             _service = new PreAnesthesiaRecordService(
                 _preAnesthesiaRepoMock.Object,
                 _anesthesiaRepoMock.Object,
+                new Mock<IProcedureRepository>().Object,
                 _currentUserServiceMock.Object,
                 NullLogger<PreAnesthesiaRecordService>.Instance);
         }

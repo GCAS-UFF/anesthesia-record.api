@@ -139,7 +139,7 @@ namespace UFF.FichaAnestesica.Domain.Response
                 PatientId = entity.AnesthesiaRecord?.PatientId ?? string.Empty,
                 FirstAnesthesiologistId = entity.AnesthesiaRecord?.FirstAnesthesiologistId,
 
-                Surgeries = entity.Surgeries.Select(PreAnesthesiaSurgeryResponse.ToResponse).ToList(),
+                Surgeries = PreAnesthesiaSurgeryResponse.FromRecord(entity),
                 Laterality = entity.Laterality?.ToString(),
                 PreOperativeDiagnosis = entity.PreOperativeDiagnosis,
                 ConsultationDate = entity.ConsultationDate?.ToString("yyyy-MM-dd"),

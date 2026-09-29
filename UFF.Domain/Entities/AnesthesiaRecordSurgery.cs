@@ -27,6 +27,13 @@ public class AnesthesiaRecordSurgery
         };
     }
 
+    public static AnesthesiaRecordSurgery Create(int anesthesiaRecordId, Procedure procedure, bool isPrimary, TimeOnly? time)
+    {
+        var relation = Create(anesthesiaRecordId, procedure.Id, isPrimary, time);
+        relation.Procedure = procedure;
+        return relation;
+    }
+
     public void SetPrimary(bool primary)
     {
         IsPrimary = primary;

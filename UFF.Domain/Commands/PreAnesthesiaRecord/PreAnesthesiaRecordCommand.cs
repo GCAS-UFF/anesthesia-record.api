@@ -8,6 +8,8 @@ namespace UFF.FichaAnestesica.Domain.Commands.PreAnesthesiaRecord
 
         #region Procedimento
         public List<PreAnesthesiaSurgeryCommand> Surgeries { get; set; } = new();
+               
+        public List<PreAnesthesiaSurgeryCommand>? BaseSurgeries { get; set; }
         public string? Laterality { get; set; }
         public string? PreOperativeDiagnosis { get; set; }
         public string? ConsultationDate { get; set; }
@@ -124,18 +126,12 @@ namespace UFF.FichaAnestesica.Domain.Commands.PreAnesthesiaRecord
     }
 
     public class PreAnesthesiaSurgeryCommand
-    {
+    {        
+        public string? ProcedureId { get; set; }
         public string Name { get; set; } = string.Empty;
         public bool IsPrimary { get; set; }
     }
-
-    /// <summary>
-    /// Usado tanto para um item de Comorbidities quanto de PhysicalExamAreas
-    /// — no frontend, os dois campos são exatamente o mesmo formato
-    /// (Record&lt;string, PreAnesthesicChecklistFinding&gt;), só a lista de
-    /// chaves de grupo válidas muda (COMORBIDITY_GROUPS x
-    /// PHYSICAL_EXAM_GROUPS).
-    /// </summary>
+  
     public class PreAnesthesiaChecklistGroupCommand
     {
         public string GroupKey { get; set; } = string.Empty;

@@ -30,7 +30,8 @@ namespace UFF.FichaAnestesica.Test.Services
                 _hospitalApiRepoMock.Object,
                 _anesthesiaRepoMock.Object,
                 _monitoringRepoMock.Object,
-                _preAnesthesiaRepoMock.Object);
+                _preAnesthesiaRepoMock.Object,
+                new Mock<IProcedureRepository>().Object);
         }
 
         [Fact]

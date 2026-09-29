@@ -70,6 +70,8 @@ namespace UFF.FichaAnestesica.Infra.Repositories
         {
             return await _context.AnesthesiaRecords
                 .Include(x => x.FirstAnesthesiologist)
+                .Include(x => x.Surgeries)
+                    .ThenInclude(x => x.Procedure)
                 .Where(x => x.FirstAnesthesiologistId == doctorId && (!date.HasValue || x.SurgeryDate == date))
                 .OrderBy(x => x.Status == SurgeryStatusEnum.InProgress ? 0 :
                               x.Status == SurgeryStatusEnum.Preparing ? 1 :
@@ -84,6 +86,8 @@ namespace UFF.FichaAnestesica.Infra.Repositories
         {
             var query = _context.AnesthesiaRecords
                 .Include(x => x.FirstAnesthesiologist)
+                .Include(x => x.Surgeries)
+                    .ThenInclude(x => x.Procedure)
                 .Where(x => x.FirstAnesthesiologistId == doctorId && (!date.HasValue || x.SurgeryDate == date));
 
             var totalItems = await query.CountAsync();

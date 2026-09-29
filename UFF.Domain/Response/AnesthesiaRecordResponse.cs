@@ -172,9 +172,9 @@ namespace UFF.FichaAnestesica.Domain.Response
 
         public static AnesthesiaRecordResponse ToResponse(AnesthesiaRecord anesthesiaRecord, PatientDetailDto patientDetail)
         {
-            var proceduresFromRecord = anesthesiaRecord.ProceduresCustomized && anesthesiaRecord.Surgeries.Any();
+            var proceduresFromRecord = anesthesiaRecord.HasOfficialProcedures;
             var surgeries = proceduresFromRecord ?
-             BuildProceduresFromRecord(anesthesiaRecord) : patientDetail.Surgeries?.Select(MapSurgery).ToList() ?? [];
+             BuildProceduresFromRecord(anesthesiaRecord, patientDetail) : BuildProceduresFromAghu(anesthesiaRecord, patientDetail);
 
             return new AnesthesiaRecordResponse
             {
@@ -418,27 +418,38 @@ namespace UFF.FichaAnestesica.Domain.Response
             };
         }
 
-        private static List<SurgeryResponse> BuildProceduresFromRecord(AnesthesiaRecord record)
+    
+        private static List<SurgeryResponse> BuildProceduresFromRecord(AnesthesiaRecord record, PatientDetailDto? patientDetail)
         {
-            return new List<SurgeryResponse>
-            {
-                new SurgeryResponse
+            var aghuSurgery = patientDetail?.Surgeries?.FirstOrDefault(s => s.Id == record.Id);
+            var surgery = aghuSurgery != null
+                ? MapSurgery(aghuSurgery)
+                : new SurgeryResponse { Id = record.Id, SurgeryDate = record.SurgeryDate };
+
+            surgery.Status = record.Status;
+
+            surgery.Procedures = record.Surgeries
+                .OrderByDescending(p => p.IsPrimary)
+                .Select(p => new ProcedureResponse
                 {
-                    Id = record.Id,
-                    SurgeryDate = record.SurgeryDate,
-                    Status = record.Status,
-                    Procedures = record.Surgeries
-                        .Select(p => new ProcedureResponse
-                        {
-                            Id = p.Procedure.ExternalId,
-                            Description = p.Procedure?.Description,
-                            Cid = p.Procedure?.Cid,
-                            IsPrimary = p.IsPrimary,
-                            Time = p.Time
-                        })
-                        .ToList()
-                }
-            };
+                    Id = p.Procedure?.ExternalId,
+                    Description = p.Procedure?.Description,
+                    Cid = p.Procedure?.Cid,
+                    IsPrimary = p.IsPrimary,
+                    Time = p.Time
+                })
+                .ToList();
+
+            return new List<SurgeryResponse> { surgery };
+        }
+
+    
+        private static List<SurgeryResponse> BuildProceduresFromAghu(AnesthesiaRecord record, PatientDetailDto patientDetail)
+        {
+            var surgeries = patientDetail?.Surgeries ?? [];
+            var current = surgeries.Where(s => s.Id == record.Id).ToList();
+
+            return (current.Any() ? current : surgeries).Select(MapSurgery).ToList();
         }
 
         private static SurgeryResponse MapSurgery(SurgeryDetailsDto surgery)
