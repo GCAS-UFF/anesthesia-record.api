@@ -18,9 +18,12 @@ namespace UFF.FichaAnestesica.Job
             services.AddScoped<IMedicineApiService, MedicineApiService>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IDrugRepository, DrugRepository>();
+            services.AddScoped<IProcedureRepository, ProcedureRepository>();
 
             services.AddScoped<IProfessionalReadOnlyRepository, ProfessionalReadOnlyRepository>();
             services.AddScoped<IMedicineReadOnlyRepository, MedicineReadOnlyRepository>();
+            services.AddScoped<IProcedureReadOnlyRepository, ProcedureReadOnlyRepository>();
+
             services.AddScoped<IHealthReadOnlyRepository, HealthReadOnlyRepository>();
 
             var hospitalApiUrl = configuration["HospitalApi:BaseUrl"];
